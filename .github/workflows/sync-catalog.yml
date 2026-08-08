@@ -1,0 +1,71 @@
+name: Sync catalog from Google Sheet
+
+# Reads the sheet, rewrites data/catalog.js, and commits it if anything
+# changed. Then publishes, so the live site matches the sheet.
+#
+# The sheet must be shared as "Anyone with the link can view" — GitHub's
+# servers aren't signed into your Google account.
+
+on:
+  schedule:
+    - cron: '17 */6 * * *'   # every 6 hours, at :17 (off the busy o'clock)
+  workflow_dispatch:          # "Run workflow" button in the Actions tab
+
+permissions:
+  contents: write   # needed to commit the regenerated catalog
+  pages: write
+  id-token: write
+
+concurrency:
+  group: sync-catalog
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.commit.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Read the sheet and rewrite data/catalog.js
+        run: node tools/sync-catalog.mjs
+
+      - name: Commit if it actually changed
+        id: commit
+        run: |
+          if git diff --quiet -- data/catalog.js; then
+            echo "catalog is already up to date"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git config user.name  "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add data/catalog.js
+            git commit -m "sync catalog from google sheet"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  # A push made with GITHUB_TOKEN deliberately does NOT trigger other
+  # workflows, so deploy.yml won't fire on its own. Publish here instead.
+  publish:
+    needs: sync
+    if: needs.sync.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - id: deployment
+        uses: actions/deploy-pages@v4
