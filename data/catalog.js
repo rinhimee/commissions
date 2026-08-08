@@ -10,40 +10,77 @@
 window.SONGS = [
   {
     id: 1,
+    title: "A New Start",
+    artist: "Nanashi Mumei",
+    language: ["EN", "JP"],
+    harmony: {
+      complexity: "simple",
+      tracks: 5,
+      yt: "IGq7SX8Xr0Q"
+    },
+    arrangements: []
+  },
+  {
+    id: 2,
+    title: "Affection Addiction",
+    artist: "KAT x Aku P",
+    language: "JP",
+    harmony: {
+      complexity: "simple",
+      tracks: 8
+    },
+    arrangements: []
+  },
+  {
+    id: 3,
     title: "Ah, It's A Wonderful Cat's Life",
     artist: "Nem",
     language: "JP",
     harmony: null,
     arrangements: [
       {
-        complexity: "semi-complex",
+        complexity: "simple",
+        tracks: 6,
         client: "Pippa Pipkin & Tenma Maemi (Phase Connect)",
         yt: "IWN_qnDpFA4"
       }
     ]
   },
   {
-    id: 2,
+    id: 4,
     title: "Ai Scream!",
     artist: "AiScReam",
     language: "JP",
     harmony: {
-      complexity: "simple"
+      complexity: "simple",
+      tracks: 9
     },
     arrangements: []
   },
   {
-    id: 3,
+    id: 5,
+    title: "BIBBIDIBA",
+    artist: "Hoshimachi Suisei",
+    language: "JP",
+    harmony: {
+      complexity: "simple",
+      tracks: 3
+    },
+    arrangements: []
+  },
+  {
+    id: 6,
     title: "Birds Of Time",
     artist: "Enna Alouette",
     language: "EN",
     harmony: {
-      complexity: "complex"
+      complexity: "complex",
+      yt: "h2LykwboxbU"
     },
     arrangements: []
   },
   {
-    id: 4,
+    id: 7,
     title: "Bow and Arrow",
     artist: "Kenshi Yonezu",
     language: "JP",
@@ -59,39 +96,179 @@ window.SONGS = [
     ]
   },
   {
-    id: 5,
+    id: 8,
+    title: "Cendrillon",
+    artist: "Signal-P",
+    language: "JP",
+    harmony: {
+      complexity: "simple",
+      tracks: 2
+    },
+    arrangements: []
+  },
+  {
+    id: 9,
     title: "check",
     artist: "bbno$",
     language: "EN",
     harmony: null,
     arrangements: [
       {
-        complexity: "simple"
+        complexity: "simple",
+        tracks: 11
       }
     ]
   },
   {
-    id: 6,
+    id: 10,
     title: "Cherry Pop",
     artist: "DECO*27",
     language: "JP",
     harmony: {
-      complexity: "simple"
+      complexity: "simple",
+      tracks: 8
     },
     arrangements: []
   },
   {
-    id: 7,
+    id: 11,
     title: "Come Play",
     artist: "Stray Kids, Young Miko, and Tom Morello / Arcane",
     language: ["ES", "EN", "KR"],
     harmony: {
-      complexity: "simple"
+      complexity: "simple",
+      tracks: 8
     },
     arrangements: []
   },
   {
-    id: 8,
+    id: 12,
+    title: "Crazy For You",
+    artist: "Marina Saito",
+    language: "JP",
+    harmony: {
+      complexity: "simple",
+      yt: "woN_7KH4ugg"
+    },
+    arrangements: []
+  },
+  {
+    id: 13,
+    title: "Cure (ver. MiziSua)",
+    artist: "VIVINOS / Alien Stage",
+    language: "KR",
+    harmony: {
+      complexity: "simple",
+      tracks: 3
+    },
+    arrangements: []
+  },
+  {
+    id: 14,
+    title: "DISTLAND EXPLORE",
+    artist: "netuki",
+    language: "JP",
+    harmony: {
+      complexity: "semi-complex",
+      tracks: 5
+    },
+    arrangements: []
+  },
+  {
+    id: 15,
+    title: "Espresso",
+    artist: "Sabrina Carpenter",
+    language: "EN",
+    harmony: {
+      complexity: "complex",
+      tracks: 17,
+      yt: "LridnPilMKA"
+    },
+    arrangements: []
+  },
+  {
+    id: 16,
+    title: "Ethyria",
+    artist: "Enna Alouette",
+    language: ["EN", "JP"],
+    harmony: {
+      complexity: "complex",
+      tracks: 8
+    },
+    arrangements: []
+  },
+  {
+    id: 17,
+    title: "Everything Goes On",
+    artist: "Porter Robinson",
+    language: "EN",
+    harmony: null,
+    arrangements: [
+      {
+        complexity: "complex",
+        tracks: 18,
+        client: "Phase SAGA",
+        yt: "wuaUUurUsV0"
+      }
+    ]
+  },
+  {
+    id: 18,
+    title: "Final Bow",
+    artist: "Bao The Whale",
+    language: "EN",
+    harmony: {
+      complexity: "semi-complex",
+      tracks: 11
+    },
+    arrangements: []
+  },
+  {
+    id: 19,
+    title: "FOCUS",
+    artist: "KIRA",
+    language: ["JP", "EN"],
+    harmony: {
+      complexity: "complex",
+      tracks: 16
+    },
+    arrangements: []
+  },
+  {
+    id: 20,
+    title: "Golden",
+    artist: "HUNTR/X / KPop Demon Hunters",
+    language: ["EN", "KR"],
+    harmony: {
+      complexity: "semi-complex",
+      tracks: 12
+    },
+    arrangements: []
+  },
+  {
+    id: 21,
+    title: "HOT",
+    artist: "LE SSERAFIM",
+    language: ["KR", "EN"],
+    harmony: {
+      complexity: "simple",
+      tracks: 7
+    },
+    arrangements: []
+  },
+  {
+    id: 22,
+    title: "I AM",
+    artist: "IVE",
+    language: ["KR", "EN"],
+    harmony: {
+      complexity: "simple",
+      tracks: 7
+    },
+    arrangements: []
+  },
+  {
+    id: 23,
     title: "I Really Want To Stay At Your House",
     artist: "Rosa Walton / Cyberpunk 2077",
     language: "EN",
@@ -99,32 +276,99 @@ window.SONGS = [
     arrangements: [
       {
         complexity: "simple",
+        tracks: 9,
+        client: "Amanogawa Shiina (Phase Connect)",
         yt: "UA4P9pZOuHQ"
       }
     ]
   },
   {
-    id: 9,
+    id: 24,
+    title: "Know About Me",
+    artist: "NMIXX",
+    language: ["KR", "EN"],
+    harmony: {
+      complexity: "semi-complex",
+      tracks: 12
+    },
+    arrangements: []
+  },
+  {
+    id: 25,
     title: "Kono Yoru Ni Kanpai",
     artist: "Megatera Zero",
     language: "JP",
     harmony: {
-      complexity: "semi-complex"
+      complexity: "semi-complex",
+      yt: "Yud7uRxc3lU"
     },
     arrangements: []
   },
   {
-    id: 10,
+    id: 26,
+    title: "Let Me Be With You",
+    artist: "Round Table",
+    language: "JP",
+    harmony: null,
+    arrangements: [
+      {
+        complexity: "complex",
+        tracks: 18,
+        client: "Runie Ruse & Remilia Nephys (Phase Connect)"
+      }
+    ]
+  },
+  {
+    id: 27,
     title: "Like A Sunny Day, Like A Rainy Day",
     artist: "Silence Wang",
     language: "CN",
     harmony: {
-      complexity: "semi-complex"
+      complexity: "semi-complex",
+      tracks: 10
     },
     arrangements: []
   },
   {
-    id: 11,
+    id: 28,
+    title: "Lover Girl",
+    artist: "Laufey",
+    language: "EN",
+    harmony: null,
+    arrangements: [
+      {
+        complexity: "semi-complex",
+        client: "jelly ft. Lan Philia (Aegis-Link)",
+        yt: "j6Xqlnn-LGc"
+      }
+    ]
+  },
+  {
+    id: 29,
+    title: "Mekurumeku Rendezvous",
+    artist: "FUWAMOCO",
+    language: "JP",
+    harmony: {
+      complexity: "simple",
+      tracks: 3
+    },
+    arrangements: []
+  },
+  {
+    id: 30,
+    title: "My Favorite Things",
+    artist: "ver. Big Band Chorus",
+    language: "EN",
+    harmony: null,
+    arrangements: [
+      {
+        complexity: "complex",
+        client: "markus and friends!"
+      }
+    ]
+  },
+  {
+    id: 31,
     title: "Risk It All",
     artist: "Bruno Mars",
     language: "EN",
@@ -136,7 +380,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 12,
+    id: 32,
     title: "Shoujo Rei",
     artist: "mikitoP",
     language: "JP",
@@ -146,29 +390,92 @@ window.SONGS = [
     arrangements: [
       {
         complexity: "simple",
+        client: "rin姫",
         yt: "QLo9oX39h00"
       }
     ]
   },
   {
-    id: 13,
+    id: 33,
     title: "Soda Pop",
-    artist: "Saja Boys / K-Pop Demon Hunters",
+    artist: "Saja Boys / KPop Demon Hunters",
     language: ["KR", "EN"],
     harmony: {
-      complexity: "semi-complex"
+      complexity: "complex",
+      tracks: 16
     },
     arrangements: []
   },
   {
-    id: 14,
+    id: 34,
     title: "The Cruel Angel's Thesis",
     artist: "Yoko Takahashi",
     language: "JP",
     harmony: {
-      complexity: "semi-complex"
+      complexity: "semi-complex",
+      tracks: 6
     },
     arrangements: []
+  },
+  {
+    id: 35,
+    title: "The Fate Of Ophelia",
+    artist: "Taylor Swift",
+    language: "EN",
+    harmony: {
+      complexity: "complex",
+      tracks: 13
+    },
+    arrangements: []
+  },
+  {
+    id: 36,
+    title: "Tipsy",
+    artist: "Wanuka",
+    language: "JP",
+    harmony: {
+      complexity: "semi-complex",
+      yt: "tm84vBHeDx8"
+    },
+    arrangements: []
+  },
+  {
+    id: 37,
+    title: "What Is This Feeling",
+    artist: "Wicked",
+    language: "EN",
+    harmony: {
+      complexity: "simple",
+      tracks: 4,
+      yt: "SLvQrPM1mvc"
+    },
+    arrangements: []
+  },
+  {
+    id: 38,
+    title: "Widflower",
+    artist: "Billie Eilish",
+    language: "EN",
+    harmony: {
+      complexity: "complex",
+      tracks: 14
+    },
+    arrangements: []
+  },
+  {
+    id: 39,
+    title: "Worlders",
+    artist: "Jin / Project SEKAI",
+    language: "EN",
+    harmony: null,
+    arrangements: [
+      {
+        complexity: "complex",
+        tracks: 24,
+        client: "filet germignon",
+        yt: "xqF1GGNBP2M"
+      }
+    ]
   }
 ];
 
