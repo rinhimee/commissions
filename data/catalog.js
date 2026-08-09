@@ -43,6 +43,8 @@ window.SONGS = [
       {
         complexity: "simple",
         tracks: 6,
+        complexity: "simple",
+        tracks: 6,
         client: "Pippa Pipkin & Tenma Maemi (Phase Connect)",
         yt: "IWN_qnDpFA4",
         audio: "audio/ah-its-a-wonderful-cats-life-1.mp3"
@@ -50,6 +52,7 @@ window.SONGS = [
     ]
   },
   {
+    id: 4,
     id: 4,
     title: "Ai Scream!",
     artist: "AiScReam",
@@ -75,16 +78,20 @@ window.SONGS = [
   },
   {
     id: 6,
+    id: 6,
     title: "Birds Of Time",
     artist: "Enna Alouette",
     language: "EN",
     harmony: {
       complexity: "complex",
       yt: "h2LykwboxbU"
+      complexity: "complex",
+      yt: "h2LykwboxbU"
     },
     arrangements: []
   },
   {
+    id: 7,
     id: 7,
     title: "Bow and Arrow",
     artist: "Kenshi Yonezu",
@@ -122,10 +129,13 @@ window.SONGS = [
       {
         complexity: "simple",
         tracks: 11
+        complexity: "simple",
+        tracks: 11
       }
     ]
   },
   {
+    id: 10,
     id: 10,
     title: "Cherry Pop",
     artist: "DECO*27",
@@ -138,6 +148,7 @@ window.SONGS = [
     arrangements: []
   },
   {
+    id: 11,
     id: 11,
     title: "Come Play",
     artist: "Stray Kids, Young Miko, and Tom Morello / Arcane",
@@ -285,6 +296,7 @@ window.SONGS = [
   },
   {
     id: 23,
+    id: 23,
     title: "I Really Want To Stay At Your House",
     artist: "Rosa Walton / Cyberpunk 2077",
     language: "EN",
@@ -317,6 +329,8 @@ window.SONGS = [
     artist: "Megatera Zero",
     language: "JP",
     harmony: {
+      complexity: "semi-complex",
+      yt: "Yud7uRxc3lU"
       complexity: "semi-complex",
       yt: "Yud7uRxc3lU"
     },
@@ -421,6 +435,7 @@ window.SONGS = [
   {
     id: 33,
     title: "Soda Pop",
+    artist: "Saja Boys / KPop Demon Hunters",
     artist: "Saja Boys / KPop Demon Hunters",
     language: ["KR", "EN"],
     harmony: {
