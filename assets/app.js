@@ -37,12 +37,6 @@
   function langShort(code) { return (LANGS[code] && LANGS[code].short) || String(code).toUpperCase(); }
 
   /* "semi-complex" or "semi-complex • 11 tracks" */
-  function metaLine(entry) {
-    var out = entry.complexity || '';
-    if (entry.tracks) out += (out ? ' • ' : '') + entry.tracks + ' tracks';
-    return out;
-  }
-
   /* flag + short code, e.g.  🇯🇵 JP  — the flag needs its own span so the
      emoji webfont applies to it and only it. */
   /* a song can be in more than one language: "KR, EN" or ["KR","EN"] */
@@ -73,6 +67,7 @@
     query: '',
     lang: [],          // [] = no filter; otherwise a list of language codes
     type: [],          // [] = no filter; otherwise 'harmony' / 'arrangement'
+    cx:   [],          // [] = no filter; otherwise complexity strings
 
     modal: null,        // null | 'song' | 'custom'
     song: null,         // the song object when modal === 'song'
@@ -81,8 +76,8 @@
 
     form: {
       song: '', artist: '',
-      type: 'harmony',
-      melody: 'partial',
+      type: 'harmony',      // 1:1 harmony guide
+      melody: 'none',
       addons: [],
       deadline: '', contact: '',
       range: '', budget: '', complexity: '', notes: ''
@@ -94,7 +89,7 @@
 
   function blankForm() {
     return {
-      song: '', artist: '', type: 'harmony', melody: 'partial', addons: [],
+      song: '', artist: '', type: 'harmony', melody: 'none', addons: [],
       deadline: '', contact: '', range: '', budget: '', complexity: '', notes: ''
     };
   }
@@ -256,8 +251,24 @@
      native selects can't do checkboxes, can't be styled on Windows,
      and render their popup as a detached grey rectangle.           */
 
+  /* every entry a song has, flattened, so the type and complexity filters can
+     be reasoned about together */
+  function entriesOf(song) {
+    var out = [];
+    if (song.harmony) out.push({ kind: 'harmony', cx: song.harmony.complexity });
+    (song.arrangements || []).forEach(function (a) {
+      out.push({ kind: 'arrangement', cx: a.complexity });
+    });
+    return out;
+  }
+
+  function cxClass(c) {
+    return String(c || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  }
+
   var DD = {
     lang: { allLabel: 'all languages', noun: 'languages', options: [] },
+    cx:   { allLabel: 'all complexities', noun: 'complexities', options: [] },
     type: {
       allLabel: 'all guide types', noun: 'guide types',
       options: [
@@ -278,7 +289,26 @@
       return { value: code, text: langName(code), chip: langChip(code) };
     });
 
+    /* complexity options come from the data, in the order they first appear
+       when sorted simple -> complex where we can tell */
+    var order = ['simple', 'semi-complex', 'complex'];
+    var found = [];
+    SONGS.forEach(function (s) {
+      entriesOf(s).forEach(function (e) {
+        if (e.cx && found.indexOf(e.cx) === -1) found.push(e.cx);
+      });
+    });
+    found.sort(function (a, b) {
+      var ia = order.indexOf(a), ib = order.indexOf(b);
+      if (ia === -1 && ib === -1) return a.localeCompare(b);
+      if (ia === -1) return 1;
+      if (ib === -1) return -1;
+      return ia - ib;
+    });
+    DD.cx.options = found.map(function (c) { return { value: c, text: c }; });
+
     renderDropdown('lang');
+    renderDropdown('cx');
     renderDropdown('type');
   }
 
@@ -331,6 +361,13 @@
     wrap.classList.add('is-open');
     var t = $('.dd__trigger', wrap); if (t) t.setAttribute('aria-expanded', 'true');
     var pn = $('.dd__panel', wrap);  if (pn) pn.hidden = false;
+
+    /* the panel's top-right corner may only be rounded when it actually
+       overhangs the trigger, otherwise the curve notches the right stroke */
+    if (t && pn) {
+      var over = pn.getBoundingClientRect().width - t.getBoundingClientRect().width;
+      wrap.classList.toggle('is-wide', over > 1);
+    }
   }
 
   function anyDropdownOpen() { return !!$('.dd.is-open'); }
@@ -344,13 +381,16 @@
       if (!langHit) return false;
     }
 
+    /* Type and complexity are checked against the SAME entry, so
+       "harmony guide" + "complex" means a song with a complex harmony guide —
+       not a song with a simple harmony and a complex arrangement. */
+    var ents = entriesOf(song);
     if (state.type.length) {
-      var okType = state.type.some(function (t) {
-        if (t === 'harmony')     return !!song.harmony;
-        if (t === 'arrangement') return (song.arrangements || []).length > 0;
-        return false;
-      });
-      if (!okType) return false;
+      ents = ents.filter(function (e) { return state.type.indexOf(e.kind) !== -1; });
+      if (!ents.length) return false;
+    }
+    if (state.cx.length) {
+      if (!ents.some(function (e) { return state.cx.indexOf(e.cx) !== -1; })) return false;
     }
     return true;
   }
@@ -367,7 +407,8 @@
       count.textContent = visible.length + (visible.length === 1 ? ' song' : ' songs');
     }
     if (reset) {
-      reset.hidden = (state.query === '' && !state.lang.length && !state.type.length);
+      reset.hidden = (state.query === '' && !state.lang.length &&
+                      !state.type.length && !state.cx.length);
     }
 
     if (!visible.length) {
@@ -396,7 +437,9 @@
             '<span class="song__tags">' +
               (song.harmony ? '<span class="tag tag--harmony">harmony guide</span>' : '') +
               (n ? '<span class="tag tag--arr">' + (n > 1 ? n + ' vocal arrangements' : 'vocal arrangement') + '</span>' : '') +
-              '<span class="tag tag--plain">' + esc(comps.join(' / ')) + '</span>' +
+              comps.map(function (c) {
+                return '<span class="tag tag--cx tag--cx-' + cxClass(c) + '">' + esc(c) + '</span>';
+              }).join('') +
             '</span>' +
           '</span>' +
           '<span class="song__right">' +
@@ -418,7 +461,8 @@
       out.push({
         key: 'h',
         label: song.harmony.label || 'Harmony Guide (1:1)',
-        meta: metaLine(song.harmony),
+        cx: song.harmony.complexity,
+        tracks: song.harmony.tracks || 0,
         client: song.harmony.client || null,
         yt: null,
         audio: song.harmony.audio || null
@@ -428,7 +472,8 @@
       out.push({
         key: 'a' + i,
         label: a.label || 'Vocal Arrangement (Omakase)',
-        meta: metaLine(a),
+        cx: a.complexity,
+        tracks: a.tracks || 0,
         client: a.client || null,
         yt: a.yt || null,
         audio: a.audio || null
@@ -447,7 +492,9 @@
     state.form = blankForm();
     state.form.song = song.title;
     state.form.artist = song.artist;
-    state.form.type = song.harmony ? 'harmony' : 'arrangement';
+    /* always start on the 1:1 harmony guide, even when the only thing on hand
+       for this song is an arrangement — people can switch if they want one */
+    state.form.type = 'harmony';
     showModal();
   }
 
@@ -519,6 +566,40 @@
 
   var audioEl  = null;
   var audioSrc = null;
+  var pendingSeek = null;   // scrub target set before metadata arrived
+  var volume = 1;           // shared by every preview, survives re-renders
+  var muted  = false;
+
+  var ICON_SPK = '<svg viewBox="0 0 18 16" width="14" height="13" aria-hidden="true">' +
+      '<path d="M8 1.5 4.2 4.8H1.6v6.4h2.6L8 14.5z" fill="currentColor"/>' +
+      '<path d="M11 5.4a3.4 3.4 0 0 1 0 5.2" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/>' +
+      '<path d="M13.4 3.2a6.6 6.6 0 0 1 0 9.6" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>';
+  var ICON_MUTE = '<svg viewBox="0 0 18 16" width="14" height="13" aria-hidden="true">' +
+      '<path d="M8 1.5 4.2 4.8H1.6v6.4h2.6L8 14.5z" fill="currentColor"/>' +
+      '<path d="M11.4 5.6 15.8 10.4M15.8 5.6 11.4 10.4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>';
+
+  function paintVolume(box) {
+    var v = muted ? 0 : volume;
+    var btn  = $('[data-aplay-mute]', box);
+    var fill = $('[data-aplay-volfill]', box);
+    if (fill) fill.style.width = (v * 100) + '%';
+    if (btn) {
+      btn.innerHTML = v === 0 ? ICON_MUTE : ICON_SPK;
+      btn.setAttribute('aria-label', v === 0 ? 'unmute' : 'mute');
+    }
+    box.classList.toggle('is-muted', v === 0);
+  }
+
+  function applyVolume() {
+    if (audioEl) audioEl.volume = muted ? 0 : volume;
+    $$('.aplay').forEach(paintVolume);
+  }
+
+  function setVolume(v) {
+    volume = Math.max(0, Math.min(1, v));
+    muted  = (volume === 0);
+    applyVolume();
+  }
 
   function fmtTime(t) {
     if (!isFinite(t) || t < 0) t = 0;
@@ -530,9 +611,12 @@
     $$('.aplay').forEach(function (box) {
       var b = $('[data-aplay-toggle]', box);
       var f = $('[data-aplay-fill]', box);
+      var k = $('[data-aplay-knob]', box);
       var t = $('[data-aplay-time]', box);
+      box.classList.remove('is-playing');
       if (b) { b.innerHTML = '&#9654;'; b.setAttribute('aria-label', 'play preview'); }
       if (f) f.style.width = '0%';
+      if (k) k.style.left = '0%';
       if (t) t.textContent = '0:00';
     });
   }
@@ -541,6 +625,7 @@
     if (audioEl) { try { audioEl.pause(); } catch (err) {} }
     audioEl = null;
     audioSrc = null;
+    pendingSeek = null;
     resetAudioUI();
   }
 
@@ -550,34 +635,37 @@
     if (!box) return;
     var d = audioEl.duration, c = audioEl.currentTime;
     var f = $('[data-aplay-fill]', box);
+    var k = $('[data-aplay-knob]', box);
     var t = $('[data-aplay-time]', box);
-    if (f) f.style.width = (isFinite(d) && d > 0 ? (c / d) * 100 : 0) + '%';
+    var pct = (isFinite(d) && d > 0 ? (c / d) * 100 : 0);
+    if (f) f.style.width = pct + '%';
+    if (k) k.style.left = pct + '%';
     if (t) t.textContent = fmtTime(c) + (isFinite(d) && d > 0 ? ' / ' + fmtTime(d) : '');
+    box.classList.toggle('is-playing', !audioEl.paused);
   }
 
-  function toggleAudio(box) {
+  /* Load (but don't start) the track for a player. Splitting this out is what
+     lets you scrub before pressing play — previously the seek handler bailed
+     out because no Audio object existed yet. */
+  function ensureAudio(box) {
     var src = box.getAttribute('data-aplay');
-    var btn = $('[data-aplay-toggle]', box);
-
-    /* same file: just play/pause */
-    if (audioSrc === src && audioEl) {
-      if (audioEl.paused) {
-        var r = audioEl.play(); if (r && r.catch) r.catch(function () {});
-        if (btn) { btn.innerHTML = '&#10074;&#10074;'; btn.setAttribute('aria-label', 'pause preview'); }
-      } else {
-        audioEl.pause();
-        if (btn) { btn.innerHTML = '&#9654;'; btn.setAttribute('aria-label', 'play preview'); }
-      }
-      return;
-    }
+    if (audioEl && audioSrc === src) return audioEl;
 
     stopAudio();
     box.classList.remove('is-missing');
     audioSrc = src;
     audioEl  = new Audio(src);
+    audioEl.preload = 'metadata';
+    audioEl.volume  = muted ? 0 : volume;
 
     audioEl.addEventListener('timeupdate', paintAudio);
-    audioEl.addEventListener('loadedmetadata', paintAudio);
+    audioEl.addEventListener('loadedmetadata', function () {
+      if (pendingSeek != null && isFinite(audioEl.duration) && audioEl.duration > 0) {
+        audioEl.currentTime = pendingSeek * audioEl.duration;
+        pendingSeek = null;
+      }
+      paintAudio();
+    });
     audioEl.addEventListener('ended', stopAudio);
     audioEl.addEventListener('error', function () {
       stopAudio();
@@ -585,9 +673,50 @@
       var t = $('[data-aplay-time]', box);
       if (t) t.textContent = 'file not found';
     });
+    return audioEl;
+  }
 
+  /* Scrub to a fraction of the track. Works whether or not it's playing, and
+     whether or not the duration is known yet. */
+  function seekAudio(box, frac) {
+    var a = ensureAudio(box);
+    frac = Math.max(0, Math.min(1, frac));
+
+    if (isFinite(a.duration) && a.duration > 0) {
+      a.currentTime = frac * a.duration;
+      paintAudio();
+      return;
+    }
+    /* metadata hasn't landed — remember it and move the UI now anyway */
+    pendingSeek = frac;
+    var f = $('[data-aplay-fill]', box);
+    var k = $('[data-aplay-knob]', box);
+    if (f) f.style.width = frac * 100 + '%';
+    if (k) k.style.left  = frac * 100 + '%';
+  }
+
+  function toggleAudio(box) {
+    var src = box.getAttribute('data-aplay');
+    var btn = $('[data-aplay-toggle]', box);
+
+    /* already loaded: just play/pause */
+    if (audioSrc === src && audioEl) {
+      if (audioEl.paused) {
+        var r = audioEl.play(); if (r && r.catch) r.catch(function () {});
+        box.classList.add('is-playing');
+        if (btn) { btn.innerHTML = '&#10074;&#10074;'; btn.setAttribute('aria-label', 'pause preview'); }
+      } else {
+        audioEl.pause();
+        box.classList.remove('is-playing');   /* timeupdate stops firing, so set it here */
+        if (btn) { btn.innerHTML = '&#9654;'; btn.setAttribute('aria-label', 'play preview'); }
+      }
+      return;
+    }
+
+    ensureAudio(box);
     var pr = audioEl.play();
     if (pr && pr.catch) pr.catch(function () {});
+    box.classList.add('is-playing');
     if (btn) { btn.innerHTML = '&#10074;&#10074;'; btn.setAttribute('aria-label', 'pause preview'); }
   }
 
@@ -603,7 +732,10 @@
           '<div class="version__row">' +
             '<div class="version__main">' +
               '<div class="version__label">' + esc(v.label) + '</div>' +
-              '<div class="version__meta">' + esc(v.meta) + '</div>' +
+              '<div class="version__meta">' +
+                '<span class="version__cx version__cx--' + cxClass(v.cx) + '">' + esc(v.cx) + '</span>' +
+                (v.tracks ? '<span class="version__tracks">' + esc(v.tracks) + ' tracks</span>' : '') +
+              '</div>' +
               (v.client ? '<div class="version__client">for ' + esc(v.client) + '</div>' : '') +
             '</div>' +
             (v.yt
@@ -619,8 +751,15 @@
                           'aria-label="play preview">&#9654;</button>' +
                   '<div class="aplay__bar" data-aplay-bar>' +
                     '<div class="aplay__fill" data-aplay-fill></div>' +
+                    '<div class="aplay__knob" data-aplay-knob></div>' +
                   '</div>' +
                   '<span class="aplay__time" data-aplay-time>0:00</span>' +
+                  '<div class="aplay__vol">' +
+                    '<button class="aplay__volbtn" type="button" data-aplay-mute aria-label="mute"></button>' +
+                    '<div class="aplay__volbar" data-aplay-volbar>' +
+                      '<div class="aplay__volfill" data-aplay-volfill></div>' +
+                    '</div>' +
+                  '</div>' +
                 '</div>' +
               '</div>'
             : '') +
@@ -636,6 +775,8 @@
             : '') +
         '</div>';
     }).join('');
+
+    $$('.aplay', wrap).forEach(paintVolume);
   }
 
   /* ---------- the request form ------------------------------ */
@@ -957,9 +1098,11 @@
         state.query = '';
         state.lang = [];
         state.type = [];
+        state.cx   = [];
         if (search) search.value = '';
         closeDropdowns();
         renderDropdown('lang');
+        renderDropdown('cx');
         renderDropdown('type');
         renderCatalog();
         if (search) search.focus();
@@ -1002,25 +1145,63 @@
       var play = e.target.closest('[data-aplay-toggle]');
       if (play) { toggleAudio(play.closest('.aplay')); return; }
 
-      /* audio: scrub */
-      var bar = e.target.closest('[data-aplay-bar]');
-      if (bar) {
-        var box = bar.closest('.aplay');
-        if (box && audioEl && audioSrc === box.getAttribute('data-aplay') &&
-            isFinite(audioEl.duration) && audioEl.duration > 0) {
-          var rect = bar.getBoundingClientRect();
-          var pct  = (e.clientX - rect.left) / rect.width;
-          audioEl.currentTime = Math.max(0, Math.min(1, pct)) * audioEl.duration;
-          paintAudio();
-        }
+      /* audio: mute toggle */
+      var mute = e.target.closest('[data-aplay-mute]');
+      if (mute) {
+        muted = !muted;
+        if (!muted && volume === 0) volume = 1;   // unmuting from zero
+        applyVolume();
         return;
       }
+
+      /* scrubbing and volume are handled on pointerdown below, so they drag */
+      if (e.target.closest('[data-aplay-bar]') || e.target.closest('[data-aplay-volbar]')) return;
 
       var btn = e.target.closest('[data-yt]');
       if (!btn) return;
       var key = btn.getAttribute('data-yt');
       state.openYt = state.openYt === key ? null : key;
       renderVersions();
+    });
+
+    /* press-and-drag scrubbing */
+    $('#version-list').addEventListener('pointerdown', function (e) {
+      var vol = e.target.closest('[data-aplay-volbar]');
+      var bar = vol || e.target.closest('[data-aplay-bar]');
+      if (!bar) return;
+      var box = bar.closest('.aplay');
+      if (!box) return;
+
+      e.preventDefault();                     // don't start a text selection
+      var rect  = bar.getBoundingClientRect();
+      var startX = e.clientX, dragged = false;
+      var at = vol
+        ? function (ev) { setVolume((ev.clientX - rect.left) / rect.width); }
+        : function (ev) { seekAudio(box, (ev.clientX - rect.left) / rect.width); };
+
+      at(e);
+      var move = function (ev) {
+        if (Math.abs(ev.clientX - startX) > 3) dragged = true;
+        at(ev);
+      };
+      var up = function (ev) {
+        at(ev);
+        window.removeEventListener('pointermove', move);
+        window.removeEventListener('pointerup', up);
+        window.removeEventListener('pointercancel', up);
+
+        /* A drag released outside the modal lands a click on the backdrop,
+           which would close the whole popup mid-scrub. Swallow that one
+           click (and only if we actually dragged). */
+        if (!dragged) return;
+        var swallow = function (ce) { ce.stopPropagation(); done(); };
+        var done = function () { window.removeEventListener('click', swallow, true); };
+        window.addEventListener('click', swallow, true);
+        setTimeout(done, 300);
+      };
+      window.addEventListener('pointermove', move);
+      window.addEventListener('pointerup', up);
+      window.addEventListener('pointercancel', up);
     });
 
     $('#to-form').addEventListener('click', function () {
@@ -1109,21 +1290,91 @@
   }
 
   /* highlight the nav link for the section you're looking at */
+  /* Highlight the section you're actually looking at.
+
+     The old version used an IntersectionObserver with a percentage
+     rootMargin. That misfired in three ways: it lit up "catalog" on load
+     instead of "home", it credited the *next* section (clicking "about" lit
+     "pricing"), and because smooth-scrolling flies through every section on
+     the way, each one lit up in turn like a progress bar.
+
+     This walks the sections in document order and takes the last one whose
+     top has passed a line just under the sticky nav — and ignores scroll
+     entirely while a click-jump is in flight. */
   function initScrollSpy() {
-    var ids = ['catalog', 'about', 'pricing', 'faq'];
-    var sections = ids.map(function (id) { return document.getElementById(id); }).filter(Boolean);
-    if (!sections.length || !('IntersectionObserver' in window)) return;
+    var links = $$('.nav__link');
+    if (!links.length) return;
 
-    var obs = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (!entry.isIntersecting) return;
-        $$('.nav__link').forEach(function (a) {
-          a.setAttribute('aria-current', a.getAttribute('href') === '#' + entry.target.id ? 'true' : 'false');
-        });
+    var ids = links.map(function (a) { return (a.getAttribute('href') || '').slice(1); })
+                   .filter(function (id) { return id && document.getElementById(id); });
+    if (!ids.length) return;
+
+    var lockedId  = null;   // the link we're jumping to
+    var lockUntil = 0;      // hard deadline so a lock can never get stuck
+
+    function setActive(id) {
+      links.forEach(function (a) {
+        a.setAttribute('aria-current', a.getAttribute('href') === '#' + id ? 'true' : 'false');
       });
-    }, { rootMargin: '-45% 0px -50% 0px' });
+    }
 
-    sections.forEach(function (s) { obs.observe(s); });
+    function currentId() {
+      var nav  = $('.nav');
+      var line = (nav ? nav.getBoundingClientRect().bottom : 0) + 28;
+      var best = ids[0];
+
+      ids.forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el && el.getBoundingClientRect().top <= line) best = id;
+      });
+
+      /* at the very bottom nothing further can cross the line, so make sure
+         the last section wins rather than whatever happened to be closest */
+      var atBottom = window.innerHeight + window.pageYOffset >=
+                     document.documentElement.scrollHeight - 4;
+      if (atBottom) best = ids[ids.length - 1];
+
+      return best;
+    }
+
+    function locked() {
+      if (!lockedId) return false;
+      if (Date.now() >= lockUntil) { lockedId = null; return false; }
+      return true;
+    }
+
+    function onScroll() {
+      if (locked()) { setActive(lockedId); return; }   // hold the target
+      setActive(currentId());
+    }
+
+    /* `scrollend` fires for ANY scroll, including one that happened just
+       before our jump began. Clearing the lock on every scrollend let the
+       smooth-scroll fly-through relight each link in turn — the exact bug
+       this lock exists to prevent. Only release once we've actually landed. */
+    function onScrollEnd() {
+      if (locked()) {
+        if (currentId() === lockedId) lockedId = null;
+        else { setActive(lockedId); return; }
+      }
+      setActive(currentId());
+    }
+
+    links.forEach(function (a) {
+      a.addEventListener('click', function () {
+        var id = (a.getAttribute('href') || '').slice(1);
+        if (!id) return;
+        lockedId  = id;
+        lockUntil = Date.now() + 1800;
+        setActive(id);
+      });
+    });
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    window.addEventListener('scrollend', onScrollEnd);
+
+    setActive(currentId());
   }
 
 

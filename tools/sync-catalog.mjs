@@ -12,11 +12,26 @@
 const SHEET_ID = '1rOM4CN55lDevXwFhGjBj2n_dXMZftuS5Qk9uyVWhRVI';
 const GID      = '0';
 
-/* Audio previews aren't in the sheet. Either add an "audio" column to the
-   sheet, or list files here keyed by "song title :: type".
-   type is "harmony" or "arrangement".                                   */
-const EXTRA_AUDIO = {
-  'Bow and Arrow :: arrangement': 'audio/bow-and-arrow-1.mp3'
+/* ---- audio previews -------------------------------------------------
+   Files in audio/ are matched to entries by name, so you never have to
+   list them anywhere:
+
+     <song-title>.mp3      -> that song's harmony guide
+     <song-title>-1.mp3    -> that song's vocal arrangement
+
+   The title is lowercased, apostrophes dropped, everything else that isn't
+   a letter or number turned into a dash. "Ah, It's A Wonderful Cat's Life"
+   becomes "ah-its-a-wonderful-cats-life".
+
+   An `audio` column in the sheet still wins over any of this.
+
+   For the handful whose filename doesn't match the title, map the FILE name
+   (without .mp3) to the name it would have had. The sync logs every file it
+   couldn't place, so nothing goes missing silently.                      */
+const AUDIO_ALIASES = {
+  'i-really-wanna-stay-at-your-house-1': 'i-really-want-to-stay-at-your-house-1',
+  'cure-mizisua':                        'cure-ver-mizisua',
+  'wildflower':                          'widflower'   // sheet spells it "Widflower"
 };
 
 /* Sheet language wording -> the codes used in window.LANGUAGES */
@@ -135,8 +150,7 @@ export function buildSongs(rows) {
     const client = norm(r[iClient]); if (client) entry.client = client;
     const yt = ytId(r[iYt]);         if (yt) entry.yt = yt;
 
-    const kind = isHarmony ? 'harmony' : 'arrangement';
-    const audio = (iAudio !== -1 && norm(r[iAudio])) || EXTRA_AUDIO[`${title} :: ${kind}`] || '';
+    const audio = iAudio !== -1 ? norm(r[iAudio]) : '';
     if (audio) entry.audio = audio;
 
     const k = `${title.toLowerCase()}::${artist.toLowerCase()}`;
@@ -152,6 +166,38 @@ export function buildSongs(rows) {
   songs.sort((a, b) => a.title.localeCompare(b.title, 'en', { sensitivity: 'base' }));
   songs.forEach((s, i) => { s.id = i + 1; });
   return songs;
+}
+
+/* Title -> the filename stem we'd expect for it. */
+export function audioSlug(title) {
+  return String(title ?? '')
+    .toLowerCase()
+    .replace(/['\u2019]/g, '')      // it's -> its
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+/* Attach every file in audio/ to the entry it belongs to.
+   Returns { attached, unmatched } so the caller can report. */
+export function attachAudio(songs, files) {
+  const slots = new Map();          // expected stem -> entry
+  for (const s of songs) {
+    const base = audioSlug(s.title);
+    if (s.harmony) slots.set(base, s.harmony);
+    s.arrangements.forEach((a, i) => slots.set(base + '-' + (i + 1), a));
+  }
+
+  const unmatched = [];
+  let attached = 0;
+
+  for (const file of files) {
+    if (!/\.(mp3|m4a|ogg|wav)$/i.test(file)) continue;
+    const stem = file.replace(/\.[^.]+$/, '');
+    const entry = slots.get(AUDIO_ALIASES[stem] || stem);
+    if (!entry) { unmatched.push(file); continue; }
+    if (!entry.audio) { entry.audio = 'audio/' + file; attached++; }
+  }
+  return { attached, unmatched };
 }
 
 /* ---------- emit data/catalog.js ---------- */
@@ -230,6 +276,17 @@ if (isMain) {
   if (!res.ok) throw new Error(`sheet fetch failed: HTTP ${res.status}. Is it shared as "anyone with the link can view"?`);
   const songs = buildSongs(parseCsv(await res.text()));
   if (!songs.length) throw new Error('parsed 0 songs — refusing to write an empty catalog');
+
+  /* pick up whatever is sitting in audio/ */
+  const { readdirSync } = await import('node:fs');
+  let files = [];
+  try { files = readdirSync(new URL('../audio/', import.meta.url)); } catch {}
+  const audio = attachAudio(songs, files);
+  console.log(`attached ${audio.attached} audio preview(s)`);
+  if (audio.unmatched.length) {
+    console.log('audio files that matched no song (check the spelling):');
+    audio.unmatched.forEach(f => console.log('  - ' + f));
+  }
 
   writeFileSync(out, render(songs, languages));
   console.log(`wrote data/catalog.js — ${songs.length} songs`);

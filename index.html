@@ -76,7 +76,7 @@
       </a>
     </div>
 
-    <div class="rise" style="animation-delay:.24s">
+    <div class="fade-in" style="animation-delay:.24s">
       <div class="hero__art">
         <div class="hero__frame" data-hero-frame>drop your<br>OC art here</div>
         <div class="hero__sticker" aria-hidden="true">hi hi &#9829;</div>
@@ -107,6 +107,16 @@
         </button>
         <div class="dd__panel" id="dd-lang-panel" role="listbox" aria-multiselectable="true"
              aria-label="filter by language" hidden></div>
+      </div>
+
+      <div class="dd" data-dd="cx">
+        <button class="dd__trigger" type="button" id="dd-cx-btn"
+                aria-haspopup="listbox" aria-expanded="false" aria-controls="dd-cx-panel">
+          <span class="dd__label" data-dd-label>all complexities</span>
+          <span class="dd__caret" aria-hidden="true"></span>
+        </button>
+        <div class="dd__panel" id="dd-cx-panel" role="listbox" aria-multiselectable="true"
+             aria-label="filter by complexity" hidden></div>
       </div>
 
       <div class="dd" data-dd="type">

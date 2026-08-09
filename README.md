@@ -109,10 +109,22 @@ Open `data/catalog.js` and copy an existing block:
   complexity. Leave it off and nothing shows.
 - If an entry has a `yt` link, its preview **opens automatically** when the song
   popup opens. The first one with a video wins if there are several.
-- `audio` plays an inline preview inside the song popup. Drop the file in the
-  `audio/` folder and point at it, e.g. `audio: "audio/bow-and-arrow-1.mp3"`.
-  Works on `harmony` too, not just arrangements. MP3 is the safest format — every
-  browser plays it. A song can have both `yt` and `audio`.
+- **Audio previews attach themselves.** Drop an MP3 in `audio/` named after the
+  song and the sync picks it up — you don't list it anywhere:
+
+  | file | attaches to |
+  |---|---|
+  | `cherry-pop.mp3` | Cherry Pop → harmony guide |
+  | `bow-and-arrow-1.mp3` | Bow and Arrow → vocal arrangement |
+
+  The name is the title lowercased, apostrophes removed, everything else that
+  isn't a letter or number turned into a dash — so "Ah, It's A Wonderful Cat's
+  Life" becomes `ah-its-a-wonderful-cats-life`. Add `-1` for the vocal
+  arrangement. A song can have both `yt` and `audio`.
+
+  If a filename doesn't match its title, add it to `AUDIO_ALIASES` at the top of
+  `tools/sync-catalog.mjs`. The sync prints every file it couldn't place, so
+  nothing goes missing quietly.
 - To add a language, add a line to `window.LANGUAGES` at the bottom of the file:
 
   ```js
@@ -130,10 +142,18 @@ Open `data/catalog.js` and copy an existing block:
 
 ## The catalog filters
 
-Both filter dropdowns are multi-select — tick as many boxes as you like.
-Nothing ticked means no filter. Ticking *japanese* and *english* shows songs in
-either; ticking *harmony guide* and *vocal arrangement* shows songs that have
-either. "clear filters" resets everything including the search box.
+All three filter dropdowns — language, complexity, guide type — are
+multi-select. Tick as many boxes as you like; nothing ticked means no filter.
+Ticks *within* one dropdown are an OR: *japanese* + *english* shows songs in
+either.
+
+Guide type and complexity are matched against the **same entry**, so
+*vocal arrangement* + *complex* finds songs with a complex arrangement — not
+songs that happen to have a simple arrangement and a complex harmony guide.
+
+The complexity list builds itself from whatever wording you use in the sheet,
+ordered simple → semi-complex → complex, with anything unrecognised after.
+"clear filters" resets all three plus the search box.
 
 ## Changing prices, add-ons, or the FAQ
 

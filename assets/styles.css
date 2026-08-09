@@ -148,7 +148,11 @@ img { max-width: 100%; display: block; }
 @keyframes twinkle{ 0%, 100% { opacity: .25; transform: scale(.85); }   50% { opacity: 1; transform: scale(1.15); } }
 @keyframes spin   { to { transform: rotate(360deg); } }
 
-.rise { animation: rise .6s var(--ease) both; }
+/* fill-mode MUST NOT be `both`/`forwards`: the final keyframe's
+   `transform: none` would then stick permanently and outrank :hover
+   transforms, which silently killed the lift on .hero__cta.
+   `backwards` still hides the element during its delay.            */
+.rise { animation: rise .6s var(--ease) backwards; }
 
 
 /* ---------- 4. layout shell + starfield -------------------- */
@@ -295,6 +299,20 @@ img { max-width: 100%; display: block; }
 /* once real art is in, drop the placeholder padding so it fills the frame */
 .hero__frame--has-img { padding: 0; }
 
+/* The OC art fades rather than rises: animating `transform` puts the image on
+   a composited layer, and dropping that layer when the animation ends forces a
+   re-rasterisation — a visible little pop in sharpness/scale. Opacity alone
+   never changes how the bitmap is scaled. */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.fade-in { animation: fadeIn .8s var(--ease) backwards; }
+
+@keyframes bubbleIn {
+  from { opacity: 0; scale: .55; }
+  to   { opacity: 1; scale: 1; }
+}
+/* Each bubble drifts in on its own beat, then keeps floating. The entrance
+   animates `scale`, which is its own property, so it never fights the float
+   loops' `transform`. `backwards` keeps each one invisible until its turn. */
 .hero__sticker {
   position: absolute;
   background: var(--white); color: var(--rose);
@@ -303,7 +321,8 @@ img { max-width: 100%; display: block; }
   font-family: var(--font-display); font-weight: 700; font-size: 16px;
   box-shadow: 0 4px 0 var(--rose-shadow);
   top: -14px; left: -22px;
-  animation: float1 5.5s ease-in-out infinite;
+  animation: bubbleIn .85s var(--ease-pop) .5s backwards,
+             float1 5.5s ease-in-out infinite;
 }
 .hero__note {
   position: absolute; top: 34%; right: -18px;
@@ -312,7 +331,8 @@ img { max-width: 100%; display: block; }
   display: flex; align-items: center; justify-content: center;
   font-size: 20px;
   box-shadow: 0 4px 0 var(--teal-shadow);
-  animation: float2 6.5s ease-in-out infinite;
+  animation: bubbleIn .85s var(--ease-pop) .85s backwards,
+             float2 6.5s ease-in-out infinite;
 }
 .hero__tag {
   position: absolute; bottom: 16px; left: -20px;
@@ -321,12 +341,14 @@ img { max-width: 100%; display: block; }
   font-family: var(--font-accent); font-weight: 500;
   letter-spacing: .16em; text-transform: uppercase; font-size: 10.5px;
   box-shadow: 0 3px 0 var(--rose-shadow);
-  animation: float3 7.5s ease-in-out infinite;
+  animation: bubbleIn .85s var(--ease-pop) 1.2s backwards,
+             float3 7.5s ease-in-out infinite;
 }
 .hero__spark {
   position: absolute; bottom: -10px; right: 8px;
   color: var(--rose-line); font-size: 26px;
-  animation: float2 6s ease-in-out infinite -2s;
+  animation: bubbleIn .85s var(--ease-pop) 1.55s backwards,
+             float2 6s ease-in-out infinite -2s;
 }
 
 
@@ -378,7 +400,12 @@ img { max-width: 100%; display: block; }
 }
 
 /* ---- custom multi-select dropdown ---------------------------- */
-.dd { position: relative; display: inline-flex; }
+.dd {
+  position: relative; display: inline-flex;
+  flex: 0 0 auto;        /* never let the filter row squeeze it */
+  width: max-content;    /* .dd, trigger and panel all share one width */
+}
+.dd__trigger { width: 100%; }
 .dd.is-open { z-index: 6; }
 
 .dd__trigger {
@@ -400,12 +427,27 @@ img { max-width: 100%; display: block; }
 
 /* open: square off the bottom and drop the shadow so the trigger and
    the panel read as one continuous shape */
+/* A *transparent* bottom border is not invisible — the browser still mitres
+   the corner where it meets the teal side borders, cutting a 45° notch out of
+   the stroke at the seam. Removing the border entirely (and giving the padding
+   those 2px back, so the height and the label don't move) leaves the side
+   strokes ending square, flush with the panel's. */
 .dd.is-open .dd__trigger {
   border-color: var(--teal-line);
-  border-bottom-color: transparent;
+  border-bottom-width: 0;
+  padding-bottom: 13px;
   border-radius: var(--r-md) var(--r-md) 0 0;
   box-shadow: none;
-  z-index: 2;   /* its white background masks the panel's top border */
+  z-index: 2;
+}
+/* masks the panel's top border across the trigger only — inset to the padding
+   box so the panel's own side strokes stay unbroken */
+.dd.is-open .dd__trigger::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -2px;
+  height: 2px;
+  background: var(--white);
 }
 /* a selected filter tints the trigger without shouting */
 .dd.has-value .dd__trigger { border-color: var(--rose-shadow); color: var(--rose); }
@@ -445,18 +487,23 @@ img { max-width: 100%; display: block; }
   position: absolute;
   top: 100%; left: 0;
   min-width: 100%; width: max-content; max-width: 300px;
-  /* pulled up 2px so its top border lands under the trigger's transparent
-     bottom border; the trigger's white fill hides that strip for its own
-     width, leaving the border visible only where the panel is wider. */
-  margin: -2px 0 0; padding: 6px;
+  /* sits flush under the trigger; the trigger's ::after masks this top
+     border for its own width, leaving it visible only where the panel is
+     wider — which is what makes the tab shape. */
+  margin: 0; padding: 6px;
   z-index: 1;
   background: var(--white);
   border: 2px solid var(--teal-line);
-  border-radius: 0 var(--r-md) var(--r-md) var(--r-md);
+  /* Same width as the trigger (the usual case): BOTH top corners must be
+     square, or the top-right radius curves inward and bites a notch out of
+     the right-hand stroke at the seam. Only round it when the panel really
+     is wider — that's the tab shape. JS sets .is-wide. */
+  border-radius: 0 0 var(--r-md) var(--r-md);
   box-shadow: 0 6px 0 var(--border);
   max-height: 260px; overflow-y: auto;
   overscroll-behavior: contain;
 }
+.dd.is-wide .dd__panel { border-radius: 0 var(--r-md) var(--r-md) var(--r-md); }
 .dd__panel[hidden] { display: none; }
 .dd.is-open .dd__panel { animation: ddIn .13s var(--ease) both; }
 @keyframes ddIn {
@@ -560,7 +607,7 @@ img { max-width: 100%; display: block; }
   color: var(--muted); background: var(--chip);
   line-height: 1.55; white-space: nowrap;
 }
-.lang-pill .flag { font-size: 12px; line-height: 1; }
+.lang-pill .flag { font-size: 13.5px; line-height: 1; }
 .song__tags {
   display: flex; gap: 7px; margin-top: 6px;
   flex-wrap: wrap; align-items: center;
@@ -571,7 +618,24 @@ img { max-width: 100%; display: block; }
 }
 .tag--harmony { background: var(--teal-mint); color: var(--teal-ink); }
 .tag--arr     { background: var(--rose-wash); color: var(--rose); }
-.tag--plain   { color: var(--muted); }
+/* complexity reads as a level, not another chip: small caps, letter-spaced,
+   with a dot that colour-codes how involved the guide is */
+.tag--cx {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 2px;
+  font-family: var(--font-accent);
+  font-size: 10.5px; font-weight: 600;
+  letter-spacing: .16em; text-transform: uppercase;
+  color: var(--clay);
+  white-space: nowrap;
+}
+.tag--cx::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
+  background: currentColor; flex-shrink: 0;
+}
+.tag--cx-simple       { color: var(--teal-mid); }
+.tag--cx-semi-complex { color: var(--clay); }
+.tag--cx-complex      { color: var(--rose); }
 .song__right { display: flex; align-items: center; gap: 11px; }
 .song__yt {
   font-size: 12px; font-weight: 700; color: var(--rose); white-space: nowrap;
@@ -860,7 +924,10 @@ img { max-width: 100%; display: block; }
   padding: 12px 22px; border-radius: var(--pill);
   font-size: 14.5px; font-weight: 700; white-space: nowrap;
   box-shadow: 0 4px 0 var(--rose-darkest);
-  transition: background .14s var(--ease), transform .1s var(--ease);
+  /* box-shadow must be listed here too — this rule comes after the shared
+     hover-lift block, so omitting it made the shadow jump instead of ease. */
+  transition: background .14s var(--ease), color .14s var(--ease),
+              transform .13s var(--ease), box-shadow .13s var(--ease);
 }
 .portfolio__btn:hover { background: var(--rose-deep); color: var(--white); }
 .portfolio__btn:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--rose-darkest); }
@@ -917,7 +984,7 @@ img { max-width: 100%; display: block; }
   font-size: 12px; padding: 2px 11px 3px;
   background: rgba(58, 46, 54, .06); color: var(--rose-body);
 }
-.modal__lang .flag { font-size: 13px; }
+.modal__lang .flag { font-size: 15px; }
 .modal__close {
   display: flex; align-items: center; justify-content: center;
   border: none; background: var(--white);
@@ -1005,7 +1072,23 @@ img { max-width: 100%; display: block; }
 .version__row { display: flex; align-items: center; gap: 13px; }
 .version__main { flex: 1; min-width: 0; }
 .version__label { font-family: var(--font-display); font-weight: 700; font-size: 18px; }
-.version__meta { font-size: 13.5px; font-weight: 600; color: var(--muted); margin-top: 1px; }
+.version__meta {
+  display: flex; align-items: center; gap: 9px;
+  margin-top: 4px;
+  font-family: var(--font-accent);
+  font-size: 11px; font-weight: 600;
+  letter-spacing: .16em; text-transform: uppercase;
+}
+.version__cx { display: inline-flex; align-items: center; gap: 6px; color: var(--clay); }
+.version__cx::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
+  background: currentColor; flex-shrink: 0;
+}
+.version__cx--simple       { color: var(--teal-mid); }
+.version__cx--semi-complex { color: var(--clay); }
+.version__cx--complex      { color: var(--rose); }
+.version__tracks { color: var(--muted); }
+.version__tracks::before { content: '· '; }
 .version__client {
   font-size: 12.5px; font-weight: 600; color: var(--clay);
   margin-top: 3px; font-style: italic;
@@ -1027,37 +1110,53 @@ img { max-width: 100%; display: block; }
 
 /* ---- inline audio preview ------------------------------------ */
 .version__audio { margin-top: 14px; }
+/* "bubble" treatment: white card, soft pink hairline, outlined play button */
 .aplay {
   display: flex; align-items: center; gap: 14px;
   padding: 10px 22px 10px 18px;
-  background: var(--rose-wash);
+  background: var(--white);
+  border: 2px solid var(--rose-line-2);
   border-radius: var(--pill);
+  box-shadow: 0 10px 30px -18px rgba(168, 69, 95, .55);
 }
 .aplay__btn {
   flex-shrink: 0;
   width: 29px; height: 29px; border-radius: 50%;
-  border: none; background: var(--rose); color: #fff;
-  font-size: 10.5px; line-height: 1; cursor: pointer;
+  background: var(--rose-wash);
+  border: 2px solid var(--rose);
+  color: var(--rose);
+  font-size: 9.5px; line-height: 1; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   padding: 0;
-  transition: background .14s var(--ease), transform .1s var(--ease);
+  transition: background .15s var(--ease), transform .18s var(--ease-pop);
 }
-.aplay__btn:hover { background: var(--rose-deep); }
-.aplay__btn:active { transform: scale(.92); }
+.aplay__btn:hover { background: var(--rose-wash-3); }
+.aplay__btn:active { transform: scale(.88); }
 .aplay__btn:focus-visible { outline: 3px solid var(--rose-shadow); outline-offset: 2px; }
 
 .aplay__bar {
-  flex: 1; min-width: 0; height: 8px;
-  background: var(--rose-shadow);
+  flex: 1; min-width: 0; height: 10px;
+  margin-left: 12px;      /* breathing room after the play button */
+  background: var(--rose-wash);
   border-radius: var(--pill);
   cursor: pointer; position: relative;
 }
 .aplay__fill {
   position: absolute; left: 0; top: 0; bottom: 0;
-  width: 0%; background: var(--rose);
+  width: 0%; background: var(--rose-line);
   border-radius: var(--pill);
   pointer-events: none;
 }
+.aplay__knob {
+  position: absolute; top: 50%; left: 0;
+  width: 17px; height: 17px; margin: -8.5px 0 0 -8.5px;
+  border-radius: 50%;
+  background: var(--rose);
+  border: 3px solid var(--white);
+  box-shadow: 0 3px 10px -2px rgba(168, 69, 95, .6);
+  pointer-events: none;
+}
+/* deliberately no bob — the knob just runs straight across */
 .aplay__time {
   flex-shrink: 0;
   font-family: var(--font-num); font-size: 12.5px; font-weight: 600;
@@ -1066,6 +1165,44 @@ img { max-width: 100%; display: block; }
   min-width: 74px; text-align: right;
 }
 .aplay.is-missing { opacity: .55; }
+
+/* volume: just the speaker until you reach for it, then a little slider */
+.aplay__vol {
+  display: flex; align-items: center; gap: 8px;
+  flex-shrink: 0;
+}
+.aplay__volbtn {
+  display: flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; padding: 0;
+  border: none; background: transparent;
+  color: var(--rose-line); cursor: pointer;
+  transition: color .14s var(--ease);
+}
+.aplay__volbtn:hover,
+.aplay__vol:focus-within .aplay__volbtn { color: var(--rose); }
+.aplay.is-muted .aplay__volbtn { color: var(--rose); }
+.aplay__volbtn:focus-visible { outline: 2px solid var(--rose-shadow); outline-offset: 2px; border-radius: 4px; }
+
+.aplay__volbar {
+  position: relative;
+  width: 0; height: 6px;
+  background: var(--rose-wash);
+  border-radius: var(--pill);
+  cursor: pointer; opacity: 0;
+  transition: width .22s var(--ease), opacity .16s var(--ease);
+}
+.aplay:hover .aplay__volbar,
+.aplay__vol:focus-within .aplay__volbar { width: 52px; opacity: 1; }
+.aplay__volfill {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 100%; background: var(--rose-line);
+  border-radius: var(--pill); pointer-events: none;
+}
+
+@media (hover: none) {
+  /* no hover on touch — just leave it out */
+  .aplay__volbar { width: 52px; opacity: 1; }
+}
 
 .btn-primary {
   width: 100%; border: none;
