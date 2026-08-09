@@ -43,8 +43,6 @@ window.SONGS = [
       {
         complexity: "simple",
         tracks: 6,
-        complexity: "simple",
-        tracks: 6,
         client: "Pippa Pipkin & Tenma Maemi (Phase Connect)",
         yt: "IWN_qnDpFA4",
         audio: "audio/ah-its-a-wonderful-cats-life-1.mp3"
@@ -52,7 +50,6 @@ window.SONGS = [
     ]
   },
   {
-    id: 4,
     id: 4,
     title: "Ai Scream!",
     artist: "AiScReam",
@@ -78,7 +75,6 @@ window.SONGS = [
   },
   {
     id: 6,
-    id: 6,
     title: "Birds Of Time",
     artist: "Enna Alouette",
     language: "EN",
@@ -89,7 +85,6 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 7,
     id: 7,
     title: "Bow and Arrow",
     artist: "Kenshi Yonezu",
@@ -132,7 +127,6 @@ window.SONGS = [
   },
   {
     id: 10,
-    id: 10,
     title: "Cherry Pop",
     artist: "DECO*27",
     language: "JP",
@@ -145,7 +139,20 @@ window.SONGS = [
   },
   {
     id: 11,
-    id: 11,
+    title: "Chotto Otona",
+    artist: "Ivudot",
+    language: "JP",
+    harmony: null,
+    arrangements: [
+      {
+        complexity: "simple",
+        client: "static (RPGCB-R1)",
+        yt: "VM3Skap0bBA"
+      }
+    ]
+  },
+  {
+    id: 12,
     title: "Come Play",
     artist: "Stray Kids, Young Miko, and Tom Morello / Arcane",
     language: ["ES", "EN", "KR"],
@@ -157,7 +164,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 12,
+    id: 13,
     title: "Crazy For You",
     artist: "Marina Saito",
     language: "JP",
@@ -168,7 +175,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 13,
+    id: 14,
     title: "Cure (ver. MiziSua)",
     artist: "VIVINOS / Alien Stage",
     language: "KR",
@@ -180,7 +187,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 14,
+    id: 15,
     title: "DISTLAND EXPLORE",
     artist: "netuki",
     language: "JP",
@@ -192,7 +199,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 15,
+    id: 16,
     title: "Espresso",
     artist: "Sabrina Carpenter",
     language: "EN",
@@ -205,7 +212,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 16,
+    id: 17,
     title: "Ethyria",
     artist: "Enna Alouette",
     language: ["EN", "JP"],
@@ -216,7 +223,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 17,
+    id: 18,
     title: "Everything Goes On",
     artist: "Porter Robinson",
     language: "EN",
@@ -232,19 +239,20 @@ window.SONGS = [
     ]
   },
   {
-    id: 18,
+    id: 19,
     title: "Final Bow",
     artist: "Bao The Whale",
     language: "EN",
     harmony: {
       complexity: "semi-complex",
       tracks: 11,
+      yt: "kL3elk2sjt0",
       audio: "audio/final-bow.mp3"
     },
     arrangements: []
   },
   {
-    id: 19,
+    id: 20,
     title: "FOCUS",
     artist: "KIRA",
     language: ["JP", "EN"],
@@ -256,7 +264,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 20,
+    id: 21,
     title: "Golden",
     artist: "HUNTR/X / KPop Demon Hunters",
     language: ["EN", "KR"],
@@ -267,7 +275,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 21,
+    id: 22,
     title: "HOT",
     artist: "LE SSERAFIM",
     language: ["KR", "EN"],
@@ -279,20 +287,20 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 22,
+    id: 23,
     title: "I AM",
     artist: "IVE",
     language: ["KR", "EN"],
     harmony: {
       complexity: "simple",
       tracks: 7,
+      yt: "Qe6NBOXPuD8",
       audio: "audio/i-am.mp3"
     },
     arrangements: []
   },
   {
-    id: 23,
-    id: 23,
+    id: 24,
     title: "I Really Want To Stay At Your House",
     artist: "Rosa Walton / Cyberpunk 2077",
     language: "EN",
@@ -308,7 +316,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 24,
+    id: 25,
     title: "Know About Me",
     artist: "NMIXX",
     language: ["KR", "EN"],
@@ -320,7 +328,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 25,
+    id: 26,
     title: "Kono Yoru Ni Kanpai",
     artist: "Megatera Zero",
     language: "JP",
@@ -331,7 +339,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 26,
+    id: 27,
     title: "Let Me Be With You",
     artist: "Round Table",
     language: "JP",
@@ -341,12 +349,13 @@ window.SONGS = [
         complexity: "complex",
         tracks: 18,
         client: "Runie Ruse & Remilia Nephys (Phase Connect)",
+        yt: "tMrHOUv_ON4",
         audio: "audio/let-me-be-with-you-1.mp3"
       }
     ]
   },
   {
-    id: 27,
+    id: 28,
     title: "Like A Sunny Day, Like A Rainy Day",
     artist: "Silence Wang",
     language: "CN",
@@ -358,7 +367,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 28,
+    id: 29,
     title: "Lover Girl",
     artist: "Laufey",
     language: "EN",
@@ -372,7 +381,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 29,
+    id: 30,
     title: "Mekurumeku Rendezvous",
     artist: "FUWAMOCO",
     language: "JP",
@@ -384,7 +393,21 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 30,
+    id: 31,
+    title: "Metrocity",
+    artist: "imase & natori",
+    language: "JP",
+    harmony: null,
+    arrangements: [
+      {
+        complexity: "complex",
+        client: "Dima & Remy",
+        yt: "fY48PaWNKak"
+      }
+    ]
+  },
+  {
+    id: 32,
     title: "My Favorite Things",
     artist: "ver. Big Band Chorus",
     language: "EN",
@@ -393,12 +416,23 @@ window.SONGS = [
       {
         complexity: "complex",
         client: "markus and friends!",
+        yt: "ehY7SOsEaD4",
         audio: "audio/my-favorite-things-1.mp3"
       }
     ]
   },
   {
-    id: 31,
+    id: 33,
+    title: "Natural Disaster",
+    artist: "Bao The Whale, Trickywi, Vienna, & Yuzu",
+    language: "EN",
+    harmony: {
+      complexity: "complex"
+    },
+    arrangements: []
+  },
+  {
+    id: 34,
     title: "Risk It All",
     artist: "Bruno Mars",
     language: "EN",
@@ -410,7 +444,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 32,
+    id: 35,
     title: "Shoujo Rei",
     artist: "mikitoP",
     language: "JP",
@@ -427,9 +461,22 @@ window.SONGS = [
     ]
   },
   {
-    id: 33,
+    id: 36,
+    title: "Snow Halation",
+    artist: "µ's",
+    language: "JP",
+    harmony: null,
+    arrangements: [
+      {
+        complexity: "simple",
+        client: "Sei",
+        yt: "lVKLyEcq1DI"
+      }
+    ]
+  },
+  {
+    id: 37,
     title: "Soda Pop",
-    artist: "Saja Boys / KPop Demon Hunters",
     artist: "Saja Boys / KPop Demon Hunters",
     language: ["KR", "EN"],
     harmony: {
@@ -440,7 +487,17 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 34,
+    id: 38,
+    title: "Sour Candy",
+    artist: "Ironmouse",
+    language: ["EN", "JP"],
+    harmony: {
+      complexity: "simple"
+    },
+    arrangements: []
+  },
+  {
+    id: 39,
     title: "The Cruel Angel's Thesis",
     artist: "Yoko Takahashi",
     language: "JP",
@@ -451,7 +508,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 35,
+    id: 40,
     title: "The Fate Of Ophelia",
     artist: "Taylor Swift",
     language: "EN",
@@ -463,7 +520,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 36,
+    id: 41,
     title: "Tipsy",
     artist: "Wanuka",
     language: "JP",
@@ -474,7 +531,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 37,
+    id: 42,
     title: "What Is This Feeling",
     artist: "Wicked",
     language: "EN",
@@ -487,19 +544,32 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 38,
-    title: "Widflower",
+    id: 43,
+    title: "White Wishes",
+    artist: "9nine",
+    language: "JP",
+    harmony: null,
+    arrangements: [
+      {
+        complexity: "semi-complex",
+        yt: "Y4AH-I0LuVk"
+      }
+    ]
+  },
+  {
+    id: 44,
+    title: "Wildflower",
     artist: "Billie Eilish",
     language: "EN",
     harmony: {
       complexity: "complex",
       tracks: 14,
-      audio: "audio/wildflower.mp3"
+      yt: "MNHj0cNQPok"
     },
     arrangements: []
   },
   {
-    id: 39,
+    id: 45,
     title: "Worlders",
     artist: "Jin / Project SEKAI",
     language: "EN",
@@ -508,11 +578,22 @@ window.SONGS = [
       {
         complexity: "complex",
         tracks: 24,
-        client: "filet germignon",
+        client: "filet germignon (PCB-R3)",
         yt: "xqF1GGNBP2M",
         audio: "audio/worlders-1.mp3"
       }
     ]
+  },
+  {
+    id: 46,
+    title: "Your Gaze, Crepuscular",
+    artist: "Tatsuya Kitani",
+    language: "JP",
+    harmony: {
+      complexity: "simple",
+      yt: "zDlKMMVzZyA"
+    },
+    arrangements: []
   }
 ];
 
