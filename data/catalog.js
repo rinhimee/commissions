@@ -85,8 +85,6 @@ window.SONGS = [
     harmony: {
       complexity: "complex",
       yt: "h2LykwboxbU"
-      complexity: "complex",
-      yt: "h2LykwboxbU"
     },
     arrangements: []
   },
@@ -127,8 +125,6 @@ window.SONGS = [
     harmony: null,
     arrangements: [
       {
-        complexity: "simple",
-        tracks: 11
         complexity: "simple",
         tracks: 11
       }
@@ -329,8 +325,6 @@ window.SONGS = [
     artist: "Megatera Zero",
     language: "JP",
     harmony: {
-      complexity: "semi-complex",
-      yt: "Yud7uRxc3lU"
       complexity: "semi-complex",
       yt: "Yud7uRxc3lU"
     },
