@@ -219,7 +219,8 @@ window.SONGS = [
     language: "EN",
     harmony: {
       complexity: "semi-complex",
-      tracks: 11
+      tracks: 11,
+      yt: "kL3elk2sjt0"
     },
     arrangements: []
   },
@@ -263,7 +264,8 @@ window.SONGS = [
     language: ["KR", "EN"],
     harmony: {
       complexity: "simple",
-      tracks: 7
+      tracks: 7,
+      yt: "Qe6NBOXPuD8"
     },
     arrangements: []
   },
@@ -314,7 +316,8 @@ window.SONGS = [
       {
         complexity: "complex",
         tracks: 18,
-        client: "Runie Ruse & Remilia Nephys (Phase Connect)"
+        client: "Runie Ruse & Remilia Nephys (Phase Connect)",
+        yt: "tMrHOUv_ON4"
       }
     ]
   },
@@ -356,6 +359,20 @@ window.SONGS = [
   },
   {
     id: 30,
+    title: "Metrocity",
+    artist: "imase & natori",
+    language: "JP",
+    harmony: null,
+    arrangements: [
+      {
+        complexity: "complex",
+        client: "Dima & Remy",
+        yt: "fY48PaWNKak"
+      }
+    ]
+  },
+  {
+    id: 31,
     title: "My Favorite Things",
     artist: "ver. Big Band Chorus",
     language: "EN",
@@ -363,12 +380,23 @@ window.SONGS = [
     arrangements: [
       {
         complexity: "complex",
-        client: "markus and friends!"
+        client: "markus and friends!",
+        yt: "ehY7SOsEaD4"
       }
     ]
   },
   {
-    id: 31,
+    id: 32,
+    title: "Natural Disaster",
+    artist: "Bao The Whale, Trickywi, Vienna, & Yuzu",
+    language: "EN",
+    harmony: {
+      complexity: "complex"
+    },
+    arrangements: []
+  },
+  {
+    id: 33,
     title: "Risk It All",
     artist: "Bruno Mars",
     language: "EN",
@@ -380,7 +408,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 32,
+    id: 34,
     title: "Shoujo Rei",
     artist: "mikitoP",
     language: "JP",
@@ -396,7 +424,21 @@ window.SONGS = [
     ]
   },
   {
-    id: 33,
+    id: 35,
+    title: "Snow Halation",
+    artist: "µ's",
+    language: "JP",
+    harmony: null,
+    arrangements: [
+      {
+        complexity: "simple",
+        client: "Sei",
+        yt: "lVKLyEcq1DI"
+      }
+    ]
+  },
+  {
+    id: 36,
     title: "Soda Pop",
     artist: "Saja Boys / KPop Demon Hunters",
     language: ["KR", "EN"],
@@ -407,7 +449,17 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 34,
+    id: 37,
+    title: "Sour Candy",
+    artist: "Ironmouse",
+    language: ["EN", "JP"],
+    harmony: {
+      complexity: "simple"
+    },
+    arrangements: []
+  },
+  {
+    id: 38,
     title: "The Cruel Angel's Thesis",
     artist: "Yoko Takahashi",
     language: "JP",
@@ -418,7 +470,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 35,
+    id: 39,
     title: "The Fate Of Ophelia",
     artist: "Taylor Swift",
     language: "EN",
@@ -429,7 +481,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 36,
+    id: 40,
     title: "Tipsy",
     artist: "Wanuka",
     language: "JP",
@@ -440,7 +492,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 37,
+    id: 41,
     title: "What Is This Feeling",
     artist: "Wicked",
     language: "EN",
@@ -452,18 +504,32 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 38,
+    id: 42,
+    title: "White Wishes",
+    artist: "9nine",
+    language: "JP",
+    harmony: null,
+    arrangements: [
+      {
+        complexity: "semi-complex",
+        yt: "Y4AH-I0LuVk"
+      }
+    ]
+  },
+  {
+    id: 43,
     title: "Wildflower",
     artist: "Billie Eilish",
     language: "EN",
     harmony: {
       complexity: "complex",
-      tracks: 14
+      tracks: 14,
+      yt: "MNHj0cNQPok"
     },
     arrangements: []
   },
   {
-    id: 39,
+    id: 44,
     title: "Worlders",
     artist: "Jin / Project SEKAI",
     language: "EN",
@@ -476,6 +542,17 @@ window.SONGS = [
         yt: "xqF1GGNBP2M"
       }
     ]
+  },
+  {
+    id: 45,
+    title: "Your Gaze, Crepuscular",
+    artist: "Tatsuya Kitani",
+    language: "JP",
+    harmony: {
+      complexity: "simple",
+      yt: "zDlKMMVzZyA"
+    },
+    arrangements: []
   }
 ];
 
