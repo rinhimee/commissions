@@ -35,7 +35,7 @@ window.SITE_CONFIG = {
   /* Optional: ping yourself when a request lands.
      Your Discord user ID (Settings → Advanced → Developer Mode,
      then right-click your name → Copy User ID). Leave "" for no ping. */
-  discordPingUserId: "rinhimee",
+  discordPingUserId: "358075246982594562",
 
   /* ---- hero art ---------------------------------------------- */
   /* Drop your OC art into assets/ and put the filename here,
@@ -44,5 +44,5 @@ window.SITE_CONFIG = {
   heroImageAlt: "rin姫’s original character",
 
   /* ---- contact fallback (used in the no-webhook copy summary) -- */
-  contactHandle: "@yourhandle on discord"
+  contactHandle: "@rinhimee on discord"
 };

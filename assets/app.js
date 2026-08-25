@@ -912,9 +912,19 @@
       if (f.notes) fields.push({ name: 'notes', value: f.notes.slice(0, 1020), inline: false });
     }
 
+    /* Any over-length value makes Discord 400 the request, so clamp to its
+       documented limits rather than trusting whatever got typed in. */
+    fields = fields.map(function (fd) {
+      return {
+        name: String(fd.name).slice(0, 256),
+        value: (String(fd.value).trim() || '—').slice(0, 1024),
+        inline: fd.inline
+      };
+    }).slice(0, 25);
+
     var payload = {
       embeds: [{
-        title: (f.song || 'untitled') + ' — ' + (f.artist || 'unknown artist'),
+        title: ((f.song || 'untitled') + ' — ' + (f.artist || 'unknown artist')).slice(0, 256),
         description: 'new commission request from the site',
         color: 0xA8455F,
         fields: fields,
@@ -923,9 +933,18 @@
       }]
     };
 
-    if (CFG.discordPingUserId) {
-      payload.content = '<@' + CFG.discordPingUserId + '> new request';
-      payload.allowed_mentions = { users: [CFG.discordPingUserId] };
+    /* Discord validates allowed_mentions.users as snowflakes — a username in
+       here makes the whole POST fail with a 400, which silently drops every
+       request into the copy-paste fallback. Only ping with a numeric ID. */
+    var pingId = String(CFG.discordPingUserId || '').trim();
+    if (/^\d{15,25}$/.test(pingId)) {
+      payload.content = '<@' + pingId + '> new request';
+      payload.allowed_mentions = { users: [pingId] };
+    } else if (pingId && window.console) {
+      console.warn('[' + (CFG.brandName || 'site') + '] discordPingUserId must be your ' +
+        'numeric Discord user ID, not your username — turn on Settings > Advanced > ' +
+        'Developer Mode, then right-click your name and Copy User ID. Ignoring ' +
+        JSON.stringify(pingId) + ' so requests still go through.');
     }
 
     return payload;
