@@ -30,8 +30,7 @@ const GID      = '0';
    couldn't place, so nothing goes missing silently.                      */
 const AUDIO_ALIASES = {
   'i-really-wanna-stay-at-your-house-1': 'i-really-want-to-stay-at-your-house-1',
-  'cure-mizisua':                        'cure-ver-mizisua',
-  'wildflower':                          'widflower'   // sheet spells it "Widflower"
+  'cure-mizisua':                        'cure-ver-mizisua'
 };
 
 /* Sheet language wording -> the codes used in window.LANGUAGES */
@@ -193,7 +192,11 @@ export function attachAudio(songs, files) {
   for (const file of files) {
     if (!/\.(mp3|m4a|ogg|wav)$/i.test(file)) continue;
     const stem = file.replace(/\.[^.]+$/, '');
-    const entry = slots.get(AUDIO_ALIASES[stem] || stem);
+    /* Direct match wins; an alias is only a fallback. Otherwise correcting a
+       title in the sheet would make its alias point at a song that no longer
+       exists and silently drop the audio — which is exactly what happened when
+       "Widflower" was fixed to "Wildflower". */
+    const entry = slots.get(stem) || slots.get(AUDIO_ALIASES[stem] || stem);
     if (!entry) { unmatched.push(file); continue; }
     if (!entry.audio) { entry.audio = 'audio/' + file; attached++; }
   }

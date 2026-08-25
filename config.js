@@ -30,12 +30,12 @@ window.SITE_CONFIG = {
 
      Leave it as "" and the form falls back to a copy-to-clipboard
      summary the visitor can DM you — so the site still works today.  */
-  discordWebhookUrl: "",
+  discordWebhookUrl: "https://discord.com/api/webhooks/1541650966099525693/wTf1krBUhd70wRaNUqzqZyKt7TIZDIrBxRR5fvBOjmPH1q44QGcdX3afjU3CsJ9R2H7W",
 
   /* Optional: ping yourself when a request lands.
      Your Discord user ID (Settings → Advanced → Developer Mode,
      then right-click your name → Copy User ID). Leave "" for no ping. */
-  discordPingUserId: "",
+  discordPingUserId: "rinhimee",
 
   /* ---- hero art ---------------------------------------------- */
   /* Drop your OC art into assets/ and put the filename here,
