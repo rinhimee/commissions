@@ -35,7 +35,7 @@ window.SITE_CONFIG = {
   /* Optional: ping yourself when a request lands.
      Your Discord user ID (Settings → Advanced → Developer Mode,
      then right-click your name → Copy User ID). Leave "" for no ping. */
-  discordPingUserId: "358075246982594562",
+  discordPingUserId: "1312553435068891248",
 
   /* ---- hero art ---------------------------------------------- */
   /* Drop your OC art into assets/ and put the filename here,
