@@ -33,6 +33,21 @@ python -m http.server 8000
 
 ---
 
+## The two request paths
+
+Clicking a song in the catalog goes straight to the normal form, prefilled.
+
+Clicking **"request a song"** / **"submit a request"** first shows a chooser:
+
+- **a specific song** — the full form: guide type, melody guide, add-ons, pricing.
+- **something else** — one free-text box plus contact, deadline and budget. No
+  pricing fields, because there's nothing to price yet. It arrives in Discord as
+  a teal embed titled "open request" so it stands out from song requests.
+
+The second path is deliberately vague on the page — it's the way in for things
+that aren't publicly listed, without listing them. To reword it, edit the two
+cards in `index.html` under `id="view-choose"`.
+
 ## Setting up the request form
 
 Requests post straight into a Discord channel as a formatted embed.

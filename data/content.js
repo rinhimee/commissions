@@ -54,7 +54,7 @@ window.TURNAROUND = {
 window.FAQS = [
   {
     q: "can you write the main melody for a song i'm making?",
-    a: "that's a topline commission, not a harmony guide — different service, and this catalog isn't set up for it. reach out to me directly and we can talk about it separately."
+    a: "that's a different service to a harmony guide, and the catalog isn't set up to quote it. it's still worth asking though — hit 'request a song', pick 'something else', and tell me what you're working on."
   },
   {
     q: "what files do i actually get?",

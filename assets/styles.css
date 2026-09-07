@@ -56,6 +56,7 @@
   --clay:          #8A6E5C;
   --border:        #EADFD2;
   --chip:          #F7F4F0;   /* language pill fill — light, barely-there gray */
+  --rose-soft:     #C77F93;   /* mid rose: visible at rest, still below --rose */
   --border-strong: #DCC9BC;
   --shadow-sand:   #CFC0AA;
 
@@ -1175,7 +1176,9 @@ img { max-width: 100%; display: block; }
   display: flex; align-items: center; justify-content: center;
   width: 22px; height: 22px; padding: 0;
   border: none; background: transparent;
-  color: var(--rose-line); cursor: pointer;
+  /* --rose-line only hit 1.7:1 on white — invisible. This clears the 3:1
+     minimum for a UI control while staying quieter than the timestamp. */
+  color: var(--rose-soft); cursor: pointer;
   transition: color .14s var(--ease);
 }
 .aplay__volbtn:hover,
@@ -1185,14 +1188,18 @@ img { max-width: 100%; display: block; }
 
 .aplay__volbar {
   position: relative;
-  width: 0; height: 6px;
+  /* The width is RESERVED, not animated. Growing it on hover reflowed the
+     row and slid the speaker button out from under the pointer, so you had
+     to chase it to click. Only opacity changes now; nothing moves. */
+  width: 52px; height: 6px;
   background: var(--rose-wash);
   border-radius: var(--pill);
-  cursor: pointer; opacity: 0;
-  transition: width .22s var(--ease), opacity .16s var(--ease);
+  cursor: pointer;
+  opacity: 0; pointer-events: none;
+  transition: opacity .18s var(--ease);
 }
 .aplay:hover .aplay__volbar,
-.aplay__vol:focus-within .aplay__volbar { width: 52px; opacity: 1; }
+.aplay__vol:focus-within .aplay__volbar { opacity: 1; pointer-events: auto; }
 .aplay__volfill {
   position: absolute; left: 0; top: 0; bottom: 0;
   width: 100%; background: var(--rose-line);
@@ -1200,9 +1207,62 @@ img { max-width: 100%; display: block; }
 }
 
 @media (hover: none) {
-  /* no hover on touch — just leave it out */
-  .aplay__volbar { width: 52px; opacity: 1; }
+  /* no hover on touch — always show it */
+  .aplay__volbar { opacity: 1; pointer-events: auto; }
 }
+
+/* ---------- request-type chooser ---------------------------- */
+.choose { display: grid; gap: 14px; }
+@media (min-width: 620px) { .choose { grid-template-columns: 1fr 1fr; } }
+
+.choose__card {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
+  text-align: left; width: 100%;
+  padding: 22px 22px 20px;
+  border: 2px solid var(--rose-line-2);
+  border-radius: var(--r-lg);
+  background: var(--white);
+  cursor: pointer; font: inherit; color: inherit;
+  box-shadow: 0 4px 0 var(--rose-shadow);
+  transition: background .14s var(--ease), border-color .14s var(--ease),
+              transform .13s var(--ease), box-shadow .13s var(--ease);
+}
+.choose__card:hover {
+  background: var(--rose-wash);
+  border-color: var(--rose-line);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--rose-shadow);
+}
+.choose__card:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--rose-shadow); }
+.choose__card:focus-visible { outline: 3px solid var(--rose-shadow); outline-offset: 3px; }
+
+.choose__card--alt { border-color: var(--teal-line); box-shadow: 0 4px 0 var(--teal-shadow); }
+.choose__card--alt:hover {
+  background: var(--teal-wash); border-color: var(--teal);
+  box-shadow: 0 6px 0 var(--teal-shadow);
+}
+.choose__card--alt:active { box-shadow: 0 2px 0 var(--teal-shadow); }
+.choose__card--alt .choose__icon,
+.choose__card--alt .choose__title { color: var(--teal-ink); }
+.choose__card--alt .choose__go { color: var(--teal-mid); }
+
+.choose__icon  { font-size: 20px; color: var(--rose); line-height: 1; }
+.choose__title { font-family: var(--font-display); font-weight: 700; font-size: 19px; color: var(--rose); }
+.choose__sub   { font-size: 14px; font-weight: 600; color: var(--muted); line-height: 1.5; }
+.choose__go {
+  margin-top: 8px;
+  font-family: var(--font-accent); font-weight: 500;
+  letter-spacing: .14em; text-transform: uppercase; font-size: 10.5px;
+  color: var(--rose);
+}
+
+.btn-back {
+  display: block; width: 100%; margin-top: 12px;
+  border: none; background: transparent; cursor: pointer;
+  font-family: var(--font-body); font-size: 13px; font-weight: 700;
+  color: var(--muted); padding: 8px 4px;
+}
+.btn-back:hover { color: var(--rose); }
 
 .btn-primary {
   width: 100%; border: none;

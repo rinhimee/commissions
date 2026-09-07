@@ -235,11 +235,46 @@
       <p class="form-note">song and artist come pre-filled &#10022; you just pick the options</p>
     </div>
 
+    <!-- view: pick a request type -->
+    <div class="modal__body" id="view-choose" hidden>
+      <div class="kicker" style="color:var(--muted); margin-bottom:14px;">what are you after?</div>
+      <div class="choose">
+        <button class="choose__card" type="button" data-kind="song">
+          <span class="choose__icon" aria-hidden="true">&#9834;</span>
+          <span class="choose__title">a specific song</span>
+          <span class="choose__sub">a cover you want harmonies or an arrangement for &mdash; in the catalog or not</span>
+          <span class="choose__go">start the form &rarr;</span>
+        </button>
+        <button class="choose__card choose__card--alt" type="button" data-kind="open">
+          <span class="choose__icon" aria-hidden="true">&#10022;</span>
+          <span class="choose__title">something else</span>
+          <span class="choose__sub">an original, a collab, or anything you&rsquo;d rather talk through first</span>
+          <span class="choose__go">tell me about it &rarr;</span>
+        </button>
+      </div>
+    </div>
+
     <!-- view: request form -->
     <div class="modal__body modal__body--form" id="view-form" hidden>
       <form id="request-form" novalidate>
 
         <div class="form-error" id="form-error" role="alert" hidden></div>
+
+        <div class="field" id="open-fields" hidden>
+          <label class="field-label" for="f-brief">what do you have in mind?</label>
+          <div class="field-hint">
+            as much or as little as you like &mdash; what it is, roughly when you need it,
+            and anything you&rsquo;re unsure about. no wrong answers.
+          </div>
+          <textarea class="textarea" id="f-brief" name="brief" rows="5"
+                    placeholder="tell me what you&rsquo;re working on&hellip;"></textarea>
+
+          <label class="field-label" for="f-open-budget" style="margin-top:16px;">
+            budget <span class="opt">optional</span>
+          </label>
+          <input class="input" id="f-open-budget" name="open-budget" placeholder="USD, or a range"
+                 autocomplete="off">
+        </div>
 
         <div class="field-pair" id="custom-fields" hidden>
           <div>
@@ -252,12 +287,12 @@
           </div>
         </div>
 
-        <div class="field">
+        <div class="field" id="field-type">
           <span class="field-label" id="lbl-type">guide type</span>
           <div class="pill-row" id="type-row" role="group" aria-labelledby="lbl-type"></div>
         </div>
 
-        <div class="field">
+        <div class="field" id="field-melody">
           <span class="field-label" id="lbl-melody">main melody guide</span>
           <div class="field-hint">partial = melody only where harmonies are present.</div>
           <div class="pill-row" id="melody-row" role="group" aria-labelledby="lbl-melody"></div>
@@ -267,7 +302,7 @@
           </div>
         </div>
 
-        <div class="field">
+        <div class="field" id="field-addons">
           <span class="field-label" id="lbl-addons">add-ons</span>
           <div class="addon-list" id="addon-row" role="group" aria-labelledby="lbl-addons"></div>
         </div>
@@ -316,7 +351,8 @@
         </div>
 
         <button class="btn-primary" type="submit" id="submit-btn">send request &#9825;</button>
-        <p class="form-note">i&rsquo;ll follow up with a quote, then invoice through paypal.</p>
+        <button class="btn-back" type="button" id="back-to-choose" hidden>&larr; pick a different request type</button>
+        <p class="form-note" id="form-note">i&rsquo;ll follow up with a quote, then invoice through paypal.</p>
       </form>
     </div>
 

@@ -75,6 +75,8 @@
     openYt: null,       // key of the expanded youtube embed
 
     form: {
+      kind: 'song',      // 'song' = the structured form, 'open' = free-text
+      brief: '',
       song: '', artist: '',
       type: 'harmony',      // 1:1 harmony guide
       melody: 'none',
@@ -89,6 +91,7 @@
 
   function blankForm() {
     return {
+      kind: 'song', brief: '',
       song: '', artist: '', type: 'harmony', melody: 'none', addons: [],
       deadline: '', contact: '', range: '', budget: '', complexity: '', notes: ''
     };
@@ -501,7 +504,7 @@
   function openCustom() {
     state.modal = 'custom';
     state.song = null;
-    state.view = 'form';
+    state.view = 'choose';
     state.openYt = null;
     state.form = blankForm();
     showModal();
@@ -536,8 +539,11 @@
     var song = state.song;
 
     /* --- header --- */
+    var isOpenReq = state.modal === 'custom' && state.form.kind === 'open';
     var kicker = $('#modal-kicker');
-    kicker.textContent = state.modal === 'custom' ? '✦ custom request' : '';
+    kicker.textContent = state.modal === 'custom'
+      ? (state.view === 'choose' ? '✦ request' : (isOpenReq ? '✦ open request' : '✦ custom request'))
+      : '';
     kicker.hidden = state.modal !== 'custom';
 
     var langLine = $('#modal-lang');
@@ -546,13 +552,19 @@
       else { langLine.innerHTML = ''; langLine.hidden = true; }
     }
     $('#modal-title').textContent = state.modal === 'custom'
-      ? 'request a song'
+      ? (state.view === 'choose' ? 'send a request'
+         : (isOpenReq ? "let's talk about it" : 'request a song'))
       : (song ? song.title : '');
     $('#modal-sub').textContent = state.modal === 'custom'
-      ? "not in the catalog — tell me what you need and i'll quote it."
+      ? (state.view === 'choose'
+          ? 'two ways in — pick whichever fits.'
+          : (isOpenReq
+              ? "no set format. tell me what you're thinking and i'll come back to you."
+              : "not in the catalog — tell me what you need and i'll quote it."))
       : (song ? song.artist : '');
 
     /* --- which view --- */
+    $('#view-choose').hidden   = state.view !== 'choose';
     $('#view-versions').hidden = !(state.modal === 'song' && state.view === 'versions');
     $('#view-form').hidden     = state.view !== 'form';
     $('#view-sent').hidden     = state.view !== 'sent';
@@ -789,8 +801,25 @@
   function renderForm() {
     var f = state.form;
 
-    /* song / artist fields only for custom requests */
-    $('#custom-fields').hidden = state.modal !== 'custom';
+    var isOpen = f.kind === 'open';
+
+    /* An open request shares only the contact / deadline / budget fields —
+       guide type, melody and add-ons are all priced per song, so they'd be
+       meaningless (and intimidating) on a "let's talk" enquiry. */
+    $('#open-fields').hidden   = !isOpen;
+    $('#custom-fields').hidden = isOpen || state.modal !== 'custom';
+    $('#field-type').hidden    = isOpen;
+    $('#field-melody').hidden  = isOpen;
+    $('#field-addons').hidden  = isOpen;
+    $('#tat-note').hidden      = isOpen;
+    $('#back-to-choose').hidden = state.modal !== 'custom';
+    $('#f-brief').value = f.brief;
+    /* budget lives inside the arrangement-only block, so the open form needs
+       its own input — both write to the same state key */
+    $('#f-open-budget').value = f.budget;
+    $('#form-note').textContent = isOpen
+      ? "no commitment — this just starts a conversation."
+      : "i'll follow up with a quote, then invoice through paypal.";
     $('#f-song').value    = f.song;
     $('#f-artist').value  = f.artist;
     $('#f-deadline').value = f.deadline;
@@ -836,7 +865,7 @@
 
     /* arrangement-only block */
     var isArr = f.type === 'arrangement';
-    $('#arr-only').hidden = !isArr;
+    $('#arr-only').hidden = !isArr || isOpen;
     $('#complexity-row').innerHTML = [
       { value: 'simple',       label: 'simple' },
       { value: 'semi',         label: 'semi-complex' },
@@ -852,7 +881,7 @@
     btn.disabled = state.sending;
     btn.innerHTML = state.sending
       ? '<span class="spinner" aria-hidden="true"></span>sending&hellip;'
-      : 'send request ♡';
+      : (isOpen ? 'send it over ♡' : 'send request ♡');
   }
 
 
@@ -862,6 +891,18 @@
 
   function summaryLines() {
     var f = state.form;
+
+    if (f.kind === 'open') {
+      return [
+        'open request',
+        'contact:   ' + (f.contact || '—'),
+        'deadline:  ' + (f.deadline || 'flexible'),
+        'budget:    ' + (f.budget || '—'),
+        '',
+        (f.brief || '—')
+      ].join('\n');
+    }
+
     var melodyLabel = (MELODY.filter(function (m) { return m.value === f.melody; })[0] || {}).label || f.melody;
     var addonLabels = f.addons.map(function (k) {
       var a = ADDONS.filter(function (x) { return x.key === k; })[0];
@@ -890,6 +931,32 @@
 
   function discordPayload() {
     var f = state.form;
+
+    /* open requests get their own shape — a different colour and title so
+       they're obvious at a glance in the channel */
+    if (f.kind === 'open') {
+      var openPayload = {
+        embeds: [{
+          title: 'open request',
+          description: (f.brief || '—').slice(0, 4000),
+          color: 0x1E6E70,
+          fields: [
+            { name: 'contact',  value: (f.contact || '—').slice(0, 1024), inline: true },
+            { name: 'deadline', value: (f.deadline || 'flexible').slice(0, 1024), inline: true },
+            { name: 'budget',   value: (f.budget || 'not given').slice(0, 1024), inline: true }
+          ],
+          footer: { text: (CFG.brandName || 'harmony guides') + ' · open request' },
+          timestamp: new Date().toISOString()
+        }]
+      };
+      var openPing = String(CFG.discordPingUserId || '').trim();
+      if (/^\d{15,25}$/.test(openPing)) {
+        openPayload.content = '<@' + openPing + '> open request';
+        openPayload.allowed_mentions = { users: [openPing] };
+      }
+      return openPayload;
+    }
+
     var melodyOpt = MELODY.filter(function (m) { return m.value === f.melody; })[0] || {};
     var addonLabels = f.addons.map(function (k) {
       var a = ADDONS.filter(function (x) { return x.key === k; })[0];
@@ -963,10 +1030,12 @@
     var f = state.form;
 
     if (usedWebhook) {
-      $('#sent-title').innerHTML = 'request sent ♡';
-      $('#sent-note').textContent =
-        "i'll reach out at " + (f.contact || 'your contact') +
-        ' with a quote and timeline, usually within a day.';
+      $('#sent-title').innerHTML = f.kind === 'open' ? 'got it ♡' : 'request sent ♡';
+      $('#sent-note').textContent = f.kind === 'open'
+        ? "i'll get back to you at " + (f.contact || 'your contact') +
+          " once i've had a read — usually within a day."
+        : "i'll reach out at " + (f.contact || 'your contact') +
+          ' with a quote and timeline, usually within a day.';
       $('#sent-summary').hidden = true;
       $('#copy-summary').hidden = true;
     } else {
@@ -994,13 +1063,21 @@
 
     var f = state.form;
 
-    if (state.modal === 'custom' && !f.song.trim()) {
+    if (f.kind === 'open') {
+      if (!f.brief.trim()) {
+        showError("tell me a bit about what you're after — even a sentence helps.");
+        $('#f-brief').setAttribute('aria-invalid', 'true');
+        $('#f-brief').focus();
+        return;
+      }
+      $('#f-brief').removeAttribute('aria-invalid');
+    } else if (state.modal === 'custom' && !f.song.trim()) {
       showError('what song is it? add a title so i know what to quote.');
       $('#f-song').setAttribute('aria-invalid', 'true');
       $('#f-song').focus();
       return;
     }
-    $('#f-song').removeAttribute('aria-invalid');
+    if (f.kind !== 'open') $('#f-song').removeAttribute('aria-invalid');
 
     if (!f.contact.trim()) {
       showError('i need a discord handle or email to send the quote to.');
@@ -1258,12 +1335,37 @@
     [
       ['#f-song', 'song'], ['#f-artist', 'artist'], ['#f-deadline', 'deadline'],
       ['#f-contact', 'contact'], ['#f-range', 'range'], ['#f-budget', 'budget'],
-      ['#f-notes', 'notes']
+      ['#f-notes', 'notes'], ['#f-brief', 'brief'], ['#f-open-budget', 'budget']
     ].forEach(function (pair) {
       var node = $(pair[0]);
       if (!node) return;
       node.addEventListener('input', function (e) { state.form[pair[1]] = e.target.value; });
     });
+
+    /* --- the request-type chooser --- */
+    var choose = $('#view-choose');
+    if (choose) {
+      choose.addEventListener('click', function (e) {
+        var card = e.target.closest('[data-kind]');
+        if (!card) return;
+        state.form.kind = card.getAttribute('data-kind');
+        state.view = 'form';
+        renderModal();
+        var first = state.form.kind === 'open' ? $('#f-brief') : $('#f-song');
+        if (first) first.focus();
+      });
+    }
+
+    var back = $('#back-to-choose');
+    if (back) {
+      back.addEventListener('click', function () {
+        clearError();
+        state.view = 'choose';
+        renderModal();
+        var card = $('#view-choose [data-kind]');
+        if (card) card.focus();
+      });
+    }
 
     form.addEventListener('submit', handleSubmit);
 
