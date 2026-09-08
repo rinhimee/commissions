@@ -12,35 +12,35 @@ window.PRICE_TIERS = [
     kicker: "harmony guide",
     price: "$20+",
     tone: "teal",
-    desc: "1:1 with the original, each part on its own track. final price scales with complexity."
+    desc: "As close to 1:1 with the original harmonies and adlibs as possible."
   },
   {
     kicker: "vocal arrangement",
     price: "$40+",
     tone: "rose",
-    desc: "original harmonies and adlibs written for your range. quoted per song."
+    desc: "Original harmonies and adlibs written with your voice, range, and preferences in consideration."
   },
   {
     kicker: "catalog song",
     price: "10–50% off",
     tone: "rose-deep",
-    desc: "anything in the catalog above. the discount depends on how much is already done."
+    desc: "Anything in the catalog above will be discounted according to how much work is already done."
   }
 ];
 
 /* Main melody guide options. `value` is what gets sent in the request. */
 window.MELODY_OPTIONS = [
-  { value: "full",    label: "full",    price: "+$20", desc: "the complete lead vocal recorded start to finish." },
-  { value: "partial", label: "partial", price: "+$10", desc: "lead vocal only in the sections where harmonies happen." },
-  { value: "none",    label: "none",    price: "free", desc: "harmony stems only — you already know the melody." }
+  { value: "full",    label: "Full",    price: "+$20", desc: "The complete lead vocal recorded start to finish." },
+  { value: "partial", label: "Partial", price: "+$10", desc: "Lead vocal only in the sections where harmonies happen." },
+  { value: "none",    label: "None",    price: "free", desc: "Harmony stems only — you already know the melody!" }
 ];
 
 /* Add-ons. Multi-select in the form. */
 window.ADDONS = [
-  { key: "monetized",  label: "monetized content",          price: "+50%",  desc: "your cover will run ads or be monetized on any platform." },
-  { key: "commercial", label: "commercial / merchandising", price: "+100%", desc: "the cover is sold, licensed, or used on merch or paid releases." },
-  { key: "rush",       label: "rush delivery",              price: "+100%", desc: "guaranteed turnaround within 3 days of payment." },
-  { key: "anonymity",  label: "anonymity fee / no credit",  price: "+100%", desc: "i stay uncredited and won't post the guide anywhere." }
+  { key: "monetized",  label: "Monetized content",          price: "+50%",  desc: "Your cover will be monetized on any platform." },
+  { key: "commercial", label: "Commercial / Merchandising", price: "+100%", desc: "The cover is sold, licensed, or used on merch or paid releases." },
+  { key: "rush",       label: "Rush delivery",              price: "+100%", desc: "Guaranteed turnaround within 3 days of payment." },
+  { key: "anonymity",  label: "Anonymity / No credit",  price: "+100%", desc: "I stay uncredited and won't post the guide anywhere." }
 ];
 
 /* Turnaround copy shown in the form, depending on what's being requested. */
@@ -53,39 +53,55 @@ window.TURNAROUND = {
 /* FAQ accordion. Add or remove entries freely. */
 window.FAQS = [
   {
-    q: "can you write the main melody for a song i'm making?",
-    a: "that's a different service to a harmony guide, and the catalog isn't set up to quote it. it's still worth asking though — hit 'request a song', pick 'something else', and tell me what you're working on."
+    q: "What files do I actually get?",
+    a: "Each harmony and adlib is isolated onto individual tracks. You'll receive a zip file of labelled WAV stems, one per layer, as well as an mp3 preview of everything stacked so you can hear how it sounds together."
   },
   {
-    q: "what files do i actually get?",
-    a: "labelled WAV stems, one per harmony part, plus an mp3 of everything stacked so you can hear the intended blend. if you want a different format or a rough mix, just ask."
+    q: "Can you write the main melody for a song I'm making?",
+    a: "I'm not publicly open for toplining work, but I'm always willing to entertain inquiries for cool projects. Send in a request form under 'something else' and tell me what you're working on!"
   },
   {
-    q: "do you sing on my cover?",
-    a: "no — the guides are reference tracks for you to learn and re-record in your own voice. they're not meant to be used as the final vocals."
+    q: "Can I use your vocals?",
+    a: "You may not use my vocals as anything other than a guide to reference as you learn and re-record in your own voice. Please inquire about vocal commissions if you'd like me to sing for your song."
   },
   {
-    q: "can you transpose it to my key?",
-    a: "yes, tell me your key or your comfortable range in the request form and i'll chart it there from the start."
+    q: "Can you transpose it to my key?",
+    a: "Yes, although there may be some distortion depending on the key, as I may have to record in the original key and transpose it artificially. Let me know what key you'd like (e.g. +2, -1) in the request form."
   },
   {
-    q: "how many revisions do i get?",
-    a: "one round of tweaks is included — fixing a part that sits awkwardly, adjusting a stack, that kind of thing. bigger rewrites get quoted as a new arrangement."
+    q: "Do you accept revision requests?",
+    a: "For harmony guides, I will happily tweak any missing or incorrect parts if you catch any! For vocal arrangements, things like fixing something that sits awkwardly, adjusting a stack, or even small additions are no issue. However, major additions that weren't requested from the start or significant rewrites may incur an additional cost."
   },
   {
-    q: "my song's already in the catalog — how much cheaper is it?",
-    a: "somewhere between 10% and 50% off, depending on how much of the work is already done. a song with a finished arrangement on hand is the cheapest; one where i only have a partial chart is closer to full price. i'll tell you the exact number in the quote."
+    q: "Do you do discounts for TV-size requests?",
+    a: "TV-size requests (under 1:30) will start at 15 USD, but please know that I will be selective with these requests. Generally, I will only accept a 'TV-size' request for pre-cut anime OP/EDs."
   },
   {
-    q: "can i request a specific cover's arrangement instead of the original?",
-    a: "yes, link the cover in your request. transcribing someone else's arrangement takes about the same effort as the original, so it's priced the same."
+    q: "Will you work on just this specific part of a song for my TikTok/YouTube short cover?",
+    a: "Generally, no, sorry."
   },
   {
-    q: "do you take group or collab covers?",
-    a: "absolutely — tell me how many singers and roughly who's taking which part, and i'll chart the stacks so each person has their own track."
+    q: "How much do you charge for songs you've already worked on?",
+    a: "Somewhere between 10% and 50% off, depending on how much of the work is already done. For example, if you want to purchase a harmony guide I've already worked on, the discount will be larger. Alternatively, if you want a harmony guide of something I've only done my own arrangement for, or you want a vocal arrangement for something I've only done a 1:1 guide for, the discount will be smaller. I'll tell you the exact number in the quote."
   },
   {
-    q: "how do i pay?",
-    a: "paypal invoice after we've agreed on the quote. files go out once it's paid."
+    q: "Can I request a specific cover's arrangement instead of the original?",
+    a: "I do not transcribe other people's original vocal arrangements. If you'd like me to record the guides using translyrics someone else has publicly allowed use of, I can do that, but I will base the harmonies and adlibs off of the original song. If you like certain aspects of that cover, you can commission me for a vocal arrangement and I'll do my own take of it and do my best to accommodate your requests."
+  },
+  {
+    q: "Do you take group or collab covers?",
+    a: "Yes!"
+  },
+  {
+    q: "Can you split the guides between X people?",
+    a: "Yes, but depending on how much additional labor is involved, I may request an additional fee."
+  },
+  {
+    q: "How do I pay?",
+    a: "I will send you a PayPal invoice after we've agreed on the quote."
+  },
+  {
+    q: "Do you take partial payment/payment plans?",
+    a: "I accept two forms of payment: a 100% upfront deposit, and a 50% deposit + 50% after the guide preview has been approved. Please note that I will not begin work until the first payment has been completed, and I will not send you the files until the final payment has been completed."
   }
 ];

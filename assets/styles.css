@@ -1413,3 +1413,107 @@ body.modal-open { overflow: hidden; }
   }
   .starfield { display: none; }
 }
+
+
+/* ---------- 15. sparkle + cursor glitter -------------------- */
+
+/* The shimmer keeps --ink as its base stops, so the word reads normally and
+   only a warm highlight travels across it. Guarded by @supports: without
+   background-clip:text the transparent fill would erase the word entirely. */
+.sparkle-word { position: relative; }
+
+@supports (-webkit-background-clip: text) or (background-clip: text) {
+  .sparkle-ink {
+    background-image: linear-gradient(
+      100deg,
+      var(--ink) 0%, var(--ink) 42%,
+      var(--rose) 48%, #E8B963 52%, var(--rose) 56%,
+      var(--ink) 62%, var(--ink) 100%
+    );
+    background-size: 280% 100%;
+    /* MUST tile. With no-repeat, any background-position outside 0–100% left
+       part of the text with no image behind it — and since the fill is
+       transparent, those letters simply disappeared. */
+    background-repeat: repeat;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: sparkleSheen 4.2s ease-in-out 1.1s infinite;
+  }
+}
+
+/* stays within 0–100% so the text is always fully covered */
+@keyframes sparkleSheen {
+  0%        { background-position: 100% 0; }
+  55%, 100% { background-position: 0% 0; }
+}
+
+.sparkle-star {
+  position: absolute;
+  pointer-events: none;
+  color: #E8B963;
+  line-height: 1;
+  opacity: 0;
+  text-shadow: 0 0 6px rgba(232, 185, 99, .55);
+  animation: sparkleTwinkle 2.8s ease-in-out infinite;
+}
+@keyframes sparkleTwinkle {
+  0%, 70%, 100% { opacity: 0; transform: scale(.4) rotate(0deg); }
+  12%           { opacity: 1; transform: scale(1.15) rotate(18deg); }
+  26%           { opacity: .5; transform: scale(.85) rotate(28deg); }
+}
+
+/* cursor trail */
+.glitter-layer {
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+.glitter {
+  position: absolute;
+  pointer-events: none;
+  line-height: 1;
+  will-change: transform, opacity;
+  animation: glitterFall linear forwards;
+}
+@keyframes glitterFall {
+  0%   { opacity: 0;  transform: translate(-50%, -50%) scale(.3) rotate(0deg); }
+  18%  { opacity: .95; transform: translate(-50%, -50%) scale(1) rotate(calc(var(--rot) * .3)); }
+  100% { opacity: 0;  transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(.35) rotate(var(--rot)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sparkle-ink { animation: none; }
+  .sparkle-star { display: none; }
+  .glitter-layer { display: none; }
+}
+
+/* Secondary hero CTA. White outline rather than pink: the hero sits on
+   --rose-wash, so a pink border washes out (1.4:1) while white reads as a
+   crisp cut-out against it, with the drop shadow carrying the edge.
+   Hover reveals mint — the palette's other half, and the colour of the faq
+   section this button actually points at. */
+.hero__cta--soft {
+  display: flex; width: fit-content;
+  margin-top: 10px;
+  background: transparent;
+  color: var(--rose-deep);
+  border: 2px solid var(--white);
+  box-shadow: 0 4px 0 var(--rose-shadow);
+}
+.hero__cta--soft:hover {
+  background: var(--teal-mint);
+  color: var(--teal-ink);
+  border-color: var(--white);
+  box-shadow: 0 6px 0 var(--teal-shadow);
+}
+.hero__cta--soft:active {
+  background: var(--teal-mint);
+  color: var(--teal-ink);
+  box-shadow: 0 2px 0 var(--teal-shadow);
+}
+.hero__cta--soft:focus-visible {
+  outline: 3px solid var(--teal);
+  outline-offset: 3px;
+}

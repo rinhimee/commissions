@@ -1503,6 +1503,123 @@
      GO
      ============================================================ */
 
+  /* ============================================================
+     SPARKLE  (decorative, additive — touches no markup)
+     ============================================================ */
+
+  /* Finds the word in the hero headline at runtime and decorates it, rather
+     than wrapping it in index.html. That keeps the copy editable: reword the
+     headline freely and this still finds "sparkle" (or gives up quietly). */
+  function initSparkle() {
+    var title = $('#hero-title');
+    if (!title) return;
+
+    var word = $$('span', title).filter(function (el) {
+      return /sparkl/i.test(el.textContent || '');
+    })[0];
+    if (!word) return;
+
+    word.classList.add('sparkle-word');
+
+    /* The shimmer goes on an inner wrapper, not on the word span itself:
+       that span already carries the .rise entrance animation, and an
+       `animation` shorthand here would silently replace it. */
+    var ink = document.createElement('span');
+    ink.className = 'sparkle-ink';
+    ink.textContent = word.textContent;
+    word.textContent = '';
+    word.appendChild(ink);
+
+    /* a few stars that twinkle around the word, on their own offsets */
+    var stars = [
+      { x: -4,  y: -22, s: 13, d: 0    },
+      { x: 34,  y: 62,  s: 10, d: 0.7  },
+      { x: 78,  y: -10, s: 15, d: 1.35 },
+      { x: 104, y: 44,  s:  9, d: 2.05 }
+    ];
+    stars.forEach(function (st) {
+      var el = document.createElement('span');
+      el.className = 'sparkle-star';
+      el.setAttribute('aria-hidden', 'true');
+      el.textContent = '\u2726';
+      el.style.left = st.x + '%';
+      el.style.top = st.y + '%';
+      el.style.fontSize = st.s + 'px';
+      el.style.animationDelay = st.d + 's';
+      word.appendChild(el);
+    });
+  }
+
+
+  /* ============================================================
+     CURSOR GLITTER
+     ============================================================ */
+
+  function initGlitter() {
+    /* skip where it would be unwanted or pointless: reduced motion, and
+       touch screens (no cursor to trail) */
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
+    var fine   = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)');
+    if ((reduce && reduce.matches) || (fine && !fine.matches)) return;
+
+    var layer = document.createElement('div');
+    layer.className = 'glitter-layer';
+    layer.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(layer);
+
+    var GLYPHS = ['\u2726', '\u2727', '\u00b7'];
+    var TINTS  = ['var(--rose)', 'var(--rose-line)', 'var(--teal)', 'var(--rose-soft)'];
+    var MAX    = 28;          /* hard ceiling on live particles */
+    var GAP    = 45;          /* ms between spawns */
+    var MOVE   = 9;           /* px the pointer must travel to earn one */
+
+    var live = 0, lastAt = 0, lastX = null, lastY = null;
+
+    function spawn(x, y) {
+      if (live >= MAX) return;
+      live++;
+
+      var bit = document.createElement('span');
+      bit.className = 'glitter';
+      bit.textContent = GLYPHS[(Math.random() * GLYPHS.length) | 0];
+      bit.style.left = x + 'px';
+      bit.style.top  = y + 'px';
+      bit.style.color = TINTS[(Math.random() * TINTS.length) | 0];
+      bit.style.fontSize = (7 + Math.random() * 8).toFixed(1) + 'px';
+      /* drift a little sideways and down, and spin a bit, so no two match */
+      bit.style.setProperty('--dx', ((Math.random() - 0.5) * 26).toFixed(1) + 'px');
+      bit.style.setProperty('--dy', (16 + Math.random() * 20).toFixed(1) + 'px');
+      bit.style.setProperty('--rot', ((Math.random() - 0.5) * 140).toFixed(0) + 'deg');
+      bit.style.animationDuration = (750 + Math.random() * 450).toFixed(0) + 'ms';
+
+      layer.appendChild(bit);
+      bit.addEventListener('animationend', function () {
+        if (bit.parentNode) bit.parentNode.removeChild(bit);
+        live--;
+      });
+    }
+
+    window.addEventListener('pointermove', function (e) {
+      if (e.pointerType && e.pointerType !== 'mouse') return;
+
+      var now = e.timeStamp || Date.now();
+      if (now - lastAt < GAP) return;
+
+      if (lastX !== null) {
+        var dx = e.clientX - lastX, dy = e.clientY - lastY;
+        if (dx * dx + dy * dy < MOVE * MOVE) return;
+      }
+      lastAt = now; lastX = e.clientX; lastY = e.clientY;
+      spawn(e.clientX, e.clientY);
+    }, { passive: true });
+
+    /* don't leave a frozen trail behind when the tab is hidden */
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) { layer.innerHTML = ''; live = 0; }
+    });
+  }
+
+
   function init() {
     initBranding();
     renderPricing();
@@ -1511,6 +1628,8 @@
     renderCatalog();
     bindEvents();
     initScrollSpy();
+    initSparkle();
+    initGlitter();
   }
 
   if (document.readyState === 'loading') {
