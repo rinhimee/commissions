@@ -51,6 +51,17 @@ window.SONGS = [
   },
   {
     id: 4,
+    title: "Ai ni Deai Koi wa Tsuzuku",
+    artist: "HoneyWorks",
+    language: "JP",
+    harmony: {
+      complexity: "semi-complex",
+      yt: "rWxe-J-fyqY"
+    },
+    arrangements: []
+  },
+  {
+    id: 5,
     title: "Ai Scream!",
     artist: "AiScReam",
     language: "JP",
@@ -62,7 +73,31 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 5,
+    id: 6,
+    title: "Ameotome",
+    artist: "Raon Lee",
+    language: "JP",
+    harmony: null,
+    arrangements: [
+      {
+        complexity: "simple",
+        yt: "uHXkCfHcEZU"
+      }
+    ]
+  },
+  {
+    id: 7,
+    title: "Baby Powder",
+    artist: "Jenevieve",
+    language: "EN",
+    harmony: {
+      complexity: "simple",
+      yt: "qcD-awjOWXY"
+    },
+    arrangements: []
+  },
+  {
+    id: 8,
     title: "BIBBIDIBA",
     artist: "Hoshimachi Suisei",
     language: "JP",
@@ -74,7 +109,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 6,
+    id: 9,
     title: "Birds Of Time",
     artist: "Enna Alouette",
     language: "EN",
@@ -85,7 +120,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 7,
+    id: 10,
     title: "Bow and Arrow",
     artist: "Kenshi Yonezu",
     language: "JP",
@@ -101,7 +136,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 8,
+    id: 11,
     title: "Cendrillon",
     artist: "Signal-P",
     language: "JP",
@@ -113,7 +148,18 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 9,
+    id: 12,
+    title: "CH4NGE",
+    artist: "Giga",
+    language: "JP",
+    harmony: {
+      complexity: "simple",
+      yt: "Grex-9DHons"
+    },
+    arrangements: []
+  },
+  {
+    id: 13,
     title: "check",
     artist: "bbno$",
     language: "EN",
@@ -126,7 +172,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 10,
+    id: 14,
     title: "Cherry Pop",
     artist: "DECO*27",
     language: "JP",
@@ -138,7 +184,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 11,
+    id: 15,
     title: "Chotto Otona",
     artist: "Ivudot",
     language: "JP",
@@ -152,7 +198,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 12,
+    id: 16,
     title: "Come Play",
     artist: "Stray Kids, Young Miko, and Tom Morello / Arcane",
     language: ["ES", "EN", "KR"],
@@ -164,7 +210,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 13,
+    id: 17,
     title: "Crazy For You",
     artist: "Marina Saito",
     language: "JP",
@@ -175,7 +221,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 14,
+    id: 18,
     title: "Cure (ver. MiziSua)",
     artist: "VIVINOS / Alien Stage",
     language: "KR",
@@ -187,7 +233,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 15,
+    id: 19,
     title: "DISTLAND EXPLORE",
     artist: "netuki",
     language: "JP",
@@ -199,7 +245,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 16,
+    id: 20,
     title: "Espresso",
     artist: "Sabrina Carpenter",
     language: "EN",
@@ -212,7 +258,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 17,
+    id: 21,
     title: "Ethyria",
     artist: "Enna Alouette",
     language: ["EN", "JP"],
@@ -223,7 +269,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 18,
+    id: 22,
     title: "Everything Goes On",
     artist: "Porter Robinson",
     language: "EN",
@@ -239,7 +285,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 19,
+    id: 23,
     title: "Final Bow",
     artist: "Bao The Whale",
     language: "EN",
@@ -252,7 +298,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 20,
+    id: 24,
     title: "FOCUS",
     artist: "KIRA",
     language: ["JP", "EN"],
@@ -264,7 +310,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 21,
+    id: 25,
     title: "Golden",
     artist: "HUNTR/X / KPop Demon Hunters",
     language: ["EN", "KR"],
@@ -275,19 +321,45 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 22,
+    id: 26,
+    title: "Hana no Uta",
+    artist: "YURiCa / Hanatan",
+    language: "JP",
+    harmony: null,
+    arrangements: [
+      {
+        complexity: "simple",
+        client: "Yunoshita Peo",
+        yt: "E9q2US4QXMA"
+      }
+    ]
+  },
+  {
+    id: 27,
+    title: "Heikousen",
+    artist: "Eve x suis from ヨルシカ",
+    language: "JP",
+    harmony: {
+      complexity: "complex",
+      yt: "f7Bmu_tswUw"
+    },
+    arrangements: []
+  },
+  {
+    id: 28,
     title: "HOT",
     artist: "LE SSERAFIM",
     language: ["KR", "EN"],
     harmony: {
       complexity: "simple",
       tracks: 7,
+      yt: "PJ_cOlmXBQo",
       audio: "audio/hot.mp3"
     },
     arrangements: []
   },
   {
-    id: 23,
+    id: 29,
     title: "I AM",
     artist: "IVE",
     language: ["KR", "EN"],
@@ -300,9 +372,9 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 24,
+    id: 30,
     title: "I Really Want To Stay At Your House",
-    artist: "Rosa Walton / Cyberpunk 2077",
+    artist: "Rosa Walton / Cyberpunk Edgerunners",
     language: "EN",
     harmony: null,
     arrangements: [
@@ -316,7 +388,33 @@ window.SONGS = [
     ]
   },
   {
-    id: 25,
+    id: 31,
+    title: "Issun no Aka",
+    artist: "yama",
+    language: "JP",
+    harmony: null,
+    arrangements: [
+      {
+        complexity: "semi-complex",
+        tracks: 9,
+        client: "mizuna (RDB-R1)",
+        yt: "voXUwC9QCSs"
+      }
+    ]
+  },
+  {
+    id: 32,
+    title: "Kimi to Tea for Two",
+    artist: "Wasuta",
+    language: "JP",
+    harmony: {
+      complexity: "simple",
+      yt: "uZyHHpfXZdY"
+    },
+    arrangements: []
+  },
+  {
+    id: 33,
     title: "Know About Me",
     artist: "NMIXX",
     language: ["KR", "EN"],
@@ -328,7 +426,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 26,
+    id: 34,
     title: "Kono Yoru Ni Kanpai",
     artist: "Megatera Zero",
     language: "JP",
@@ -339,7 +437,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 27,
+    id: 35,
     title: "Let Me Be With You",
     artist: "Round Table",
     language: "JP",
@@ -355,7 +453,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 28,
+    id: 36,
     title: "Like A Sunny Day, Like A Rainy Day",
     artist: "Silence Wang",
     language: "CN",
@@ -367,7 +465,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 29,
+    id: 37,
     title: "Lover Girl",
     artist: "Laufey",
     language: "EN",
@@ -381,7 +479,18 @@ window.SONGS = [
     ]
   },
   {
-    id: 30,
+    id: 38,
+    title: "Machine Love",
+    artist: "JamieP",
+    language: ["EN", "JP"],
+    harmony: {
+      complexity: "complex",
+      yt: "OHbBa3ZvXZk"
+    },
+    arrangements: []
+  },
+  {
+    id: 39,
     title: "Mekurumeku Rendezvous",
     artist: "FUWAMOCO",
     language: "JP",
@@ -393,7 +502,20 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 31,
+    id: 40,
+    title: "Mermaid festa vol. 2 ~Passionate~",
+    artist: "μ's",
+    language: "JP",
+    harmony: null,
+    arrangements: [
+      {
+        complexity: "semi-complex",
+        yt: "4Nrh0VyDjP0"
+      }
+    ]
+  },
+  {
+    id: 41,
     title: "Metrocity",
     artist: "imase & natori",
     language: "JP",
@@ -407,7 +529,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 32,
+    id: 42,
     title: "My Favorite Things",
     artist: "ver. Big Band Chorus",
     language: "EN",
@@ -422,7 +544,28 @@ window.SONGS = [
     ]
   },
   {
-    id: 33,
+    id: 43,
+    title: "Mysterious Messenger",
+    artist: "Mystic Messenger",
+    language: "EN",
+    harmony: {
+      complexity: "simple"
+    },
+    arrangements: []
+  },
+  {
+    id: 44,
+    title: "Natsuroiro Egao de 1, 2, Jump!",
+    artist: "μ's",
+    language: "JP",
+    harmony: {
+      complexity: "simple",
+      yt: "icFZfOQmbnk"
+    },
+    arrangements: []
+  },
+  {
+    id: 45,
     title: "Natural Disaster",
     artist: "Bao The Whale, Trickywi, Vienna, & Yuzu",
     language: "EN",
@@ -432,19 +575,31 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 34,
+    id: 46,
+    title: "Palette",
+    artist: "Tokoyami Towa",
+    language: "JP",
+    harmony: {
+      complexity: "simple",
+      yt: "8lNiCJn2Lo4"
+    },
+    arrangements: []
+  },
+  {
+    id: 47,
     title: "Risk It All",
     artist: "Bruno Mars",
     language: "EN",
     harmony: null,
     arrangements: [
       {
-        complexity: "semi-complex"
+        complexity: "semi-complex",
+        yt: "_ZJRpPZGauQ"
       }
     ]
   },
   {
-    id: 35,
+    id: 48,
     title: "Shoujo Rei",
     artist: "mikitoP",
     language: "JP",
@@ -461,7 +616,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 36,
+    id: 49,
     title: "Snow Halation",
     artist: "µ's",
     language: "JP",
@@ -475,7 +630,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 37,
+    id: 50,
     title: "Soda Pop",
     artist: "Saja Boys / KPop Demon Hunters",
     language: ["KR", "EN"],
@@ -487,7 +642,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 38,
+    id: 51,
     title: "Sour Candy",
     artist: "Ironmouse",
     language: ["EN", "JP"],
@@ -497,7 +652,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 39,
+    id: 52,
     title: "The Cruel Angel's Thesis",
     artist: "Yoko Takahashi",
     language: "JP",
@@ -508,7 +663,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 40,
+    id: 53,
     title: "The Fate Of Ophelia",
     artist: "Taylor Swift",
     language: "EN",
@@ -520,7 +675,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 41,
+    id: 54,
     title: "Tipsy",
     artist: "Wanuka",
     language: "JP",
@@ -531,7 +686,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 42,
+    id: 55,
     title: "What Is This Feeling",
     artist: "Wicked",
     language: "EN",
@@ -544,7 +699,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 43,
+    id: 56,
     title: "White Wishes",
     artist: "9nine",
     language: "JP",
@@ -557,7 +712,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 44,
+    id: 57,
     title: "Wildflower",
     artist: "Billie Eilish",
     language: "EN",
@@ -570,7 +725,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 45,
+    id: 58,
     title: "Worlders",
     artist: "Jin / Project SEKAI",
     language: "EN",
@@ -586,7 +741,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 46,
+    id: 59,
     title: "Your Gaze, Crepuscular",
     artist: "Tatsuya Kitani",
     language: "JP",
