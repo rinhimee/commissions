@@ -24,6 +24,7 @@
   var ADDONS   = window.ADDONS        || [];
   var TAT      = window.TURNAROUND    || {};
   var FAQS     = window.FAQS          || [];
+  var TERMS    = window.TERMS         || [];
 
   /* Escape anything that came from a data file before it touches innerHTML. */
   function esc(s) {
@@ -77,6 +78,7 @@
     form: {
       kind: 'song',      // 'song' = the structured form, 'open' = free-text
       brief: '',
+      name: '', paypal: '', onvocal: '', offvocal: '', customInstr: false, extra: '',
       song: '', artist: '',
       type: 'harmony',      // 1:1 harmony guide
       melody: 'none',
@@ -92,6 +94,7 @@
   function blankForm() {
     return {
       kind: 'song', brief: '',
+      name: '', paypal: '', onvocal: '', offvocal: '', customInstr: false, extra: '',
       song: '', artist: '', type: 'harmony', melody: 'none', addons: [],
       deadline: '', contact: '', range: '', budget: '', complexity: '', notes: ''
     };
@@ -142,6 +145,18 @@
       }).join('');
     }
 
+    /* the hero's portfolio button opens the playlist directly when one is
+       configured; without a URL it still jumps to the portfolio section */
+    var heroPl = $('[data-hero-playlist]');
+    if (heroPl && links.playlist) {
+      heroPl.href = links.playlist;
+      heroPl.target = '_blank';
+      heroPl.rel = 'noopener noreferrer';
+      if (!$('.social__ext', heroPl)) {
+        heroPl.insertAdjacentHTML('beforeend', ' <span class="social__ext" aria-hidden="true">\u2197</span>');
+      }
+    }
+
     var playlist = $('#playlist-link');
     if (playlist) {
       playlist.hidden = false;
@@ -151,6 +166,9 @@
         playlist.rel = 'noopener noreferrer';
         playlist.classList.remove('is-unset');
         playlist.removeAttribute('title');
+        if (!$('.social__ext', playlist)) {
+          playlist.insertAdjacentHTML('beforeend', ' <span class="social__ext" aria-hidden="true">\u2197</span>');
+        }
       } else {
         /* no href = not clickable, not focusable */
         playlist.removeAttribute('href');
@@ -205,6 +223,27 @@
           '</div>';
       }).join('');
     }
+  }
+
+  /* The terms read as reference material, so they stay open rather than
+     hiding behind accordions — people need to scan and re-find them. The
+     note field is the only place raw markup is allowed through, and it's
+     authored by Lindsey in content.js, not by anything user-supplied. */
+  function renderTerms() {
+    var list = $('#terms-list');
+    if (!list) return;
+    if (!TERMS.length) { var sec = $('#terms'); if (sec) sec.hidden = true; return; }
+
+    list.innerHTML = TERMS.map(function (g) {
+      return '' +
+        '<div class="terms__group">' +
+          '<h3 class="terms__h">' + esc(g.h) + '</h3>' +
+          '<ul class="terms__list">' +
+            g.items.map(function (i) { return '<li>' + esc(i) + '</li>'; }).join('') +
+          '</ul>' +
+          (g.note ? '<p class="terms__note">' + g.note + '</p>' : '') +
+        '</div>';
+    }).join('');
   }
 
   function renderFaq() {
@@ -467,7 +506,7 @@
         cx: song.harmony.complexity,
         tracks: song.harmony.tracks || 0,
         client: song.harmony.client || null,
-        yt: null,
+        yt: song.harmony.yt || null,
         audio: song.harmony.audio || null
       });
     }
@@ -535,11 +574,19 @@
     return TAT.harmony;
   }
 
+  /* Swap modal views with a height tween instead of an instant jump.
+     Measures before and after, animates between, then hands height control
+     back to the layout so nothing stays pinned. */
+  /* view swaps are instant — the height tween stuttered too much */
+  function swapView(mutate) { mutate(); }
+
   function renderModal() {
     var song = state.song;
 
     /* --- header --- */
     var isOpenReq = state.modal === 'custom' && state.form.kind === 'open';
+    /* the chooser itself stays neutral — only tint once you're on the open form */
+    $('#modal-backdrop').classList.toggle('is-open-request', isOpenReq && state.view !== 'choose');
     var kicker = $('#modal-kicker');
     kicker.textContent = state.modal === 'custom'
       ? (state.view === 'choose' ? '✦ request' : (isOpenReq ? '✦ open request' : '✦ custom request'))
@@ -579,24 +626,74 @@
   var audioEl  = null;
   var audioSrc = null;
   var pendingSeek = null;   // scrub target set before metadata arrived
-  var volume = 1;           // shared by every preview, survives re-renders
-  var muted  = false;
+  /* Volume starts at 2 of the 4 ticks and is remembered across visits.
+     Private-mode browsers throw on storage, so every touch is guarded. */
+  var VOL_KEY = 'rh:preview-volume';
+  var DEFAULT_VOLUME = 0.75;
 
-  var ICON_SPK = '<svg viewBox="0 0 18 16" width="14" height="13" aria-hidden="true">' +
-      '<path d="M8 1.5 4.2 4.8H1.6v6.4h2.6L8 14.5z" fill="currentColor"/>' +
-      '<path d="M11 5.4a3.4 3.4 0 0 1 0 5.2" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/>' +
-      '<path d="M13.4 3.2a6.6 6.6 0 0 1 0 9.6" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>';
-  var ICON_MUTE = '<svg viewBox="0 0 18 16" width="14" height="13" aria-hidden="true">' +
-      '<path d="M8 1.5 4.2 4.8H1.6v6.4h2.6L8 14.5z" fill="currentColor"/>' +
-      '<path d="M11.4 5.6 15.8 10.4M15.8 5.6 11.4 10.4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>';
+  function storedVolume() {
+    try {
+      var raw = window.localStorage.getItem(VOL_KEY);
+      if (raw === null) return DEFAULT_VOLUME;
+      var v = parseFloat(raw);
+      return (isFinite(v) && v >= 0 && v <= 1) ? v : DEFAULT_VOLUME;
+    } catch (err) { return DEFAULT_VOLUME; }
+  }
+
+  var volume  = storedVolume();  // shared by every preview, survives re-renders
+  var muted   = (volume === 0);
+  var preMute = volume || DEFAULT_VOLUME;   // what unmuting restores
+
+  var ICON_NOTE = '\u266A';   /* the draft's note; muted state is a CSS slash */
+
+  /* Read just the duration up front so the player reads "0:00 / 3:24" at
+     rest instead of waiting for the first play. Metadata only — no audio
+     data is fetched, and the probe is thrown away once it reports. */
+  function primeDuration(box) {
+    var src = box.getAttribute('data-aplay');
+    if (!src) return;
+    var probe = new Audio(), settled = false;
+    probe.preload = 'metadata';
+    probe.addEventListener('loadedmetadata', function () {
+      settled = true;
+      /* if it started playing in the meantime, paintAudio owns the label */
+      if (audioSrc !== src) paintTime($('[data-aplay-time]', box), 0, probe.duration);
+    });
+    probe.addEventListener('error', function () {
+      /* tearing the probe down also fires 'error' — only the first one is real */
+      if (settled) return;
+      settled = true;
+      box.classList.add('is-missing');
+      var t = $('[data-aplay-time]', box);
+      if (t) t.textContent = 'file not found';
+    });
+    probe.src = src;
+  }
+
+  /* elapsed and total are tinted differently, so they're separate spans */
+  function paintTime(el, cur, dur) {
+    if (!el) return;
+    var html = '<b class="aplay__now">' + fmtTime(cur) + '</b>';
+    if (isFinite(dur) && dur > 0) {
+      html += '<i class="aplay__slash">/</i><b class="aplay__dur">' + fmtTime(dur) + '</b>';
+    }
+    el.innerHTML = html;
+  }
 
   function paintVolume(box) {
     var v = muted ? 0 : volume;
     var btn  = $('[data-aplay-mute]', box);
-    var fill = $('[data-aplay-volfill]', box);
-    if (fill) fill.style.width = (v * 100) + '%';
+
+    /* four stepped ticks instead of a fill bar; tick n lights at n/4 */
+    var ticks = $$('.aplay__tick', box);
+    ticks.forEach(function (t, i) {
+      t.classList.toggle('is-on', v >= (i + 1) / ticks.length - 0.001);
+    });
+    var vb = $('[data-aplay-volbar]', box);
+    if (vb) vb.setAttribute('aria-valuenow', Math.round(v * 100));
+
     if (btn) {
-      btn.innerHTML = v === 0 ? ICON_MUTE : ICON_SPK;
+      btn.innerHTML = ICON_NOTE;
       btn.setAttribute('aria-label', v === 0 ? 'unmute' : 'mute');
     }
     box.classList.toggle('is-muted', v === 0);
@@ -610,6 +707,7 @@
   function setVolume(v) {
     volume = Math.max(0, Math.min(1, v));
     muted  = (volume === 0);
+    try { window.localStorage.setItem(VOL_KEY, String(volume)); } catch (err) {}
     applyVolume();
   }
 
@@ -629,7 +727,7 @@
       if (b) { b.innerHTML = '&#9654;'; b.setAttribute('aria-label', 'play preview'); }
       if (f) f.style.width = '0%';
       if (k) k.style.left = '0%';
-      if (t) t.textContent = '0:00';
+      if (t) paintTime(t, 0, 0);
     });
   }
 
@@ -652,7 +750,7 @@
     var pct = (isFinite(d) && d > 0 ? (c / d) * 100 : 0);
     if (f) f.style.width = pct + '%';
     if (k) k.style.left = pct + '%';
-    if (t) t.textContent = fmtTime(c) + (isFinite(d) && d > 0 ? ' / ' + fmtTime(d) : '');
+    if (t) paintTime(t, c, d);
     box.classList.toggle('is-playing', !audioEl.paused);
   }
 
@@ -741,18 +839,25 @@
       var open = state.openYt === v.key;
       return '' +
         '<div class="version">' +
+          '<span class="version__spark" aria-hidden="true">\u2727</span>' +
           '<div class="version__row">' +
             '<div class="version__main">' +
               '<div class="version__label">' + esc(v.label) + '</div>' +
               '<div class="version__meta">' +
-                '<span class="version__cx version__cx--' + cxClass(v.cx) + '">' + esc(v.cx) + '</span>' +
-                (v.tracks ? '<span class="version__tracks">' + esc(v.tracks) + ' tracks</span>' : '') +
+                '<span class="vtag vtag--' + cxClass(v.cx) + '">' +
+                  '<i class="vtag__dot" aria-hidden="true"></i>' + esc(v.cx) +
+                '</span>' +
+                (v.tracks
+                  ? '<span class="vtag vtag--tracks">' +
+                      '<i class="vtag__dot" aria-hidden="true"></i>' + esc(v.tracks) + ' tracks' +
+                    '</span>'
+                  : '') +
               '</div>' +
               (v.client ? '<div class="version__client">for ' + esc(v.client) + '</div>' : '') +
             '</div>' +
             (v.yt
               ? '<button class="version__yt-btn" type="button" data-yt="' + esc(v.key) + '" aria-expanded="' + open + '">' +
-                  '<span>yt</span><span style="font-size:10px;">' + (open ? '▲' : '▼') + '</span>' +
+                  '<span>yt</span><span style="font-size:10px;">' + (open ? '\u25B2' : '\u25BC') + '</span>' +
                 '</button>'
               : '') +
           '</div>' +
@@ -765,13 +870,20 @@
                     '<div class="aplay__fill" data-aplay-fill></div>' +
                     '<div class="aplay__knob" data-aplay-knob></div>' +
                   '</div>' +
-                  '<span class="aplay__time" data-aplay-time>0:00</span>' +
+                  '<span class="aplay__time" data-aplay-time><b class="aplay__now">0:00</b></span>' +
                   '<div class="aplay__vol">' +
                     '<button class="aplay__volbtn" type="button" data-aplay-mute aria-label="mute"></button>' +
-                    '<div class="aplay__volbar" data-aplay-volbar>' +
-                      '<div class="aplay__volfill" data-aplay-volfill></div>' +
+                    '<div class="aplay__volbar" data-aplay-volbar ' +
+                         'role="slider" tabindex="0" aria-label="volume" ' +
+                         'aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">' +
+                      '<i class="aplay__tick"></i><i class="aplay__tick"></i>' +
+                      '<i class="aplay__tick"></i><i class="aplay__tick"></i>' +
                     '</div>' +
                   '</div>' +
+                '</div>' +
+                '<div class="version__foot">' +
+                  '<span class="version__note" aria-hidden="true">\u266A</span>' +
+                  '<span>preview clip \u2014 full guide delivered as isolated stems</span>' +
                 '</div>' +
               '</div>'
             : '') +
@@ -789,6 +901,7 @@
     }).join('');
 
     $$('.aplay', wrap).forEach(paintVolume);
+    $$('.aplay', wrap).forEach(primeDuration);
   }
 
   /* ---------- the request form ------------------------------ */
@@ -806,13 +919,51 @@
     /* An open request shares only the contact / deadline / budget fields —
        guide type, melody and add-ons are all priced per song, so they'd be
        meaningless (and intimidating) on a "let's talk" enquiry. */
+    /* The original link is only worth asking for on a song I haven't already
+       worked on — from the catalog I know exactly which version it is. */
+    $('#field-links').hidden   = isOpen || !!state.song;
+    /* The instrumental question applies to any song request: even a catalog
+       guide may not line up against a commissioned backing track. */
+    $('#field-instr').hidden     = isOpen;
+    $('#f-custom-instr').checked = !!f.customInstr;
+    /* On a song I haven't done before the instrumental box sits open but
+       optional — if they happen to have one it saves me hunting for it.
+       From the catalog it stays collapsed, because I already have what I
+       need. Ticking "custom instrumental" opens it and makes it required
+       either way: that's the case where I can't go and find it myself. */
+    var newSong = !state.song;
+    $('#instr-detail').hidden = !(f.customInstr || newSong);
+    var ovReq = $('#offvocal-req'), ovOpt = $('#offvocal-opt');
+    if (ovReq) ovReq.hidden = !f.customInstr;
+    if (ovOpt) ovOpt.hidden = !!f.customInstr;
+    var ovLabel = $('#offvocal-label');
+    if (ovLabel) {
+      ovLabel.textContent = f.customInstr
+        ? 'Link to your instrumental'
+        : 'Link to the instrumental';
+    }
+    /* deadline + paypal show on every request; paypal is only required for songs */
+    var ppReq = $('#paypal-req'), ppOpt = $('#paypal-opt');
+    if (ppReq) ppReq.hidden = isOpen;
+    if (ppOpt) ppOpt.hidden = !isOpen;
+    $('#f-name').value     = f.name;
+    $('#f-paypal').value   = f.paypal;
+    $('#f-onvocal').value  = f.onvocal;
+    $('#f-offvocal').value = f.offvocal;
+    $('#f-extra').value    = f.extra;
     $('#open-fields').hidden   = !isOpen;
     $('#custom-fields').hidden = isOpen || state.modal !== 'custom';
     $('#field-type').hidden    = isOpen;
     $('#field-melody').hidden  = isOpen;
     $('#field-addons').hidden  = isOpen;
     $('#tat-note').hidden      = isOpen;
-    $('#back-to-choose').hidden = state.modal !== 'custom';
+    /* From a catalog song the same link walks back to that song's guides,
+       so you can re-check what's on hand without losing the modal. */
+    var back = $('#back-to-choose');
+    back.hidden = false;
+    back.innerHTML = state.modal === 'song'
+      ? '\u2190 Back to this song\u2019s guides'
+      : '\u2190 Pick a different request type';
     $('#f-brief').value = f.brief;
     /* budget lives inside the arrangement-only block, so the open form needs
        its own input — both write to the same state key */
@@ -831,7 +982,7 @@
     /* guide type */
     $('#type-row').innerHTML = [
       { value: 'harmony',     label: '1:1 harmony guide' },
-      { value: 'arrangement', label: 'vocal arrangement' }
+      { value: 'arrangement', label: 'Vocal arrangement' }
     ].map(function (o) {
       return '<button class="' + pillClass(f.type === o.value) + '" type="button" ' +
              'data-set="type" data-value="' + o.value + '" aria-pressed="' + (f.type === o.value) + '">' +
@@ -840,9 +991,13 @@
 
     /* melody guide */
     $('#melody-row').innerHTML = MELODY.map(function (o) {
+      /* label and price in separate spans so the price can sit apart and
+         italic — "Full  +$20" ran together as one word before */
       return '<button class="' + pillClass(f.melody === o.value) + '" type="button" ' +
              'data-set="melody" data-value="' + esc(o.value) + '" aria-pressed="' + (f.melody === o.value) + '">' +
-             esc(o.label) + '  ' + esc(o.price) + '</button>';
+               '<span class="pill-btn__label">' + esc(o.label) + '</span>' +
+               '<span class="pill-btn__price">' + esc(o.price) + '</span>' +
+             '</button>';
     }).join('');
     $('#melody-warn').hidden = f.melody !== 'partial';
 
@@ -867,9 +1022,9 @@
     var isArr = f.type === 'arrangement';
     $('#arr-only').hidden = !isArr || isOpen;
     $('#complexity-row').innerHTML = [
-      { value: 'simple',       label: 'simple' },
-      { value: 'semi',         label: 'semi-complex' },
-      { value: 'complex',      label: 'complex' }
+      { value: 'simple',       label: 'Simple' },
+      { value: 'semi',         label: 'Semi-complex' },
+      { value: 'complex',      label: 'Complex' }
     ].map(function (o) {
       return '<button class="' + pillClass(f.complexity === o.value) + '" type="button" ' +
              'data-set="complexity" data-value="' + o.value + '" aria-pressed="' + (f.complexity === o.value) + '">' +
@@ -894,12 +1049,15 @@
 
     if (f.kind === 'open') {
       return [
-        'open request',
+        'Open request',
+        'name:      ' + (f.name || '—'),
         'contact:   ' + (f.contact || '—'),
+        'paypal:    ' + (f.paypal || '—'),
         'deadline:  ' + (f.deadline || 'flexible'),
         'budget:    ' + (f.budget || '—'),
         '',
-        (f.brief || '—')
+        (f.brief || '—'),
+        (f.extra ? '\n' + f.extra : '')
       ].join('\n');
     }
 
@@ -912,13 +1070,19 @@
     var lines = [
       'song:        ' + (f.song || '—'),
       'artist:      ' + (f.artist || '—'),
+      'on-vocal:    ' + (f.onvocal || '—'),
+      'off-vocal:   ' + (f.offvocal || '—'),
+      'name:        ' + (f.name || '—'),
+      'paypal:      ' + (f.paypal || '—'),
       'guide type:  ' + (f.type === 'harmony' ? '1:1 harmony guide' : 'vocal arrangement'),
       'melody:      ' + melodyLabel,
       'add-ons:     ' + (addonLabels.length ? addonLabels.join(', ') : 'none'),
       'deadline:    ' + (f.deadline || 'flexible'),
       'contact:     ' + (f.contact || '—'),
-      'in catalog:  ' + (state.song ? 'yes' : 'no')
+      'in catalog:  ' + (state.song ? 'yes' : 'no'),
+      'instrumental:' + (f.customInstr ? ' CUSTOM — ' + (f.offvocal || 'no link given') : ' official off-vocal')
     ];
+    if (f.extra) lines.push('details:     ' + f.extra);
 
     if (f.type === 'arrangement') {
       lines.push('range:       ' + (f.range || '—'));
@@ -941,10 +1105,12 @@
           description: (f.brief || '—').slice(0, 4000),
           color: 0x1E6E70,
           fields: [
+            { name: 'name',     value: (f.name || '—').slice(0, 1024), inline: true },
             { name: 'contact',  value: (f.contact || '—').slice(0, 1024), inline: true },
+            { name: 'paypal',   value: (f.paypal || 'not given').slice(0, 1024), inline: true },
             { name: 'deadline', value: (f.deadline || 'flexible').slice(0, 1024), inline: true },
             { name: 'budget',   value: (f.budget || 'not given').slice(0, 1024), inline: true }
-          ],
+          ].concat(f.extra ? [{ name: 'details', value: f.extra.slice(0, 1024), inline: false }] : []),
           footer: { text: (CFG.brandName || 'harmony guides') + ' · open request' },
           timestamp: new Date().toISOString()
         }]
@@ -964,6 +1130,12 @@
     });
 
     var fields = [
+      { name: 'name', value: f.name || '—', inline: true },
+      { name: 'paypal', value: f.paypal || '—', inline: true },
+      { name: 'on-vocal', value: f.onvocal || '—', inline: false },
+      { name: 'instrumental',
+        value: f.customInstr ? '**custom** — ' + (f.offvocal || 'no link given') : 'official off-vocal',
+        inline: false },
       { name: 'guide type', value: f.type === 'harmony' ? '1:1 harmony guide' : 'vocal arrangement', inline: true },
       { name: 'in catalog', value: state.song ? 'yes — discounted' : 'no — new request', inline: true },
       { name: 'melody guide', value: (melodyOpt.label || f.melody) + ' (' + (melodyOpt.price || '') + ')', inline: true },
@@ -971,6 +1143,7 @@
       { name: 'contact', value: f.contact || '—', inline: true },
       { name: 'add-ons', value: addonLabels.length ? addonLabels.join('\n') : 'none', inline: false }
     ];
+    if (f.extra) fields.push({ name: 'details', value: f.extra.slice(0, 1024), inline: false });
 
     if (f.type === 'arrangement') {
       fields.push({ name: 'vocal range', value: f.range || 'not given', inline: true });
@@ -1063,29 +1236,41 @@
 
     var f = state.form;
 
-    if (f.kind === 'open') {
-      if (!f.brief.trim()) {
-        showError("tell me a bit about what you're after — even a sentence helps.");
-        $('#f-brief').setAttribute('aria-invalid', 'true');
-        $('#f-brief').focus();
-        return;
-      }
-      $('#f-brief').removeAttribute('aria-invalid');
-    } else if (state.modal === 'custom' && !f.song.trim()) {
-      showError('what song is it? add a title so i know what to quote.');
-      $('#f-song').setAttribute('aria-invalid', 'true');
-      $('#f-song').focus();
-      return;
-    }
-    if (f.kind !== 'open') $('#f-song').removeAttribute('aria-invalid');
+    /* One required-field table, checked in visual order, so the first empty
+       one is the one that gets the error and the focus. */
+    var required = f.kind === 'open'
+      ? [['#f-brief',  'brief',  "Tell me a bit about what you're after \u2014 even a sentence helps."],
+         ['#f-name',   'name',   'What should I call you?'],
+         ['#f-contact','contact','I need a Discord handle or email to reply to.']]
+      : [['#f-song',   'song',   'What song is it? Add a title so I know what to quote.'],
+         ['#f-onvocal','onvocal','Drop a link to the original so I know the version you mean.'],
+         ['#f-name',   'name',   'What should I call you?'],
+         ['#f-contact','contact','I need a Discord handle or email to reply to.'],
+         ['#f-paypal', 'paypal', 'I invoice through PayPal \u2014 which email should I send it to?']];
 
-    if (!f.contact.trim()) {
-      showError('i need a discord handle or email to send the quote to.');
-      $('#f-contact').setAttribute('aria-invalid', 'true');
-      $('#f-contact').focus();
+    /* ticking the custom-instrumental box makes its link required */
+    if (f.kind !== 'open' && f.customInstr) {
+      required.splice(1, 0,
+        ['#f-offvocal','offvocal','Pop in a link to your custom instrumental so I can work against it.']);
+    }
+
+    /* a catalog song already filled these in, so don't demand them again */
+    if (state.song) required = required.filter(function (r) {
+      return r[1] !== 'song' && r[1] !== 'onvocal';
+    });
+
+    var missing = null;
+    required.forEach(function (r) {
+      var el = $(r[0]);
+      if (el) el.removeAttribute('aria-invalid');
+      if (!missing && !String(f[r[1]] || '').trim()) missing = r;
+    });
+    if (missing) {
+      showError(missing[2]);
+      var badEl = $(missing[0]);
+      if (badEl) { badEl.setAttribute('aria-invalid', 'true'); badEl.focus(); }
       return;
     }
-    $('#f-contact').removeAttribute('aria-invalid');
 
     var url = CFG.discordWebhookUrl;
     if (!url) { goSent(false); return; }
@@ -1244,9 +1429,8 @@
       /* audio: mute toggle */
       var mute = e.target.closest('[data-aplay-mute]');
       if (mute) {
-        muted = !muted;
-        if (!muted && volume === 0) volume = 1;   // unmuting from zero
-        applyVolume();
+        if (volume === 0) setVolume(preMute || DEFAULT_VOLUME);
+        else { preMute = volume; setVolume(0); }
         return;
       }
 
@@ -1258,6 +1442,20 @@
       var key = btn.getAttribute('data-yt');
       state.openYt = state.openYt === key ? null : key;
       renderVersions();
+    });
+
+    /* the volume ticks are a real slider: arrows nudge, home/end pin it */
+    $('#version-list').addEventListener('keydown', function (e) {
+      var vb = e.target.closest && e.target.closest('[data-aplay-volbar]');
+      if (!vb) return;
+      var step = 0.25, v = muted ? 0 : volume, k = e.key;
+      if (k === 'ArrowRight' || k === 'ArrowUp')        v += step;
+      else if (k === 'ArrowLeft' || k === 'ArrowDown')  v -= step;
+      else if (k === 'Home')                            v = 0;
+      else if (k === 'End')                             v = 1;
+      else return;
+      e.preventDefault();
+      setVolume(v);
     });
 
     /* press-and-drag scrubbing */
@@ -1335,12 +1533,28 @@
     [
       ['#f-song', 'song'], ['#f-artist', 'artist'], ['#f-deadline', 'deadline'],
       ['#f-contact', 'contact'], ['#f-range', 'range'], ['#f-budget', 'budget'],
-      ['#f-notes', 'notes'], ['#f-brief', 'brief'], ['#f-open-budget', 'budget']
+      ['#f-notes', 'notes'], ['#f-brief', 'brief'], ['#f-open-budget', 'budget'],
+      ['#f-name', 'name'], ['#f-paypal', 'paypal'],
+      ['#f-onvocal', 'onvocal'], ['#f-offvocal', 'offvocal'],
+      ['#f-extra', 'extra']
     ].forEach(function (pair) {
       var node = $(pair[0]);
       if (!node) return;
       node.addEventListener('input', function (e) { state.form[pair[1]] = e.target.value; });
     });
+
+    /* the custom-instrumental toggle reveals its own link field */
+    var instr = $('#f-custom-instr');
+    if (instr) {
+      instr.addEventListener('change', function (e) {
+        state.form.customInstr = e.target.checked;
+        /* only discard the link if unticking also hides the field —
+           on a new song the box stays open, so whatever they typed stands */
+        if (!e.target.checked && state.song) state.form.offvocal = '';
+        renderForm();
+        if (e.target.checked) { var l = $('#f-offvocal'); if (l) l.focus(); }
+      });
+    }
 
     /* --- the request-type chooser --- */
     var choose = $('#view-choose');
@@ -1348,11 +1562,14 @@
       choose.addEventListener('click', function (e) {
         var card = e.target.closest('[data-kind]');
         if (!card) return;
-        state.form.kind = card.getAttribute('data-kind');
-        state.view = 'form';
-        renderModal();
-        var first = state.form.kind === 'open' ? $('#f-brief') : $('#f-song');
-        if (first) first.focus();
+        var kind = card.getAttribute('data-kind');
+        swapView(function () {
+          state.form.kind = kind;
+          state.view = 'form';
+          renderModal();
+        });
+        var first = kind === 'open' ? $('#f-brief') : $('#f-song');
+        if (first) first.focus({ preventScroll: true });
       });
     }
 
@@ -1360,8 +1577,11 @@
     if (back) {
       back.addEventListener('click', function () {
         clearError();
-        state.view = 'choose';
-        renderModal();
+        var toVersions = state.modal === 'song';
+        swapView(function () {
+          state.view = toVersions ? 'versions' : 'choose';
+          renderModal();
+        });
         var card = $('#view-choose [data-kind]');
         if (card) card.focus();
       });
@@ -1490,6 +1710,14 @@
         setActive(id);
       });
     });
+
+    /* the sticky nav gains a shadow once it starts overlapping content */
+    var navEl = $('.nav');
+    function navShadow() {
+      if (navEl) navEl.classList.toggle('is-stuck', window.pageYOffset > 8);
+    }
+    navShadow();
+    window.addEventListener('scroll', navShadow, { passive: true });
 
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll);
@@ -1620,10 +1848,25 @@
   }
 
 
+  /* The catalog renders after paint, so the page is short when the browser
+     restores a saved scroll position — you land in the middle of nowhere on
+     every refresh. Take the wheel: honour a #hash, otherwise start at the top. */
+  function initScrollStart() {
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    if (window.location.hash) return;
+    window.scrollTo(0, 0);
+    /* one more after layout settles, in case the browser got there first */
+    window.addEventListener('load', function () {
+      if (!window.location.hash) window.scrollTo(0, 0);
+    }, { once: true });
+  }
+
   function init() {
+    initScrollStart();
     initBranding();
     renderPricing();
     renderFaq();
+    renderTerms();
     initFilters();
     renderCatalog();
     bindEvents();

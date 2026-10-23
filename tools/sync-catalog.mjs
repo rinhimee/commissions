@@ -42,7 +42,17 @@ const LANG_CODES = {
   spanish: 'ES', es: 'ES', esp: 'ES'
 };
 
-const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${GID}`;
+/* The bare gviz endpoint serves a cached snapshot that can sit stale for
+   weeks — rows added to the sheet simply never appear, and the sync happily
+   commits the old catalog because nothing "changed". Sending an explicit
+   `tq` query forces a fresh evaluation, and the timestamp defeats any
+   intermediate cache. */
+const csvUrl = () => 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq'
+  + '?tqx=out:csv'
+  + '&gid=' + GID
+  + '&headers=1'
+  + '&tq=' + encodeURIComponent('select *')
+  + '&_=' + Date.now();
 
 /* ---------- a real CSV parser (quotes, escaped quotes, newlines) ---------- */
 export function parseCsv(text) {
@@ -275,10 +285,27 @@ if (isMain) {
 `;
   }
 
-  const res = await fetch(CSV_URL, { redirect: 'follow' });
+  const res = await fetch(csvUrl(), {
+    redirect: 'follow',
+    headers: { 'cache-control': 'no-cache', pragma: 'no-cache' }
+  });
   if (!res.ok) throw new Error(`sheet fetch failed: HTTP ${res.status}. Is it shared as "anyone with the link can view"?`);
   const songs = buildSongs(parseCsv(await res.text()));
   if (!songs.length) throw new Error('parsed 0 songs — refusing to write an empty catalog');
+
+  /* A silently shrinking catalog means we read a stale or truncated sheet.
+     Losing songs should be loud, not committed. */
+  let previous = 0;
+  try {
+    previous = (readFileSync(out, 'utf8').match(/^\s{2}\{$/gm) || []).length;
+  } catch {}
+  if (previous && songs.length < previous) {
+    throw new Error(
+      `the sheet produced ${songs.length} songs but data/catalog.js already has ` +
+      `${previous}. Refusing to drop ${previous - songs.length} — the sheet read ` +
+      `is probably stale or truncated. Re-run once the sheet loads normally, or ` +
+      `delete the extra rows deliberately and run again.`);
+  }
 
   /* pick up whatever is sitting in audio/ */
   const { readdirSync } = await import('node:fs');
@@ -292,5 +319,8 @@ if (isMain) {
   }
 
   writeFileSync(out, render(songs, languages));
-  console.log(`wrote data/catalog.js — ${songs.length} songs`);
+  const withYt = songs.reduce((n, sg) =>
+    n + (sg.harmony && sg.harmony.yt ? 1 : 0)
+      + (sg.arrangements || []).filter(a => a.yt).length, 0);
+  console.log(`wrote data/catalog.js — ${songs.length} songs, ${withYt} youtube link(s)`);
 }

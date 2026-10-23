@@ -58,6 +58,23 @@
   --chip:          #F7F4F0;   /* language pill fill — light, barely-there gray */
   --rose-soft:     #C77F93;   /* mid rose: visible at rest, still below --rose */
   --border-strong: #DCC9BC;
+  --card:          #FFFCF7;   /* warmer than pure white — the version cards */
+  --card-line:     #F1E8E0;
+  --strip:         #FDF7F1;   /* the audio player's own bed */
+  --strip-line:    #F3EAE2;
+  --track:         #EDE6E0;   /* unfilled progress / volume */
+  --clay-deep:     #7C6250;   /* clay that clears 4.5:1 on sand */
+  --rose-petal:    #E8C7D2;   /* the decorative sparkle */
+
+  /* sampled straight out of Lindsey's player draft so the accents match it */
+  --rose-mid:      #C4577C;   /* play button + playhead */
+  --rose-draft:    #A81B4E;   /* elapsed time, tracks tag */
+  --teal-draft:    #14707A;   /* note icon, lit volume ticks, simple tag */
+  --fill-a:        #A9D5D0;   /* progress gradient, light end */
+  --fill-b:        #7FBDB8;   /* progress gradient, deep end */
+  --tick-off:      #DDD3CE;
+  --time-slash:    #D6CBD0;
+  --time-total:    #8C7F86;   /* the draft's own muted grey */
   --shadow-sand:   #CFC0AA;
 
   /* type */
@@ -139,6 +156,31 @@ img { max-width: 100%; display: block; }
 
 
 /* ---------- 3. animations ---------------------------------- */
+
+/* ---- house rules for animation on this site -----------------------
+   Every jitter we've chased here came from one of these four. Follow them
+   and the next animation won't need debugging:
+
+   1. ONE PROPERTY, ONE OWNER. Never let two animations — or an animation
+      and a :hover transition — drive the same property on the same element.
+      The hero stickers enter on `scale` and float on `transform` precisely
+      so they don't collide; the alternative is a wrapper element.
+   2. ANIMATE ONLY transform / scale / opacity. Anything else (width, top,
+      margin) relayouts every frame.
+   3. END ON AN IDENTITY VALUE — `transform: none`, `scale: 1`, `opacity: 1`
+      — so the resting frame is exactly the un-animated style.
+   4. USE `backwards`, NOT `both`, FOR ENTRANCES. `both` pins the final
+      keyframe forever and silently outranks :hover.
+
+   And the one below: anything that animates FOREVER keeps `will-change`, so
+   the browser never tears down its layer and re-rasterises it. That
+   teardown is the "jitter into the resting frame" — the geometry is already
+   correct, it's the text and shadows being re-drawn off the layer. */
+.will-float,
+.hero__sticker, .hero__note, .hero__tag, .hero__spark,
+.starfield span {
+  will-change: transform;
+}
 
 @keyframes popIn  { from { opacity: 0; transform: translateY(18px) scale(.96); } to { opacity: 1; transform: none; } }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -311,9 +353,13 @@ img { max-width: 100%; display: block; }
   from { opacity: 0; scale: .55; }
   to   { opacity: 1; scale: 1; }
 }
-/* Each bubble drifts in on its own beat, then keeps floating. The entrance
-   animates `scale`, which is its own property, so it never fights the float
-   loops' `transform`. `backwards` keeps each one invisible until its turn. */
+/* Each bubble drifts in on its own beat, THEN starts floating — the two never
+   overlap. Running both at once was the jitter: the thing was still bobbing
+   and rotating while it scaled in, so it never appeared to land. Each float
+   is delayed by its entrance delay + duration, and the element's resting
+   `transform` is set to that float's 0% frame so the handoff is seamless.
+   The entrance also uses the plain ease, not the popping one — the overshoot
+   past 1 read as a wobble on arrival. */
 .hero__sticker {
   position: absolute;
   background: var(--white); color: var(--rose);
@@ -322,8 +368,9 @@ img { max-width: 100%; display: block; }
   font-family: var(--font-display); font-weight: 700; font-size: 16px;
   box-shadow: 0 4px 0 var(--rose-shadow);
   top: -14px; left: -22px;
-  animation: bubbleIn .85s var(--ease-pop) .5s backwards,
-             float1 5.5s ease-in-out infinite;
+  transform: rotate(-4deg);                 /* float1's 0% frame */
+  animation: bubbleIn .85s var(--ease) .5s backwards,
+             float1 5.5s ease-in-out 1.35s infinite;
 }
 .hero__note {
   position: absolute; top: 34%; right: -18px;
@@ -332,8 +379,9 @@ img { max-width: 100%; display: block; }
   display: flex; align-items: center; justify-content: center;
   font-size: 20px;
   box-shadow: 0 4px 0 var(--teal-shadow);
-  animation: bubbleIn .85s var(--ease-pop) .85s backwards,
-             float2 6.5s ease-in-out infinite;
+  transform: rotate(6deg);                  /* float2's 0% frame */
+  animation: bubbleIn .85s var(--ease) .85s backwards,
+             float2 6.5s ease-in-out 1.7s infinite;
 }
 .hero__tag {
   position: absolute; bottom: 16px; left: -20px;
@@ -342,14 +390,16 @@ img { max-width: 100%; display: block; }
   font-family: var(--font-accent); font-weight: 500;
   letter-spacing: .16em; text-transform: uppercase; font-size: 10.5px;
   box-shadow: 0 3px 0 var(--rose-shadow);
-  animation: bubbleIn .85s var(--ease-pop) 1.2s backwards,
-             float3 7.5s ease-in-out infinite;
+  transform: rotate(-8deg);                 /* float3's 0% frame */
+  animation: bubbleIn .85s var(--ease) 1.2s backwards,
+             float3 7.5s ease-in-out 2.05s infinite;
 }
 .hero__spark {
   position: absolute; bottom: -10px; right: 8px;
   color: var(--rose-line); font-size: 26px;
-  animation: bubbleIn .85s var(--ease-pop) 1.55s backwards,
-             float2 6s ease-in-out infinite -2s;
+  transform: rotate(6deg);                  /* float2's 0% frame */
+  animation: bubbleIn .85s var(--ease) 1.55s backwards,
+             float2 6s ease-in-out 2.4s infinite;
 }
 
 
@@ -1080,16 +1130,6 @@ img { max-width: 100%; display: block; }
   font-size: 11px; font-weight: 600;
   letter-spacing: .16em; text-transform: uppercase;
 }
-.version__cx { display: inline-flex; align-items: center; gap: 6px; color: var(--clay); }
-.version__cx::before {
-  content: ''; width: 6px; height: 6px; border-radius: 50%;
-  background: currentColor; flex-shrink: 0;
-}
-.version__cx--simple       { color: var(--teal-mid); }
-.version__cx--semi-complex { color: var(--clay); }
-.version__cx--complex      { color: var(--rose); }
-.version__tracks { color: var(--muted); }
-.version__tracks::before { content: '· '; }
 .version__client {
   font-size: 12.5px; font-weight: 600; color: var(--clay);
   margin-top: 3px; font-style: italic;
@@ -1200,16 +1240,6 @@ img { max-width: 100%; display: block; }
 }
 .aplay:hover .aplay__volbar,
 .aplay__vol:focus-within .aplay__volbar { opacity: 1; pointer-events: auto; }
-.aplay__volfill {
-  position: absolute; left: 0; top: 0; bottom: 0;
-  width: 100%; background: var(--rose-line);
-  border-radius: var(--pill); pointer-events: none;
-}
-
-@media (hover: none) {
-  /* no hover on touch — always show it */
-  .aplay__volbar { opacity: 1; pointer-events: auto; }
-}
 
 /* ---------- request-type chooser ---------------------------- */
 .choose { display: grid; gap: 14px; }
@@ -1256,13 +1286,19 @@ img { max-width: 100%; display: block; }
   color: var(--rose);
 }
 
+/* moved to the top of the form and given some presence — it was easy to
+   miss tucked under the submit button */
 .btn-back {
-  display: block; width: 100%; margin-top: 12px;
-  border: none; background: transparent; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+  width: auto; margin: 0 0 16px; padding: 2px 2px 2px 0;
+  border: none; border-radius: 6px;
+  background: none; cursor: pointer;
   font-family: var(--font-body); font-size: 13px; font-weight: 700;
-  color: var(--muted); padding: 8px 4px;
+  color: var(--muted);
+  transition: color .14s var(--ease);
 }
 .btn-back:hover { color: var(--rose); }
+.btn-back:focus-visible { outline: 3px solid var(--rose-shadow); outline-offset: 3px; }
 
 .btn-primary {
   width: 100%; border: none;
@@ -1516,4 +1552,341 @@ body.modal-open { overflow: hidden; }
 .hero__cta--soft:focus-visible {
   outline: 3px solid var(--teal);
   outline-offset: 3px;
+}
+
+/* the sticky nav lifts off the page once it starts overlapping content */
+.nav {
+  transition: box-shadow .22s var(--ease), background .22s var(--ease);
+}
+.nav.is-stuck {
+  box-shadow: 0 10px 26px -14px rgba(58, 46, 54, .38),
+              0 3px 0 var(--teal-shadow);
+}
+
+/* the hero portfolio button's external-link arrow */
+.hero__cta .social__ext {
+  font-size: 12px; opacity: .75;
+  transition: opacity .14s var(--ease), transform .14s var(--ease);
+}
+.hero__cta:hover .social__ext { opacity: 1; transform: translate(1px, -1px); }
+
+.portfolio__btn .social__ext {
+  font-size: 12px; opacity: .8;
+  transition: opacity .14s var(--ease), transform .14s var(--ease);
+}
+.portfolio__btn:hover .social__ext { opacity: 1; transform: translate(1px, -1px); }
+
+/* ---------- 17. form legibility ----------------------------- */
+
+/* required marker + the legend that explains it */
+.req {
+  color: var(--rose-deep);
+  font-weight: 800;
+  margin-left: 1px;
+}
+.form-legend {
+  margin: 0 0 20px;
+  font-size: 13px; font-weight: 600; color: var(--muted);
+}
+.form-legend .req { font-size: 14px; }
+
+/* the paypal marker swaps required <-> optional in JS, so the gap is CSS-side */
+#paypal-req, #paypal-opt { margin-left: 6px; }
+
+.field-label .opt {
+  color: var(--muted); font-size: 12.5px; font-weight: 600;
+  font-style: italic; margin-left: 2px;
+}
+/* the melody pills: price set apart from the word so they stop running together */
+.pill-row--priced .pill-btn {
+  display: inline-flex; align-items: baseline; gap: 9px;
+}
+.pill-btn__price {
+  font-family: var(--font-num);
+  font-style: italic; font-weight: 600; font-size: 13px;
+  opacity: .72;
+}
+.pill-btn.is-on .pill-btn__price { opacity: .9; }
+
+/* invalid fields get a visible edge, not just a message at the top */
+.input[aria-invalid="true"],
+.textarea[aria-invalid="true"] { border-color: var(--rose); }
+
+/* ---------- 18. open-request theming ------------------------ */
+
+/* "something else" carries the mint through the modal header, the way a
+   song request carries the rose */
+.modal-backdrop.is-open-request .modal__head { background: var(--teal-mint); }
+.modal-backdrop.is-open-request .modal__kicker { color: var(--teal-mid); }
+.modal-backdrop.is-open-request .modal__title { color: var(--teal-ink); }
+.modal-backdrop.is-open-request .modal__sub { color: var(--teal-body); }
+.modal-backdrop.is-open-request .modal__close { color: var(--teal-ink); }
+
+/* view swaps are instant — the height tween stuttered */
+
+
+
+/* ---------- 19. audio player: pink/teal balance -------------
+   Rose stays on the things you act on (play button, playhead, time);
+   teal carries the tracks. Reads balanced instead of all-pink. */
+.aplay__bar     { background: var(--teal-mint); }
+.aplay__fill    { background: var(--teal); }
+.aplay__volbar  { background: var(--teal-mint); }
+.aplay__volfill { background: var(--teal); }
+.aplay__volbtn  { color: var(--teal-mid); }
+.aplay__volbtn:hover,
+.aplay__vol:focus-within .aplay__volbtn { color: var(--teal-ink); }
+.aplay.is-muted .aplay__volbtn { color: var(--rose); }
+.aplay { border-color: var(--teal-line); }
+
+/* ---------- 20. version cards + audio player ----------------
+   Reworked from Lindsey's design mock: warm card, pill tags, the player
+   sitting in its own cream bed, teal progress, stepped volume ticks. */
+
+.version {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--card-line);
+  border-radius: 26px;
+  padding: 24px 26px 22px;
+  box-shadow: 0 6px 18px -14px rgba(59, 48, 56, .22);
+}
+/* the little sparkle peeking off the top-right corner */
+.version__spark {
+  position: absolute; top: -9px; right: 26px;
+  font-size: 15px; color: var(--rose-petal);
+  animation: sparkTwinkle 3.4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes sparkTwinkle {
+  0%, 100% { opacity: .4; transform: scale(.9); }
+  50%      { opacity: 1;  transform: scale(1.15); }
+}
+
+/* Quicksand rather than Baloo here — reads cleaner at this size */
+.version__label {
+  font-family: var(--font-body);
+  font-weight: 700; font-size: 19px; line-height: 1.2;
+  letter-spacing: -.01em; color: var(--ink);
+}
+.version__meta {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  margin-top: 10px;
+  font-family: var(--font-accent); font-size: 11px; letter-spacing: normal;
+  text-transform: none;
+}
+
+/* ---- the tags -------------------------------------------------- */
+.vtag {
+  display: inline-flex; align-items: center; gap: 6px;
+  border-radius: var(--pill); padding: 4px 11px;
+  font-family: var(--font-accent);
+  font-weight: 700; font-size: 10px;
+  letter-spacing: .14em; text-transform: uppercase;
+  white-space: nowrap;
+}
+.vtag__dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex: none; }
+
+.vtag--simple       { background: var(--teal-mint); color: var(--teal-draft); }
+.vtag--semi-complex { background: var(--sand);      color: var(--clay-deep); }
+.vtag--complex      { background: var(--rose-wash); color: var(--rose-draft); }
+.vtag--tracks       { background: var(--rose-wash); color: var(--rose-draft); }
+.vtag--tracks .vtag__dot { background: var(--rose-soft); }
+
+.version__client {
+  font-size: 12.5px; font-weight: 600; color: var(--clay-deep);
+  margin-top: 8px; font-style: italic;
+}
+
+/* ---- the player sits in its own bed ----------------------------- */
+.version__audio { margin-top: 18px; }
+
+.aplay {
+  display: flex; align-items: center; gap: 14px;
+  padding: 9px 16px 9px 9px;
+  background: var(--strip);
+  border: 1px solid var(--strip-line);
+  border-radius: var(--pill);
+  box-shadow: none;
+}
+.aplay__btn {
+  flex: none;
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--rose-mid); border: none; color: #FFFFFF;
+  font-size: 10.5px; line-height: 1; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0;
+  transition: background .15s var(--ease), transform .18s var(--ease-pop);
+}
+.aplay__btn:hover  { background: var(--rose-draft); }
+.aplay__btn:active { transform: scale(.9); }
+.aplay__btn:focus-visible { outline: 3px solid var(--rose-shadow); outline-offset: 2px; }
+
+.aplay__bar {
+  flex: 1; min-width: 0; height: 8px; margin-left: 0;
+  background: var(--track);
+  border-radius: var(--pill);
+  cursor: pointer; position: relative;
+}
+.aplay__fill {
+  background: linear-gradient(90deg, var(--fill-a), var(--fill-b));
+}
+.aplay__knob {
+  width: 14px; height: 14px; margin: -7px 0 0 -7px;
+  background: var(--rose-mid);
+  border: 2.5px solid var(--card);
+  box-shadow: 0 2px 6px -2px rgba(168, 69, 95, .45);
+}
+.aplay__time {
+  display: flex; align-items: center; gap: 5px;
+  font-family: var(--font-num);
+  font-size: 11.5px; font-weight: 700;
+  min-width: 70px; justify-content: flex-end;
+}
+.aplay__now   { color: var(--rose-draft); font-weight: 700; }
+.aplay__slash { color: var(--time-slash); font-style: normal; font-weight: 600; }
+.aplay__dur   { color: var(--time-total); font-weight: 700; }
+
+/* ---- volume: teal speaker + four stepped ticks ------------------ */
+.aplay__vol { display: flex; align-items: center; gap: 8px; }
+
+/* a music note, as in the draft — a stroked slash marks the muted state,
+   which survives fonts that won't compose U+0338 */
+.aplay__volbtn {
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  width: 14px; height: 16px; padding: 0;
+  border: none; background: none; cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 14px; line-height: 1;
+  color: var(--teal-draft);
+  transition: color .14s var(--ease);
+}
+.aplay__volbtn:hover,
+.aplay__vol:focus-within .aplay__volbtn { color: var(--teal-mid); }
+.aplay.is-muted .aplay__volbtn { color: var(--rose-mid); }
+.aplay.is-muted .aplay__volbtn::after {
+  content: ''; position: absolute; left: -1px; right: -1px; top: 50%;
+  height: 1.5px; border-radius: 2px; background: currentColor;
+  transform: rotate(-38deg);
+}
+.aplay__volbtn:focus-visible { outline: 2px solid var(--teal-shadow); outline-offset: 3px; border-radius: 3px; }
+
+/* still one drag surface — the ticks are painted, not clicked individually */
+.aplay__volbar {
+  display: flex; align-items: flex-end; gap: 3px;
+  flex: none;
+  width: 29px; height: 16px;      /* 4 ticks x 5px + 3 gaps x 3px — no shrinking */
+  background: none; border-radius: 4px;
+  opacity: 1; pointer-events: auto;
+  cursor: pointer;
+}
+.aplay__volbar:focus-visible { outline: 2px solid var(--teal-shadow); outline-offset: 3px; }
+.aplay__tick {
+  width: 5px; border-radius: var(--pill);
+  background: var(--tick-off);
+  pointer-events: none;
+  transition: background .12s var(--ease);
+}
+.aplay__tick:nth-child(1) { height: 8px; }
+.aplay__tick:nth-child(2) { height: 11px; }
+.aplay__tick:nth-child(3) { height: 14px; }
+.aplay__tick:nth-child(4) { height: 17px; }
+.aplay__tick.is-on { background: var(--teal-draft); }
+
+/* ---- the footnote under the player ------------------------------ */
+.version__foot {
+  display: flex; align-items: center; gap: 7px;
+  margin-top: 16px; padding-top: 14px;
+  border-top: 1px dashed var(--card-line);
+  font-family: var(--font-body);
+  font-size: 12.5px; font-weight: 600; color: var(--muted);
+}
+.version__note {
+  color: var(--rose-soft);
+  animation: noteBob 3s ease-in-out infinite;
+}
+@keyframes noteBob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-4px); }
+}
+
+/* the kicker's twinkling star */
+.spark-star {
+  color: var(--teal-mid); font-size: 13px; margin-right: 8px;
+  animation: sparkTwinkle 2.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .version__spark, .version__note, .spark-star { animation: none; }
+}
+
+@media (max-width: 560px) {
+  .version { padding: 20px 18px 18px; }
+  .aplay { gap: 10px; padding: 8px 12px 8px 8px; }
+  .aplay__time { min-width: 62px; font-size: 11px; }
+}
+
+/* ---------- 21. the custom-instrumental toggle --------------- */
+
+.check {
+  display: flex; align-items: flex-start; gap: 10px;
+  cursor: pointer;
+  font-family: var(--font-body); font-size: 14.5px; font-weight: 700;
+  color: var(--ink-2);
+}
+.check input[type="checkbox"] {
+  flex: none; width: 19px; height: 19px; margin: 1px 0 0;
+  accent-color: var(--rose);
+  cursor: pointer;
+}
+.check:hover { color: var(--rose); }
+
+/* ---------- 22. terms of service ----------------------------- */
+
+.terms { padding: 34px; }
+.terms__title {
+  font-weight: 700; font-size: 28px; margin: 0 0 6px; color: var(--rose-deep);
+}
+.terms__intro {
+  font-size: 14.5px; font-weight: 600; color: var(--muted);
+  margin: 0 0 22px; max-width: 62ch;
+}
+.terms__grid { display: grid; gap: 14px; }
+.terms__group {
+  background: var(--white);
+  border: 2px solid var(--rose-line-2);
+  border-radius: var(--r-lg);
+  padding: 20px 22px;
+}
+.terms__group:nth-child(even) { border-color: var(--teal-line); }
+.terms__h {
+  font-family: var(--font-accent);
+  font-size: 11.5px; font-weight: 700;
+  letter-spacing: .16em; text-transform: uppercase;
+  color: var(--rose); margin: 0 0 12px;
+}
+.terms__group:nth-child(even) .terms__h { color: var(--teal-mid); }
+.terms__list { margin: 0; padding: 0; list-style: none; display: grid; gap: 9px; }
+.terms__list li {
+  position: relative; padding-left: 18px;
+  font-size: 14.5px; font-weight: 600; line-height: 1.55; color: var(--ink-2);
+}
+.terms__list li::before {
+  content: '\2022'; position: absolute; left: 4px; top: -1px;
+  color: var(--rose-line); font-size: 16px;
+}
+.terms__group:nth-child(even) .terms__list li::before { color: var(--teal-shadow); }
+
+/* the readme that ships inside every zip, quoted verbatim */
+.terms__note {
+  margin: 12px 0 0; padding: 14px 16px;
+  background: var(--sand); border-radius: var(--r-sm);
+  font-size: 13.5px; font-weight: 600; line-height: 1.55; color: var(--muted);
+}
+.terms__note strong { color: var(--ink-2); }
+
+@media (max-width: 560px) {
+  .terms { padding: 22px 18px; }
+  .terms__group { padding: 17px 16px; }
 }
