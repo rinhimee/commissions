@@ -17,8 +17,69 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Quicksand:wght@500;600;700&family=Outfit:wght@500;600;700&family=Jost:ital,wght@0,400;0,500;0,600;1,400&family=Noto+Sans+JP:wght@500;600;700&family=Noto+Color+Emoji&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/styles.css">
+
+<!-- rin姫 loading screen -->
+<link rel="stylesheet" href="assets/loader.css">
+<script>
+  // decide before first paint so returning visitors never see a flash
+  (function () {
+    var r = document.documentElement, seen = false;
+    try { seen = sessionStorage.getItem('rin-loader-seen') && !/[?&]loader\b/.test(location.search); } catch (e) {}
+    r.classList.add(seen ? 'loader-skip' : 'is-loading');
+  })();
+</script>
+<script src="assets/loader.js" defer></script>
 </head>
 <body>
+
+<!-- rin姫 loading screen -->
+<div id="rin-loader" data-phase="loading">
+  <span class="rl-tw" aria-hidden="true" style="left:10%; top:16%; color:#96D6D8; font-size:20px">✦</span>
+  <span class="rl-tw" aria-hidden="true" style="left:22%; top:72%; color:#E7B9C7; font-size:15px; animation-delay:-1s">✧</span>
+  <span class="rl-tw" aria-hidden="true" style="left:36%; top:26%; color:#E7B9C7; font-size:12px; animation-delay:-2.2s">✦</span>
+  <span class="rl-tw" aria-hidden="true" style="left:68%; top:20%; color:#96D6D8; font-size:14px; animation-delay:-.6s">✧</span>
+  <span class="rl-tw" aria-hidden="true" style="left:82%; top:64%; color:#96D6D8; font-size:20px; animation-delay:-1.7s">✦</span>
+  <span class="rl-tw" aria-hidden="true" style="left:58%; top:80%; color:#E7B9C7; font-size:13px; animation-delay:-2.6s">✦</span>
+  <span class="rl-tw" aria-hidden="true" style="left:90%; top:12%; color:#E7B9C7; font-size:12px; animation-delay:-.3s">✧</span>
+
+  <!-- stage 1: sakura progress -->
+  <div class="rl-load" role="progressbar" aria-label="loading" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+    <svg class="rl-flower" viewBox="-56 -56 112 112" aria-hidden="true">
+      <defs>
+        <clipPath id="rl-cp0"><rect x="-30" y="-4" width="60" height="0"/></clipPath>
+        <clipPath id="rl-cp1"><rect x="-30" y="-4" width="60" height="0"/></clipPath>
+        <clipPath id="rl-cp2"><rect x="-30" y="-4" width="60" height="0"/></clipPath>
+        <clipPath id="rl-cp3"><rect x="-30" y="-4" width="60" height="0"/></clipPath>
+        <clipPath id="rl-cp4"><rect x="-30" y="-4" width="60" height="0"/></clipPath>
+      </defs>
+      <g transform="rotate(0)"><path clip-path="url(#rl-cp0)" fill="#E7B9C7" d="M0,-5 C-10,-13 -19,-30 -12,-48 Q-5.5,-47 0,-40 Q5.5,-47 12,-48 C19,-30 10,-13 0,-5Z"/><path fill="none" stroke="#C77F93" stroke-width="1.5" stroke-linejoin="round" d="M0,-5 C-10,-13 -19,-30 -12,-48 Q-5.5,-47 0,-40 Q5.5,-47 12,-48 C19,-30 10,-13 0,-5Z"/></g>
+      <g transform="rotate(72)"><path clip-path="url(#rl-cp1)" fill="#E7B9C7" d="M0,-5 C-10,-13 -19,-30 -12,-48 Q-5.5,-47 0,-40 Q5.5,-47 12,-48 C19,-30 10,-13 0,-5Z"/><path fill="none" stroke="#C77F93" stroke-width="1.5" stroke-linejoin="round" d="M0,-5 C-10,-13 -19,-30 -12,-48 Q-5.5,-47 0,-40 Q5.5,-47 12,-48 C19,-30 10,-13 0,-5Z"/></g>
+      <g transform="rotate(144)"><path clip-path="url(#rl-cp2)" fill="#E7B9C7" d="M0,-5 C-10,-13 -19,-30 -12,-48 Q-5.5,-47 0,-40 Q5.5,-47 12,-48 C19,-30 10,-13 0,-5Z"/><path fill="none" stroke="#C77F93" stroke-width="1.5" stroke-linejoin="round" d="M0,-5 C-10,-13 -19,-30 -12,-48 Q-5.5,-47 0,-40 Q5.5,-47 12,-48 C19,-30 10,-13 0,-5Z"/></g>
+      <g transform="rotate(216)"><path clip-path="url(#rl-cp3)" fill="#E7B9C7" d="M0,-5 C-10,-13 -19,-30 -12,-48 Q-5.5,-47 0,-40 Q5.5,-47 12,-48 C19,-30 10,-13 0,-5Z"/><path fill="none" stroke="#C77F93" stroke-width="1.5" stroke-linejoin="round" d="M0,-5 C-10,-13 -19,-30 -12,-48 Q-5.5,-47 0,-40 Q5.5,-47 12,-48 C19,-30 10,-13 0,-5Z"/></g>
+      <g transform="rotate(288)"><path clip-path="url(#rl-cp4)" fill="#E7B9C7" d="M0,-5 C-10,-13 -19,-30 -12,-48 Q-5.5,-47 0,-40 Q5.5,-47 12,-48 C19,-30 10,-13 0,-5Z"/><path fill="none" stroke="#C77F93" stroke-width="1.5" stroke-linejoin="round" d="M0,-5 C-10,-13 -19,-30 -12,-48 Q-5.5,-47 0,-40 Q5.5,-47 12,-48 C19,-30 10,-13 0,-5Z"/></g>
+      <circle r="2.5" fill="#C77F93"/>
+    </svg>
+    <div class="rl-label">
+      <span class="rl-word">loading</span>
+      <span class="rl-pct">0%</span>
+    </div>
+    <div class="rl-dots" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+  </div>
+
+  <!-- stage 2: chord + wordmark -->
+  <div class="rl-brand" aria-hidden="true">
+    <div class="rl-brand-row">
+      <div class="rl-staff">
+        <div class="rl-lines"><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="rl-note rl-note--teal">&gt;▽&lt;</div>
+        <div class="rl-note rl-note--rose">•ω•</div>
+        <div class="rl-note rl-note--gold">^ᴗ^</div>
+      </div>
+      <div class="rl-word-mark"><span class="rl-ch">r</span><span class="rl-ch">i</span><span class="rl-ch">n</span><span class="rl-ch">姫</span><span class="rl-spark rl-spark--a">✦</span><span class="rl-spark rl-spark--b">✧</span></div>
+    </div>
+    <div class="rl-sub">harmony guides &amp; vocal arrangements</div>
+  </div>
+</div>
 
 <a class="skip-link" href="#catalog">skip to the catalog</a>
 
