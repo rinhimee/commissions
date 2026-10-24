@@ -21,7 +21,7 @@ html.is-loading body > :not(#rin-loader) * {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  display: flex;
+  display: none; /* only shown once the inline script opts in, so no-JS visitors never get stuck behind it */
   align-items: center;
   justify-content: center;
   overflow: hidden;
@@ -29,6 +29,8 @@ html.is-loading body > :not(#rin-loader) * {
   font-family: var(--font-body, 'Quicksand', 'Noto Sans JP', sans-serif);
   color: var(--ink, #3A2E36);
 }
+html.is-loading #rin-loader,
+#rin-loader[data-phase="exit"] { display: flex; }
 #rin-loader[data-phase="exit"] { animation: rl-liftOut .8s cubic-bezier(.2,.8,.3,1) forwards; pointer-events: none; }
 
 /* ---- twinkles (same as the site's starfield) ---- */
