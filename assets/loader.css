@@ -7,6 +7,9 @@
 /* ---- page state while loading ---- */
 html.loader-skip #rin-loader { display: none; }
 html.is-loading body { overflow: hidden; }
+/* keep the scrollbar's space reserved while scroll is locked, so the page
+   doesn't shift sideways when the scrollbar comes back on exit */
+html.is-loading { scrollbar-gutter: stable; }
 
 /* hold every page animation (hero .rise, stickers, twinkles…) at its
    first frame until the loader starts leaving, so the hero still
