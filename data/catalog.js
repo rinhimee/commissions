@@ -1087,12 +1087,15 @@ window.SONGS = [
   {
     id: 89,
     title: "Many Universes",
-    artist: "",
+    artist: "Yanagi Nagi",
     language: "JP",
     harmony: null,
     arrangements: [
       {
-        complexity: "simple"
+        complexity: "semi-complex",
+        tracks: 11,
+        client: "Reiyla",
+        yt: "i2sMc_Wz53w"
       }
     ]
   },
@@ -1161,25 +1164,29 @@ window.SONGS = [
   },
   {
     id: 95,
-    title: "MoeChakkaFire",
-    artist: "",
+    title: "MoeChakkaFire (ver. Ellen Joe)",
+    artist: "issey",
     language: "JP",
-    harmony: null,
-    arrangements: [
-      {
-        complexity: "simple"
-      }
-    ]
+    harmony: {
+      complexity: "simple",
+      tracks: 5
+    },
+    arrangements: []
   },
   {
     id: 96,
     title: "Monitoring",
-    artist: "",
+    artist: "DECO*27",
     language: ["JP", "EN"],
-    harmony: null,
+    harmony: {
+      complexity: "simple",
+      tracks: 4
+    },
     arrangements: [
       {
-        complexity: "simple"
+        complexity: "complex",
+        tracks: 19,
+        client: "totallymagus"
       }
     ]
   },
