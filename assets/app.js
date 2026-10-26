@@ -1999,8 +1999,9 @@
       });
     }
 
-    /* --- phones: page through 10 at a time; land back at the top of the
-       list with focus on its first song --- */
+    /* --- phones: page through 10 at a time without jumping. The pager is
+       held at the same spot on screen (a shorter last page would otherwise
+       pull it up), and focus stays on the pager for the next tap or Tab. --- */
     var pager = $('#cat-pager');
     if (pager) {
       pager.addEventListener('click', function (e) {
@@ -2008,12 +2009,17 @@
         if (!b || b.disabled) return;
         var to = +b.getAttribute('data-page');
         if (to === state.page) return;
+        var step = b.getAttribute('aria-label');
+        var before = pager.getBoundingClientRect().top;
         state.page = to;
         renderCatalog(true);
-        var anchor = $('#catalog .search') || $('#song-list');
-        anchor.scrollIntoView({ block: 'start' });
-        var first = $('#song-list .song');
-        if (first) first.focus({ preventScroll: true });
+        var shift = pager.getBoundingClientRect().top - before;
+        if (shift) window.scrollBy({ top: shift, behavior: 'instant' });
+        var again = /page$/.test(step || '') && /previous|next/.test(step)
+          ? $('[aria-label="' + step + '"]', pager)
+          : $('[aria-current="page"]', pager);
+        if (again && again.disabled) again = $('[aria-current="page"]', pager);
+        if (again) again.focus({ preventScroll: true });
       });
     }
     /* crossing the phone breakpoint changes how many rows show */
