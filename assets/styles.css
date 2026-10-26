@@ -328,6 +328,16 @@ img { max-width: 100%; display: block; }
 .hero__cta:hover { background: var(--rose-wash-2); color: var(--rose); }
 .hero__cta:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--rose-shadow); }
 
+/* three grid cells so the buttons can move under the art on narrow screens;
+   on wide screens text + buttons stay a centred group beside the art */
+.hero {
+  grid-template-areas: ". art" "text art" "ctas art" ". art";
+  grid-template-rows: 1fr auto auto 1fr;
+  row-gap: 0;
+}
+.hero > :first-child { grid-area: text; }
+.hero > .fade-in     { grid-area: art; }
+.hero__ctas          { grid-area: ctas; }
 .hero__art { position: relative; width: 100%; }
 .hero__frame {
   aspect-ratio: 3 / 4; border-radius: 28px; overflow: hidden;
@@ -1346,7 +1356,12 @@ body.modal-open { overflow: hidden; }
 /* ---------- 13. responsive --------------------------------- */
 
 @media (max-width: 900px) {
-  .hero { grid-template-columns: 1fr; padding: 34px 30px; gap: 30px; }
+  .hero { grid-template-columns: 1fr; padding: 34px 30px; gap: 30px;
+          grid-template-areas: "text" "art" "ctas"; grid-template-rows: auto; }
+  /* stacked: the buttons sit under the art, centred */
+  .hero__ctas { display: flex; flex-direction: column; align-items: center; }
+  .hero__ctas .hero__cta { margin-top: 0; }
+  .hero__ctas .hero__cta + .hero__cta { margin-top: 10px; }
   .hero__title { font-size: 40px; }
   .hero__art { max-width: 320px; margin: 0 auto; }
   .price-grid { grid-template-columns: 1fr; }
@@ -2154,15 +2169,26 @@ html:not(.has-shop) .ftabs { display: none; }
 }
 
 
-.cat-more {
-  display: block; width: 100%;
-  margin-top: 12px; min-height: 48px; padding: 12px 20px;
-  border: 2px solid var(--border); border-radius: var(--pill);
-  background: var(--white); color: var(--rose);
-  font: 700 15px var(--font-body); cursor: pointer;
+.cat-pager {
+  display: flex; align-items: center; justify-content: center;
+  gap: 4px; flex-wrap: wrap;
+  margin-top: 14px;
 }
-.cat-more:hover { border-color: var(--rose-line); background: var(--rose-wash); }
-@media (min-width: 721px) { .cat-more { display: none; } }
+.cat-pager__btn {
+  min-width: 44px; height: 44px; padding: 0 10px;
+  border: 2px solid var(--border); border-radius: var(--pill);
+  background: var(--white); color: var(--ink);
+  font: 700 15px var(--font-num); cursor: pointer;
+  box-shadow: 0 3px 0 var(--border);
+}
+.cat-pager__btn--step { font: 700 20px/1 var(--font-body); padding-bottom: 3px; color: var(--teal-ink); }
+.cat-pager__btn[aria-current="page"] {
+  background: var(--rose); border-color: var(--rose); color: var(--white);
+  box-shadow: 0 3px 0 var(--rose-darkest);
+}
+.cat-pager__btn:disabled { opacity: .4; cursor: default; box-shadow: none; }
+.cat-pager__gap { min-width: 18px; text-align: center; color: var(--muted); font-weight: 700; }
+@media (min-width: 721px) { .cat-pager { display: none; } }
 @media (prefers-reduced-motion: reduce) { .chip-toggle { transition: none; } }
 
 
@@ -2323,7 +2349,8 @@ html:not(.has-shop) .ftabs { display: none; }
   overflow-y: auto; padding: 22px 30px;
   scrollbar-width: thin; scrollbar-color: var(--rose-line) transparent;
 }
-.tmodal__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+/* cards keep their own height, so opening one doesn't stretch its neighbour */
+.tmodal__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: start; }
 .tcard {
   background: var(--card); border: 1px solid var(--card-line);
   border-radius: 18px; padding: 14px 18px;
@@ -2340,7 +2367,7 @@ html:not(.has-shop) .ftabs { display: none; }
   font-size: 12.5px; font-weight: 700; color: var(--rose);
   padding: 4px 0;
 }
-.tcard__more[open] summary { margin-bottom: 8px; }
+.tcard__body { padding-top: 8px; }
 .tcard__more .terms__list li { font-size: 13.5px; }
 .tmodal__foot {
   display: flex; justify-content: flex-end; align-items: center; gap: 16px;

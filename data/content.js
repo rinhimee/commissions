@@ -108,7 +108,7 @@ window.FAQS = [
    TERMS
    Shown in the "terms" pop-up (footer link, and the line under the
    request form's send button). Each topic shows its `short` line;
-   "the full wording" opens `items` (and `note`) underneath.
+   "read more" opens `items` (and `note`) underneath.
    Where these overlap with an FAQ answer, the FAQ is the fuller
    version and wins.
    ============================================================ */

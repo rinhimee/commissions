@@ -146,12 +146,6 @@
         Everything that i&rsquo;ve worked on before is listed below for your convenience! If your song&rsquo;s in the list,
         you&rsquo;ll get your guides faster <em>and</em> cheaper! ( ᵔ ⩊ ᵔ )
       </p>
-      <a class="hero__cta rise" style="animation-delay:.86s" href="#featured" data-hero-playlist>
-        &#9654; all released projects
-      </a>
-      <a class="hero__cta hero__cta--soft rise" style="animation-delay:.93s" href="#about" data-tab-link="about">
-        &#9825; learn more
-      </a>
     </div>
 
     <div class="fade-in" style="animation-delay:.24s">
@@ -162,6 +156,16 @@
         <div class="hero__tag" aria-hidden="true">&#10022; harmony &#10022;</div>
         <div class="hero__spark" aria-hidden="true">&#10022;</div>
       </div>
+    </div>
+
+    <!-- its own grid cell: beside the text on wide screens, under the art when stacked -->
+    <div class="hero__ctas">
+        <a class="hero__cta rise" style="animation-delay:.86s" href="#featured" data-hero-playlist>
+          &#9654; all released projects
+        </a>
+        <a class="hero__cta hero__cta--soft rise" style="animation-delay:.93s" href="#about" data-tab-link="about">
+          &#9825; learn more
+        </a>
     </div>
   </section>
 
@@ -255,8 +259,8 @@
     </div>
 
     <div class="cat-scroll" id="song-list"></div>
-    <!-- phones only: the list shows 10 at a time -->
-    <button class="cat-more" id="cat-more" type="button" hidden>show more songs</button>
+    <!-- phones only: the list is split into pages of 10 -->
+    <nav class="cat-pager" id="cat-pager" aria-label="catalog pages" hidden></nav>
 
     <button class="custom-cta" type="button" data-open-custom>
       <span>
@@ -352,7 +356,7 @@
   <footer class="footer">
     <span class="footer__note">thanks for scrolling all the way down :3 &#9825;</span>
     <span class="footer__links">
-      <button class="footer__terms" type="button" data-open-terms>terms &#10022;</button>
+      <button class="footer__terms" type="button" data-open-terms>terms and conditions &#10022;</button>
       <a class="footer__top" href="#top">&uarr; back to top</a>
     </span>
   </footer>
@@ -570,7 +574,7 @@
         <p class="form-note" id="form-note">I&rsquo;ll follow up with a quote, then invoice through PayPal.</p>
         <p class="form-note form-note--terms">
           Sending a request means you&rsquo;re OK with my
-          <button class="link-btn" type="button" data-open-terms>terms &#10022;</button>
+          <button class="link-btn" type="button" data-open-terms>terms and conditions &#10022;</button>
         </p>
       </form>
     </div>
@@ -595,7 +599,7 @@
   <div class="modal tmodal" role="dialog" aria-modal="true" aria-labelledby="tmodal-title">
     <div class="modal__head tmodal__head">
       <div>
-        <h2 class="modal__title tmodal__title" id="tmodal-title">Terms &#10022;</h2>
+        <h2 class="modal__title tmodal__title" id="tmodal-title">Terms and conditions &#10022;</h2>
         <div class="tmodal__sub">the short version &mdash; the FAQ has the details</div>
       </div>
       <button class="modal__close tmodal__close" type="button" data-close-terms aria-label="close terms">&times;</button>

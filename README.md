@@ -205,9 +205,9 @@ ordered simple → semi-complex → complex, with anything unrecognised after.
 All in `data/content.js`. The pricing section and the request form read from the
 same lists, so an edit updates both at once — they can't drift apart.
 
-The terms live there too, in `window.TERMS`. The terms pop-up (footer link, and
+The terms live there too, in `window.TERMS`. The "terms and conditions" pop-up (footer link, and
 the line under the request form's send button) shows each topic's `short` line,
-with the full `items` wording one click away. Edit `short` when you change a
+with the full `items` wording under "read more". Edit `short` when you change a
 term so the two stay in step.
 
 ## Your links and art

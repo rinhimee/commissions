@@ -72,7 +72,7 @@
     type: [],          // [] = no filter; otherwise 'harmony' / 'arrangement'
     cx:   [],          // [] = no filter; otherwise complexity strings
     released: false,   // only songs with a released cover (a yt link)
-    limit: 10,         // phones show this many rows, "show more" adds 10
+    page: 1,           // phones: which page of 10 is showing
 
     modal: null,        // null | 'song' | 'custom'
     song: null,         // the song object when modal === 'song'
@@ -251,15 +251,42 @@
           '<h3 class="tcard__h">' + esc(g.h) + '</h3>' +
           '<p class="tcard__line">' + esc(g.short || (g.items || [])[0] || '') + '</p>' +
           (full
-            ? '<details class="tcard__more"><summary>the full wording</summary>' +
-                '<ul class="terms__list">' +
-                  (g.items || []).map(function (i) { return '<li>' + esc(i) + '</li>'; }).join('') +
-                '</ul>' +
-                (g.note ? '<p class="terms__note">' + g.note + '</p>' : '') +
+            ? '<details class="tcard__more"><summary>read more</summary>' +
+                '<div class="tcard__body">' +
+                  '<ul class="terms__list">' +
+                    (g.items || []).map(function (i) { return '<li>' + esc(i) + '</li>'; }).join('') +
+                  '</ul>' +
+                  (g.note ? '<p class="terms__note">' + g.note + '</p>' : '') +
+                '</div>' +
               '</details>'
             : '') +
         '</div>';
     }).join('');
+  }
+
+  /* "read more" opens and closes with a height ease, like the tab panels,
+     so the pop-up grows instead of jumping. <details> would snap, so the
+     click is taken over and the body's height animated by hand. */
+  function toggleTermsCard(det) {
+    var body = $('.tcard__body', det), sum = $('summary', det);
+    var opening = !det.open;
+    var setLabel = function () { sum.textContent = det.open ? 'show less' : 'read more'; };
+    if (det._anim) { det._anim.cancel(); det._anim = null; }
+    if (REDUCE_MOTION || !body.animate) { det.open = opening; setLabel(); return; }
+    var ease = { duration: 420, easing: 'cubic-bezier(.45, .05, .25, 1)' };
+    body.style.overflow = 'hidden';
+    if (opening) {
+      det.open = true; setLabel();
+      var h = body.offsetHeight;
+      det._anim = body.animate([{ height: '0px', opacity: 0 }, { height: h + 'px', opacity: 1 }], ease);
+    } else {
+      sum.textContent = 'read more';
+      det._anim = body.animate([{ height: body.offsetHeight + 'px', opacity: 1 }, { height: '0px', opacity: 0 }], ease);
+    }
+    det._anim.onfinish = function () {
+      if (!opening) det.open = false;
+      body.style.overflow = ''; det._anim = null; setLabel();
+    };
   }
 
   /* ---------- the terms pop-up sits above everything, even the request form */
@@ -492,24 +519,56 @@
     return true;
   }
 
-  /* Any search or filter change starts the phone list back at 10; only the
-     "show more" button and a resize pass keepLimit. */
-  function renderCatalog(keepLimit) {
+  /* Page numbers for the phone pager: always the first and last, the current
+     one and its neighbours, and "…" for the gaps — short enough for 320px. */
+  function pageList(cur, last) {
+    var out = [], prev = 0;
+    for (var p = 1; p <= last; p++) {
+      if (p === 1 || p === last || Math.abs(p - cur) <= 1) {
+        if (p - prev > 1) out.push(p - prev === 2 ? prev + 1 : '…');
+        out.push(p); prev = p;
+      }
+    }
+    return out;
+  }
+
+  function renderPager(total) {
+    var nav = $('#cat-pager');
+    if (!nav) return;
+    var last = Math.max(1, Math.ceil(total / PAGE));
+    nav.hidden = !isPhone() || last <= 1;
+    if (nav.hidden) { nav.innerHTML = ''; return; }
+    var cur = state.page;
+    var btn = function (p, label, aria, extra) {
+      return '<button class="cat-pager__btn' + (extra || '') + '" type="button" data-page="' + p + '"' +
+             (aria ? ' aria-label="' + aria + '"' : '') +
+             (p === cur && !extra ? ' aria-current="page"' : '') +
+             ((p < 1 || p > last) ? ' disabled' : '') + '>' + label + '</button>';
+    };
+    nav.innerHTML =
+      btn(cur - 1, '&lsaquo;', 'previous page', ' cat-pager__btn--step') +
+      pageList(cur, last).map(function (p) {
+        return p === '…' ? '<span class="cat-pager__gap" aria-hidden="true">…</span>'
+                         : btn(p, p, 'page ' + p);
+      }).join('') +
+      btn(cur + 1, '&rsaquo;', 'next page', ' cat-pager__btn--step');
+  }
+
+  /* Any search or filter change goes back to page 1; only the pager itself
+     and a resize pass keepPage. */
+  function renderCatalog(keepPage) {
     var list = $('#song-list');
     var count = $('#count');
     var reset = $('#reset-filters');
-    var more = $('#cat-more');
     if (!list) return;
-    if (keepLimit !== true) state.limit = PAGE;
+    if (keepPage !== true) state.page = 1;
 
     var visible = SONGS.filter(matches);
     var total = visible.length;
-    if (isPhone()) visible = visible.slice(0, state.limit);
-    if (more) {
-      var left = total - visible.length;
-      more.hidden = left <= 0;
-      more.textContent = 'show more songs (' + left + ' more)';
-    }
+    var pages = Math.max(1, Math.ceil(total / PAGE));
+    if (state.page > pages) state.page = pages;
+    if (isPhone()) visible = visible.slice((state.page - 1) * PAGE, state.page * PAGE);
+    renderPager(total);
     var rel = $('#filter-released');
     if (rel) {
       rel.setAttribute('aria-pressed', String(state.released));
@@ -1940,15 +1999,21 @@
       });
     }
 
-    /* --- phones: show 10 more, and move focus to the first new row --- */
-    var moreBtn = $('#cat-more');
-    if (moreBtn) {
-      moreBtn.addEventListener('click', function () {
-        var from = state.limit;
-        state.limit += PAGE;
+    /* --- phones: page through 10 at a time; land back at the top of the
+       list with focus on its first song --- */
+    var pager = $('#cat-pager');
+    if (pager) {
+      pager.addEventListener('click', function (e) {
+        var b = e.target.closest('[data-page]');
+        if (!b || b.disabled) return;
+        var to = +b.getAttribute('data-page');
+        if (to === state.page) return;
+        state.page = to;
         renderCatalog(true);
-        var rows = $$('#song-list .song');
-        if (rows[from]) rows[from].focus();
+        var anchor = $('#catalog .search') || $('#song-list');
+        anchor.scrollIntoView({ block: 'start' });
+        var first = $('#song-list .song');
+        if (first) first.focus({ preventScroll: true });
       });
     }
     /* crossing the phone breakpoint changes how many rows show */
@@ -1981,6 +2046,12 @@
     });
     var tback = $('#terms-backdrop');
     if (tback) {
+      $('#terms-list').addEventListener('click', function (e) {
+        var sum = e.target.closest('.tcard__more > summary');
+        if (!sum) return;
+        e.preventDefault();
+        toggleTermsCard(sum.parentNode);
+      });
       tback.addEventListener('click', function (e) {
         if (e.target === tback || e.target.closest('[data-close-terms]')) closeTerms();
       });
