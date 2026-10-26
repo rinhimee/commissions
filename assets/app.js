@@ -548,10 +548,11 @@
               comps.map(function (c) {
                 return '<span class="tag tag--cx tag--cx-' + cxClass(c) + '">' + esc(c) + '</span>';
               }).join('') +
+              /* info, not a button: the whole row is what opens the song */
+              (hasYt ? '<span class="tag tag--released">\u266A released cover</span>' : '') +
             '</span>' +
           '</span>' +
           '<span class="song__right">' +
-            (hasYt ? '<span class="song__released"><span class="song__released-dot" aria-hidden="true"></span>released</span>' : '') +
             '<span class="song__chev" aria-hidden="true">&rsaquo;</span>' +
           '</span>' +
         '</button>';
@@ -894,10 +895,16 @@
     var to = panel.offsetHeight;
     if (Math.abs(to - from) < 2) return;
     /* longer distances take a little longer, within a tight range */
-    var ms = Math.round(Math.min(520, Math.max(280, 200 + Math.abs(to - from) * 0.3)));
+    var ms = Math.round(Math.min(780, Math.max(480, 380 + Math.abs(to - from) * 0.4)));
     panel.style.overflow = 'hidden';
+    /* a gentle ease-in-out, so it neither lurches off nor slams to a stop */
     panelAnim = panel.animate([{ height: from + 'px' }, { height: to + 'px' }],
-                              { duration: ms, easing: 'cubic-bezier(.2, .8, .3, 1)' });
+                              { duration: ms, easing: 'cubic-bezier(.45, .05, .25, 1)' });
+    /* the new content fades up while the panel opens around it */
+    Array.prototype.forEach.call(panel.children, function (c) {
+      c.animate([{ opacity: 0 }, { opacity: 1 }],
+                { duration: Math.round(ms * 0.8), delay: 90, easing: 'ease-out', fill: 'backwards' });
+    });
     var done = function () { panel.style.overflow = ''; panelAnim = null; };
     panelAnim.onfinish = done;
     panelAnim.oncancel = function () { panel.style.overflow = ''; };
@@ -1918,7 +1925,7 @@
       });
     }
 
-    /* --- "has a released cover" toggle --- */
+    /* --- "released" filter toggle --- */
     var relBtn = $('#filter-released');
     if (relBtn) {
       relBtn.addEventListener('click', function () {

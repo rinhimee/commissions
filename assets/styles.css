@@ -2088,22 +2088,20 @@ html:not(.has-shop) .ftabs { display: none; }
 
 /* ---------- 24. catalog: released badge, toggle, show more --- */
 
-.song__released {
-  display: inline-flex; align-items: center; gap: 6px;
-  font-size: 12px; font-weight: 700; white-space: nowrap;
-  color: var(--teal-ink); background: var(--teal);
-  border-radius: var(--pill); padding: 5px 12px 5px 6px;
-  box-shadow: 0 3px 0 var(--teal-shadow);
+/* "♪ released cover" in a row's tag line. It's info, not a button: same
+   size, weight and roundness as every .tag, only the outline and colours
+   differ. The border is paid for out of the padding so the height matches. */
+.tag--released {
+  background: transparent;
+  border: 1.5px solid var(--teal);
+  color: var(--teal-mid);
+  padding: 3.5px 9.5px;
+  white-space: nowrap;
+  cursor: inherit;
 }
-.song__released-dot {
-  position: relative; flex-shrink: 0;
-  width: 18px; height: 18px; border-radius: 50%;
-  background: var(--white);
-}
-/* the ▶ is a drawn shape, not a text glyph: a glyph gets re-hinted to a
-   different sub-pixel spot when the row's hover lift ends, which read as a
-   jitter. Whole-pixel geometry, nudged right to sit optically centred. */
-.song__released-dot::after,
+
+/* the filter's ▶ is a drawn shape, not a text glyph, so it can't be
+   re-hinted to a different sub-pixel spot. Whole-pixel geometry. */
 .chip-toggle__icon::after {
   content: ''; position: absolute; left: 7px; top: 5px;
   width: 0; height: 0;
@@ -2178,7 +2176,7 @@ html:not(.has-shop) .ftabs { display: none; }
   border-radius: 20px 20px 0 0;
   cursor: pointer; position: relative;
   transform: translateY(6px);
-  transition: transform .15s var(--ease);
+  transition: transform .3s var(--ease), background-color .55s ease;
 }
 .itab:hover { transform: translateY(2px); }
 .itab[aria-selected="true"] {
@@ -2200,6 +2198,8 @@ html:not(.has-shop) .ftabs { display: none; }
   border-radius: var(--r-xl);
   box-shadow: 0 5px 0 var(--panel-shadow);
   padding: 34px 36px;
+  /* switching tabs eases the tint over rather than snapping it */
+  transition: background-color .55s ease, border-color .55s ease, box-shadow .55s ease;
 }
 .info.is-tabbed .ipanel { border-top-left-radius: 22px; }
 
@@ -2250,7 +2250,7 @@ html:not(.has-shop) .ftabs { display: none; }
   background: var(--about-idle);
   border: 2px solid rgba(58, 46, 54, .08);
   display: flex; align-items: center; justify-content: center;
-  transition: background .3s var(--ease);
+  transition: background-color .55s ease;
 }
 .info[data-tab="pricing"] .info__cd-label { background: var(--white); }
 .info[data-tab="faq"]     .info__cd-label { background: var(--faq-idle); }
@@ -2277,7 +2277,7 @@ html:not(.has-shop) .ftabs { display: none; }
   .about2__h { font-size: 23px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .info__cd, .itab, .info__cd-label { transition: none; }
+  .info__cd, .itab, .info__cd-label, .ipanel { transition: none; }
   .info__cd:hover { transform: none; }
   .info__cd-disc, .info__cd-pop.is-pop { animation: none; }
 }
