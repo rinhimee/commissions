@@ -1844,9 +1844,10 @@ html:not(.has-shop) .ftabs { display: none; }
 .ftabs {
   display: flex; align-items: flex-end; gap: 8px;
   padding-left: 26px;
-  position: relative; z-index: 1;
+  position: relative;
 }
 .ftab {
+  position: relative; z-index: 0;
   font: 700 14.5px var(--font-body);
   display: inline-flex; align-items: center; gap: 8px;
   min-height: 46px; padding: 12px 22px;
@@ -1858,6 +1859,7 @@ html:not(.has-shop) .ftabs { display: none; }
 }
 .ftab:hover { transform: translateY(2px); }
 .ftab[aria-selected="true"] {
+  z-index: 2;
   background: var(--cream);
   transform: none;
   padding-bottom: 14px; margin-bottom: -2px;
@@ -1871,6 +1873,7 @@ html:not(.has-shop) .ftabs { display: none; }
 }
 
 .feat__card {
+  z-index: 1;
   background: var(--cream);
   border-radius: var(--r-xl);
   padding: 26px 0 26px 30px;
@@ -2148,11 +2151,12 @@ html:not(.has-shop) .ftabs { display: none; }
 .info:not(.is-tabbed) .ipanel--faq     { --panel-bg: var(--faq-bg);   --panel-line: var(--faq-line);   --panel-shadow: var(--faq-shadow); }
 
 .itabs {
-  position: relative; z-index: 2;
+  position: relative;               /* no z-index: each tab layers against the panel itself */
   display: flex; align-items: flex-end; gap: 8px;
   padding-left: 30px;
 }
 .itab {
+  z-index: 0;                       /* idle tabs tuck behind the panel's top edge */
   font: 700 15px var(--font-body);
   min-height: 46px; padding: 12px 24px;
   border: 2px solid; border-bottom: 0;
@@ -2163,6 +2167,7 @@ html:not(.has-shop) .ftabs { display: none; }
 }
 .itab:hover { transform: translateY(2px); }
 .itab[aria-selected="true"] {
+  z-index: 2;                       /* the open tab sits over the panel and covers its border */
   transform: none;
   padding-bottom: 14px; margin-bottom: -2px;   /* covers the panel's top border */
 }

@@ -408,12 +408,16 @@ if (isMain) {
     const end = cur.indexOf('\n];', start);
     previous = (cur.slice(start, end === -1 ? undefined : end).match(/^\s{2}\{$/gm) || []).length;
   } catch {}
-  if (previous && songs.length < previous) {
+  /* `node tools/sync-catalog.mjs --allow-shrink` when you removed rows on purpose */
+  const allowShrink = process.argv.includes('--allow-shrink');
+  if (previous && songs.length < previous && allowShrink) {
+    console.log(`--allow-shrink: catalog goes from ${previous} to ${songs.length} songs`);
+  } else if (previous && songs.length < previous) {
     throw new Error(
       `the sheet produced ${songs.length} songs but data/catalog.js already has ` +
       `${previous}. Refusing to drop ${previous - songs.length} — the sheet read ` +
-      `is probably stale or truncated. Re-run once the sheet loads normally, or ` +
-      `delete the extra rows deliberately and run again.`);
+      `is probably stale or truncated. Re-run once the sheet loads normally. If you ` +
+      `removed rows on purpose, run: node tools/sync-catalog.mjs --allow-shrink`);
   }
 
   /* pick up whatever is sitting in audio/ */
