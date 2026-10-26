@@ -98,6 +98,7 @@ window.SONGS = [
     arrangements: [
       {
         complexity: "simple",
+        tracks: 10,
         yt: "uHXkCfHcEZU"
       }
     ]
@@ -109,6 +110,7 @@ window.SONGS = [
     language: "JP",
     harmony: {
       complexity: "simple",
+      tracks: 4,
       audio: "audio/ao-no-sumika.mp3"
     },
     arrangements: []
@@ -174,6 +176,7 @@ window.SONGS = [
     language: "JP",
     harmony: {
       complexity: "simple",
+      tracks: 3,
       audio: "audio/bubble.mp3"
     },
     arrangements: []
@@ -249,6 +252,7 @@ window.SONGS = [
     arrangements: [
       {
         complexity: "simple",
+        tracks: 6,
         client: "static (RPGCB-R1)",
         yt: "VM3Skap0bBA"
       }
@@ -382,7 +386,8 @@ window.SONGS = [
     harmony: null,
     arrangements: [
       {
-        complexity: "simple"
+        complexity: "simple",
+        tracks: 7
       }
     ]
   },
@@ -394,7 +399,8 @@ window.SONGS = [
     harmony: null,
     arrangements: [
       {
-        complexity: "semi-complex"
+        complexity: "semi-complex",
+        tracks: 10
       }
     ]
   },
@@ -406,7 +412,8 @@ window.SONGS = [
     harmony: null,
     arrangements: [
       {
-        complexity: "simple"
+        complexity: "simple",
+        tracks: 8
       }
     ]
   },
@@ -418,7 +425,8 @@ window.SONGS = [
     harmony: null,
     arrangements: [
       {
-        complexity: "complex"
+        complexity: "complex",
+        tracks: 14
       }
     ]
   },
@@ -430,7 +438,8 @@ window.SONGS = [
     harmony: null,
     arrangements: [
       {
-        complexity: "complex"
+        complexity: "complex",
+        tracks: 13
       }
     ]
   },
@@ -597,6 +606,7 @@ window.SONGS = [
     arrangements: [
       {
         complexity: "simple",
+        tracks: 8,
         client: "Yunoshita Peo",
         yt: "E9q2US4QXMA"
       }
@@ -844,7 +854,9 @@ window.SONGS = [
     harmony: null,
     arrangements: [
       {
-        complexity: "complex"
+        complexity: "complex",
+        tracks: 17,
+        yt: "xiT2PvifjPw"
       }
     ]
   },
@@ -855,6 +867,7 @@ window.SONGS = [
     language: "JP",
     harmony: {
       complexity: "simple",
+      tracks: 10,
       yt: "uZyHHpfXZdY"
     },
     arrangements: []
@@ -909,7 +922,8 @@ window.SONGS = [
     artist: "BOYSTYLE",
     language: "JP",
     harmony: {
-      complexity: "simple"
+      complexity: "simple",
+      tracks: 2
     },
     arrangements: []
   },
@@ -920,6 +934,7 @@ window.SONGS = [
     language: "JP",
     harmony: {
       complexity: "semi-complex",
+      tracks: 16,
       yt: "Yud7uRxc3lU"
     },
     arrangements: []
@@ -1244,24 +1259,22 @@ window.SONGS = [
     title: "Netsuai Frozen",
     artist: "",
     language: "JP",
-    harmony: null,
-    arrangements: [
-      {
-        complexity: "simple"
-      }
-    ]
+    harmony: {
+      complexity: "simple",
+      tracks: 5
+    },
+    arrangements: []
   },
   {
     id: 102,
     title: "Nice da ne",
     artist: "",
     language: "JP",
-    harmony: null,
-    arrangements: [
-      {
-        complexity: "simple"
-      }
-    ]
+    harmony: {
+      complexity: "simple",
+      tracks: 9
+    },
+    arrangements: []
   },
   {
     id: 103,
@@ -1271,7 +1284,8 @@ window.SONGS = [
     harmony: null,
     arrangements: [
       {
-        complexity: "simple"
+        complexity: "simple",
+        tracks: 16
       }
     ]
   },
@@ -1283,7 +1297,8 @@ window.SONGS = [
     harmony: null,
     arrangements: [
       {
-        complexity: "simple"
+        complexity: "simple",
+        tracks: 16
       }
     ]
   },
@@ -1295,7 +1310,8 @@ window.SONGS = [
     harmony: null,
     arrangements: [
       {
-        complexity: "simple"
+        complexity: "simple",
+        tracks: 11
       }
     ]
   },
@@ -1307,7 +1323,8 @@ window.SONGS = [
     harmony: null,
     arrangements: [
       {
-        complexity: "simple"
+        complexity: "simple",
+        tracks: 6
       }
     ]
   },
@@ -1318,6 +1335,7 @@ window.SONGS = [
     language: "JP",
     harmony: {
       complexity: "simple",
+      tracks: 2,
       yt: "8lNiCJn2Lo4"
     },
     arrangements: []
@@ -1325,12 +1343,13 @@ window.SONGS = [
   {
     id: 108,
     title: "Palette",
-    artist: "",
+    artist: "Yuyoyuppe",
     language: "JP",
     harmony: null,
     arrangements: [
       {
-        complexity: "simple"
+        complexity: "simple",
+        tracks: 19
       }
     ]
   },
@@ -1338,11 +1357,12 @@ window.SONGS = [
     id: 109,
     title: "PAPERMOON",
     artist: "",
-    language: "JP",
+    language: "EN",
     harmony: null,
     arrangements: [
       {
-        complexity: "simple"
+        complexity: "simple",
+        tracks: 1
       }
     ]
   },
@@ -1354,7 +1374,8 @@ window.SONGS = [
     harmony: null,
     arrangements: [
       {
-        complexity: "simple"
+        complexity: "simple",
+        tracks: 8
       }
     ]
   },
@@ -1757,7 +1778,8 @@ window.SONGS = [
     harmony: null,
     arrangements: [
       {
-        complexity: "simple"
+        complexity: "simple",
+        tracks: 13
       }
     ]
   },
@@ -1769,7 +1791,8 @@ window.SONGS = [
     harmony: null,
     arrangements: [
       {
-        complexity: "simple"
+        complexity: "simple",
+        tracks: 7
       }
     ]
   },
@@ -1792,7 +1815,8 @@ window.SONGS = [
     harmony: null,
     arrangements: [
       {
-        complexity: "simple"
+        complexity: "simple",
+        tracks: 7
       }
     ]
   },
@@ -1818,7 +1842,8 @@ window.SONGS = [
     harmony: null,
     arrangements: [
       {
-        complexity: "simple"
+        complexity: "simple",
+        tracks: 4
       }
     ]
   },
@@ -1853,7 +1878,8 @@ window.SONGS = [
     harmony: null,
     arrangements: [
       {
-        complexity: "simple"
+        complexity: "simple",
+        tracks: 9
       }
     ]
   },
@@ -1865,7 +1891,8 @@ window.SONGS = [
     harmony: null,
     arrangements: [
       {
-        complexity: "simple"
+        complexity: "simple",
+        tracks: 12
       }
     ]
   },
@@ -1877,7 +1904,8 @@ window.SONGS = [
     harmony: null,
     arrangements: [
       {
-        complexity: "simple"
+        complexity: "simple",
+        tracks: 8
       }
     ]
   },
@@ -1887,11 +1915,13 @@ window.SONGS = [
     artist: "",
     language: "JP",
     harmony: {
-      complexity: "simple"
+      complexity: "simple",
+      tracks: 7
     },
     arrangements: [
       {
-        complexity: "complex"
+        complexity: "complex",
+        tracks: 21
       }
     ]
   },
@@ -1903,7 +1933,8 @@ window.SONGS = [
     harmony: null,
     arrangements: [
       {
-        complexity: "simple"
+        complexity: "simple",
+        tracks: 3
       }
     ]
   },
@@ -1942,6 +1973,7 @@ window.SONGS = [
     arrangements: [
       {
         complexity: "semi-complex",
+        tracks: 15,
         yt: "Y4AH-I0LuVk"
       }
     ]
@@ -1967,7 +1999,8 @@ window.SONGS = [
     harmony: null,
     arrangements: [
       {
-        complexity: "simple"
+        complexity: "simple",
+        tracks: 20
       }
     ]
   },
