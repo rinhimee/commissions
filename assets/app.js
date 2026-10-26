@@ -459,6 +459,11 @@
     return (song.arrangements || []).some(function (a) { return a.yt; });
   }
 
+  /* the ♪ in the released badge and filter is drawn, not typed: a text glyph
+     gets re-hinted to a different sub-pixel spot when a row's hover lift
+     ends, which read as a jitter */
+  var NOTE_SVG = '<svg class="note-ico" viewBox="0 0 12 12" width="10" height="10" aria-hidden="true" focusable="false"><path fill="currentColor" d="M5.1 1.4h1.4v.7c1.3.6 2.9 1.5 3.3 3.3-.8-.8-2-1.2-3.3-1.2v5.1a2.2 1.8 0 1 1-1.4-1.6z"/></svg>';
+
   var PAGE = 10;
   var phoneMq = window.matchMedia ? window.matchMedia('(max-width: 720px)') : null;
   function isPhone() { return !!(phoneMq && phoneMq.matches); }
@@ -548,11 +553,10 @@
               comps.map(function (c) {
                 return '<span class="tag tag--cx tag--cx-' + cxClass(c) + '">' + esc(c) + '</span>';
               }).join('') +
-              /* info, not a button: the whole row is what opens the song */
-              (hasYt ? '<span class="tag tag--released">\u266A released cover</span>' : '') +
             '</span>' +
           '</span>' +
           '<span class="song__right">' +
+            (hasYt ? '<span class="tag tag--released">' + NOTE_SVG + 'released cover</span>' : '') +
             '<span class="song__chev" aria-hidden="true">&rsaquo;</span>' +
           '</span>' +
         '</button>';
@@ -646,7 +650,6 @@
     ts.setAttribute('aria-selected', String(isShop));  ts.tabIndex = isShop ? 0 : -1;
     $('#fpanel-works').hidden = isShop;
     $('#fpanel-shop').hidden = !isShop;
-    $('.feat__kicker', section).innerHTML = isShop ? '&#10022; arrangement shop' : '&#10022; featured works';
     $('#feat-prev').hidden = $('#feat-next').hidden = isShop;
     if (isShop) { stopFeatVideo(); primeShopAudio(); } else stopAudio();
     if (focus) (isShop ? ts : tw).focus();
@@ -2264,10 +2267,26 @@
     var lockedId  = null;   // the link we're jumping to
     var lockUntil = 0;      // hard deadline so a lock can never get stuck
 
+    /* The address bar follows along (#catalog, #about…; plain at the top).
+       It only starts once the page has loaded, so it can't fight the browser
+       while it's still jumping to a shared link's section. */
+    var urlSync = false;
+    window.addEventListener('load', function () {
+      setTimeout(function () { urlSync = true; }, 400);
+    }, { once: true });
+
+    function syncUrl(id) {
+      if (!urlSync || !history.replaceState) return;
+      var want = id === 'top' ? '' : '#' + id;
+      if (location.hash === want) return;
+      history.replaceState(null, '', want || location.pathname + location.search);
+    }
+
     function setActive(id) {
       links.forEach(function (a) {
         a.setAttribute('aria-current', a.getAttribute('href') === '#' + id ? 'true' : 'false');
       });
+      syncUrl(id);
     }
 
     function currentId() {

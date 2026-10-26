@@ -1839,8 +1839,10 @@ html:not(.has-shop) .ftabs { display: none; }
 /* until the cards arrive, hold the strip at one card's height */
 .strip:empty { min-height: 290px; }
 
-/* folder tabs: the active one shares the card's fill and merges into it;
-   the idle one sits a little lower in a lighter shade */
+/* folder tabs, as on board D: the panel is outlined, the selected tab wears
+   the same outline on its top and sides with the panel's fill and is pulled
+   2px down over the panel's top border so the two read as one shape. Idle
+   tabs keep their own colour and sit 6px lower, behind the panel. */
 .ftabs {
   display: flex; align-items: flex-end; gap: 8px;
   padding-left: 26px;
@@ -1851,21 +1853,23 @@ html:not(.has-shop) .ftabs { display: none; }
   font: 700 14.5px var(--font-body);
   display: inline-flex; align-items: center; gap: 8px;
   min-height: 46px; padding: 12px 22px;
-  border: 0; border-radius: 20px 20px 0 0;
+  border: 2px solid transparent; border-bottom: 0;
+  border-radius: 20px 20px 0 0;
   cursor: pointer;
-  background: var(--sand);
-  transform: translateY(6px);
-  transition: transform .15s var(--ease), background .15s var(--ease);
+  transition: transform .15s var(--ease), background-color .3s ease, border-color .3s ease;
 }
-.ftab:hover { transform: translateY(2px); }
+.ftab[aria-selected="false"] { transform: translateY(6px); }
+.ftab[aria-selected="false"]:hover { transform: translateY(2px); }
 .ftab[aria-selected="true"] {
   z-index: 2;
-  background: var(--cream);
-  transform: none;
+  background: var(--cream);          /* #FAF6EF, the panel's fill */
+  border-color: var(--border);       /* #EADFD2, the panel's outline */
   padding-bottom: 14px; margin-bottom: -2px;
 }
-.ftab--feat { color: var(--teal-ink); }
-.ftab--shop { color: var(--rose); }
+.ftab--feat[aria-selected="false"] { background: var(--teal-mint);  border-color: var(--teal-line);  color: var(--teal-ink); }
+.ftab--shop[aria-selected="false"] { background: var(--rose-wash-2); border-color: var(--rose-line-2); color: var(--rose); }
+.ftab--feat[aria-selected="true"]  { color: var(--teal-ink); }
+.ftab--shop[aria-selected="true"]  { color: var(--rose); }
 .ftab__count {
   font: 700 12px var(--font-num);
   background: var(--white); color: var(--rose);
@@ -1875,6 +1879,8 @@ html:not(.has-shop) .ftabs { display: none; }
 .feat__card {
   z-index: 1;
   background: var(--cream);
+  border: 2px solid var(--border);            /* #EADFD2 */
+  box-shadow: 0 5px 0 var(--border-strong);   /* #DCC9BC */
   border-radius: var(--r-xl);
   padding: 26px 0 26px 30px;
   display: flex; flex-direction: column; gap: 18px;
@@ -1888,10 +1894,8 @@ html:not(.has-shop) .ftabs { display: none; }
   gap: 16px; flex-wrap: wrap;
   padding-right: 30px;
 }
-.feat__kicker { color: var(--teal-mid); }
-.feat.is-shop .feat__kicker { color: var(--rose); }
 .feat__title {
-  margin: 4px 0 0;
+  margin: 0;
   font-weight: 800; font-size: 28px; letter-spacing: -.01em;
   color: var(--rose);
 }
@@ -2088,26 +2092,39 @@ html:not(.has-shop) .ftabs { display: none; }
 
 /* ---------- 24. catalog: released badge, toggle, show more --- */
 
-/* "♪ released cover" in a row's tag line. It's info, not a button: same
-   size, weight and roundness as every .tag, only the outline and colours
-   differ. The border is paid for out of the padding so the height matches. */
+/* "♪ released cover" on the right of a row: a flat ticket stub, not a
+   button — notched ends, a slight tilt, no shadow, and it ignores the
+   pointer because the whole row is what opens the song. */
 .tag--released {
-  background: transparent;
-  border: 1.5px solid var(--teal);
-  color: var(--teal-mid);
-  padding: 3.5px 9.5px;
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11.5px; font-weight: 700; color: var(--teal-ink);
+  background: var(--teal-mint);                 /* #E1F2F2 */
+  padding: 5px 14px;
+  border-radius: 4px;
+  box-shadow: none;
   white-space: nowrap;
-  cursor: inherit;
+  transform: rotate(-4deg);
+  margin-right: 10px;                           /* a little more room before the › */
+  pointer-events: none;
+  /* its own layer, so the row's hover lift doesn't re-draw the tilted text
+     (that re-draw is what made the old badge's icon jitter) */
+  will-change: transform;
+  /* notched ticket edges */
+  -webkit-mask: radial-gradient(circle 5px at 0 50%, #0000 98%, #000) left / 51% 100% no-repeat,
+                radial-gradient(circle 5px at 100% 50%, #0000 98%, #000) right / 51% 100% no-repeat;
+          mask: radial-gradient(circle 5px at 0 50%, #0000 98%, #000) left / 51% 100% no-repeat,
+                radial-gradient(circle 5px at 100% 50%, #0000 98%, #000) right / 51% 100% no-repeat;
 }
+.tag--released .note-ico { color: var(--teal-mid); }
 
-/* the filter's ▶ is a drawn shape, not a text glyph, so it can't be
-   re-hinted to a different sub-pixel spot. Whole-pixel geometry. */
-.chip-toggle__icon::after {
-  content: ''; position: absolute; left: 7px; top: 5px;
-  width: 0; height: 0;
-  border-style: solid; border-width: 4px 0 4px 6px;
-  border-color: transparent transparent transparent var(--teal-mid);
+/* the filter's white disc holding the drawn ♪ */
+.chip-toggle__icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--white); color: var(--teal-mid);
 }
+.note-ico { display: block; width: 10px; height: 10px; }
 
 /* sits beside the dropdowns and matches their size and resting shadow */
 .chip-toggle {
@@ -2124,11 +2141,7 @@ html:not(.has-shop) .ftabs { display: none; }
   background: var(--teal); border-color: var(--teal-shadow);
   box-shadow: 0 3px 0 var(--teal-shadow);
 }
-.chip-toggle__icon {
-  position: relative; flex-shrink: 0;
-  width: 18px; height: 18px; border-radius: 50%;
-  background: var(--white);
-}
+
 
 .cat-more {
   display: block; width: 100%;
