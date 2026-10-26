@@ -4,8 +4,9 @@
    Vanilla JS, no build step. Reads:
      config.js        → window.SITE_CONFIG
      data/catalog.js  → window.SONGS, window.LANGUAGES
+     data/catalog.js  → also window.SHOP (the sheet's "shop" tab)
      data/content.js  → window.PRICE_TIERS, MELODY_OPTIONS,
-                        ADDONS, TURNAROUND, FAQS
+                        ADDONS, TURNAROUND, FAQS, TERMS
    ============================================================ */
 
 (function () {
@@ -25,6 +26,7 @@
   var TAT      = window.TURNAROUND    || {};
   var FAQS     = window.FAQS          || [];
   var TERMS    = window.TERMS         || [];
+  var SHOP     = (window.SHOP || []).filter(function (it) { return it && it.title && !it.sold; });
 
   /* Escape anything that came from a data file before it touches innerHTML. */
   function esc(s) {
@@ -69,9 +71,12 @@
     lang: [],          // [] = no filter; otherwise a list of language codes
     type: [],          // [] = no filter; otherwise 'harmony' / 'arrangement'
     cx:   [],          // [] = no filter; otherwise complexity strings
+    released: false,   // only songs with a released cover (a yt link)
+    limit: 10,         // phones show this many rows, "show more" adds 10
 
     modal: null,        // null | 'song' | 'custom'
     song: null,         // the song object when modal === 'song'
+    shop: null,         // the shop item being ordered, if any
     view: 'versions',   // 'versions' | 'form' | 'sent'
     openYt: null,       // key of the expanded youtube embed
 
@@ -145,8 +150,8 @@
       }).join('');
     }
 
-    /* the hero's portfolio button opens the playlist directly when one is
-       configured; without a URL it still jumps to the portfolio section */
+    /* the hero's released-projects button opens the playlist directly when
+       one is configured; without a URL it jumps to the featured section */
     var heroPl = $('[data-hero-playlist]');
     if (heroPl && links.playlist) {
       heroPl.href = links.playlist;
@@ -225,35 +230,69 @@
     }
   }
 
-  /* The terms read as reference material, so they stay open rather than
-     hiding behind accordions — people need to scan and re-find them. The
-     note field is the only place raw markup is allowed through, and it's
-     authored by Lindsey in content.js, not by anything user-supplied. */
+  /* The terms pop-up: one card per topic with its short line, and the full
+     wording a click away. The note field is the only place raw markup is
+     allowed through, and it's authored by Lindsey in content.js, not by
+     anything user-supplied. */
   function renderTerms() {
     var list = $('#terms-list');
     if (!list) return;
-    if (!TERMS.length) { var sec = $('#terms'); if (sec) sec.hidden = true; return; }
+    if (!TERMS.length) {
+      $$('[data-open-terms]').forEach(function (b) {
+        var line = b.closest('.form-note--terms'); (line || b).hidden = true;
+      });
+      return;
+    }
 
     list.innerHTML = TERMS.map(function (g) {
+      var full = (g.items || []).length || g.note;
       return '' +
-        '<div class="terms__group">' +
-          '<h3 class="terms__h">' + esc(g.h) + '</h3>' +
-          '<ul class="terms__list">' +
-            g.items.map(function (i) { return '<li>' + esc(i) + '</li>'; }).join('') +
-          '</ul>' +
-          (g.note ? '<p class="terms__note">' + g.note + '</p>' : '') +
+        '<div class="tcard">' +
+          '<h3 class="tcard__h">' + esc(g.h) + '</h3>' +
+          '<p class="tcard__line">' + esc(g.short || (g.items || [])[0] || '') + '</p>' +
+          (full
+            ? '<details class="tcard__more"><summary>the full wording</summary>' +
+                '<ul class="terms__list">' +
+                  (g.items || []).map(function (i) { return '<li>' + esc(i) + '</li>'; }).join('') +
+                '</ul>' +
+                (g.note ? '<p class="terms__note">' + g.note + '</p>' : '') +
+              '</details>'
+            : '') +
         '</div>';
     }).join('');
+  }
+
+  /* ---------- the terms pop-up sits above everything, even the request form */
+  var termsReturn = null;
+  function termsOpen() { var t = $('#terms-backdrop'); return !!t && !t.hidden; }
+
+  function openTerms(from) {
+    termsReturn = from || document.activeElement;
+    var t = $('#terms-backdrop');
+    t.hidden = false;
+    document.body.classList.add('modal-open');
+    /* from inside the request form, jumping to the FAQ would throw the form away */
+    $('#terms-to-faq').hidden = !$('#modal-backdrop').hidden;
+    var close = $('.tmodal__close', t);
+    if (close) close.focus();
+  }
+
+  function closeTerms() {
+    $('#terms-backdrop').hidden = true;
+    if ($('#modal-backdrop').hidden) document.body.classList.remove('modal-open');
+    if (termsReturn && termsReturn.focus) termsReturn.focus();
+    termsReturn = null;
   }
 
   function renderFaq() {
     var list = $('#faq-list');
     if (!list) return;
 
+    /* the first answer starts open, so the panel never looks empty */
     list.innerHTML = FAQS.map(function (f, i) {
       return '' +
-        '<div class="faq__item">' +
-          '<button class="faq__q" type="button" aria-expanded="false" aria-controls="faq-a-' + i + '">' +
+        '<div class="faq__item' + (i === 0 ? ' is-open' : '') + '">' +
+          '<button class="faq__q" type="button" aria-expanded="' + (i === 0) + '" aria-controls="faq-a-' + i + '">' +
             '<span class="faq__q-text">' + esc(f.q) + '</span>' +
             '<span class="faq__icon" aria-hidden="true"></span>' +
           '</button>' +
@@ -414,7 +453,18 @@
 
   function anyDropdownOpen() { return !!$('.dd.is-open'); }
 
+  /* a song counts as released if any of its guides has a video */
+  function isReleased(song) {
+    if (song.harmony && song.harmony.yt) return true;
+    return (song.arrangements || []).some(function (a) { return a.yt; });
+  }
+
+  var PAGE = 10;
+  var phoneMq = window.matchMedia ? window.matchMedia('(max-width: 720px)') : null;
+  function isPhone() { return !!(phoneMq && phoneMq.matches); }
+
   function matches(song) {
+    if (state.released && !isReleased(song)) return false;
     var q = state.query.trim().toLowerCase();
     if (q && (song.title + ' ' + song.artist).toLowerCase().indexOf(q) === -1) return false;
     if (state.lang.length) {
@@ -437,20 +487,36 @@
     return true;
   }
 
-  function renderCatalog() {
+  /* Any search or filter change starts the phone list back at 10; only the
+     "show more" button and a resize pass keepLimit. */
+  function renderCatalog(keepLimit) {
     var list = $('#song-list');
     var count = $('#count');
     var reset = $('#reset-filters');
+    var more = $('#cat-more');
     if (!list) return;
+    if (keepLimit !== true) state.limit = PAGE;
 
     var visible = SONGS.filter(matches);
+    var total = visible.length;
+    if (isPhone()) visible = visible.slice(0, state.limit);
+    if (more) {
+      var left = total - visible.length;
+      more.hidden = left <= 0;
+      more.textContent = 'show more songs (' + left + ' more)';
+    }
+    var rel = $('#filter-released');
+    if (rel) {
+      rel.setAttribute('aria-pressed', String(state.released));
+      rel.classList.toggle('is-on', state.released);
+    }
 
     if (count) {
-      count.textContent = visible.length + (visible.length === 1 ? ' song' : ' songs');
+      count.textContent = total + (total === 1 ? ' song' : ' songs');
     }
     if (reset) {
       reset.hidden = (state.query === '' && !state.lang.length &&
-                      !state.type.length && !state.cx.length);
+                      !state.type.length && !state.cx.length && !state.released);
     }
 
     if (!visible.length) {
@@ -466,7 +532,7 @@
       });
 
       var n = (song.arrangements || []).length;
-      var hasYt = (song.arrangements || []).some(function (a) { return a.yt; });
+      var hasYt = isReleased(song);
 
       return '' +
         '<button class="song" type="button" data-song-id="' + esc(song.id) + '">' +
@@ -485,13 +551,406 @@
             '</span>' +
           '</span>' +
           '<span class="song__right">' +
-            (hasYt ? '<span class="song__yt">▶ on yt</span>' : '') +
+            (hasYt ? '<span class="song__released"><span class="song__released-dot" aria-hidden="true">&#9654;</span>released</span>' : '') +
             '<span class="song__chev" aria-hidden="true">&rsaquo;</span>' +
           '</span>' +
         '</button>';
     }).join('');
   }
 
+
+
+  /* ============================================================
+     FEATURED WORKS + ARRANGEMENT SHOP
+     ============================================================ */
+
+  var REDUCE_MOTION = !!(window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  /* Every sheet row ticked "featured" that has a video. Numbered rows come
+     first (lowest first); plain ticks keep their catalog order after them. */
+  function featuredWorks() {
+    var out = [];
+    SONGS.forEach(function (song) {
+      var ents = [];
+      if (song.harmony) ents.push({ e: song.harmony, kind: 'harmony' });
+      (song.arrangements || []).forEach(function (a) { ents.push({ e: a, kind: 'arrangement' }); });
+      ents.forEach(function (x) {
+        if (!x.e.featured || !x.e.yt) return;
+        out.push({
+          song: song, kind: x.kind, yt: x.e.yt, client: x.e.client || '',
+          order: typeof x.e.featured === 'number' ? x.e.featured : Infinity,
+          seq: out.length
+        });
+      });
+    });
+    return out.sort(function (a, b) { return (a.order - b.order) || (a.seq - b.seq); });
+  }
+
+  var FEAT_TINTS = ['feat-card--teal', 'feat-card--rose', 'feat-card--sand'];
+
+  function renderFeatured() {
+    var section = $('#featured');
+    if (!section) return;
+    var works = featuredWorks();
+    var strip = $('#feat-strip');
+
+    strip.innerHTML = works.map(function (w, i) {
+      var title = w.song.title;
+      var tag = w.kind === 'harmony' ? 'harmony guide' : 'vocal arrangement';
+      return '' +
+        '<div class="feat-card ' + FEAT_TINTS[i % FEAT_TINTS.length] + '" data-feat="' + i + '">' +
+          '<div class="feat-card__media">' +
+            '<button class="feat-card__thumb" type="button" data-play-yt="' + esc(w.yt) + '" ' +
+                    'aria-label="play ' + esc(title) + ' on YouTube">' +
+              '<img src="https://i.ytimg.com/vi/' + esc(w.yt) + '/hqdefault.jpg" alt="" ' +
+                   'width="480" height="360" loading="lazy" decoding="async" draggable="false">' +
+              '<span class="feat-card__play" aria-hidden="true">&#9654;</span>' +
+            '</button>' +
+          '</div>' +
+          '<button class="feat-card__info" type="button" data-feat-song="' + esc(w.song.id) + '" ' +
+                  'aria-label="' + esc(title) + ' — see the guides">' +
+            '<span class="feat-card__tag feat-card__tag--' + w.kind + '">' + tag + '</span>' +
+            '<span class="feat-card__title">' + esc(title) + '</span>' +
+            (w.client ? '<span class="feat-card__for">for <strong>' + esc(w.client) + '</strong></span>' : '') +
+            (w.song.artist ? '<span class="feat-card__orig">orig. ' + esc(w.song.artist) + '</span>' : '') +
+          '</button>' +
+        '</div>';
+    }).join('');
+
+    renderShop();
+
+    var hasWorks = works.length > 0, hasShop = SHOP.length > 0;
+    document.documentElement.classList.toggle('has-featured', hasWorks);
+    document.documentElement.classList.toggle('has-shop', hasShop);
+    section.hidden = !hasWorks && !hasShop;
+    /* the nav link goes with it */
+    $$('.nav__link[href="#featured"]').forEach(function (a) { a.hidden = section.hidden; });
+    if (section.hidden) return;
+
+    /* tabs only when there's a shop to switch to */
+    $('.ftabs', section).hidden = !(hasWorks && hasShop);
+    var count = $('#shop-count');
+    if (count) count.textContent = SHOP.length;
+    setFeatTab(hasWorks ? 'works' : 'shop');
+    updateArrows();
+  }
+
+  function setFeatTab(which, focus) {
+    var section = $('#featured');
+    var isShop = which === 'shop';
+    section.classList.toggle('is-shop', isShop);
+    var tw = $('#ftab-works'), ts = $('#ftab-shop');
+    tw.setAttribute('aria-selected', String(!isShop)); tw.tabIndex = isShop ? -1 : 0;
+    ts.setAttribute('aria-selected', String(isShop));  ts.tabIndex = isShop ? 0 : -1;
+    $('#fpanel-works').hidden = isShop;
+    $('#fpanel-shop').hidden = !isShop;
+    $('.feat__kicker', section).innerHTML = isShop ? '&#10022; arrangement shop' : '&#10022; featured works';
+    $('#feat-prev').hidden = $('#feat-next').hidden = isShop;
+    if (isShop) { stopFeatVideo(); primeShopAudio(); } else stopAudio();
+    if (focus) (isShop ? ts : tw).focus();
+    if (!isShop) updateArrows();
+  }
+
+  /* ---------- lite YouTube: the iframe only exists after a click ---------- */
+  function stopFeatVideo() {
+    $$('.feat-card.is-playing').forEach(function (card) {
+      var media = $('.feat-card__media', card);
+      var frame = $('iframe', media);
+      if (frame) media.removeChild(frame);
+      $('.feat-card__thumb', media).hidden = false;
+      card.classList.remove('is-playing');
+    });
+  }
+
+  function playFeatVideo(btn) {
+    stopFeatVideo();
+    stopAudio();
+    var card = btn.closest('.feat-card');
+    var media = $('.feat-card__media', card);
+    var id = btn.getAttribute('data-play-yt');
+    var frame = document.createElement('iframe');
+    frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1&rel=0';
+    frame.title = (btn.getAttribute('aria-label') || 'video').replace(/^play /, '');
+    frame.allow = 'autoplay; encrypted-media; picture-in-picture';
+    frame.setAttribute('allowfullscreen', '');
+    btn.hidden = true;
+    media.appendChild(frame);
+    card.classList.add('is-playing');
+    frame.focus();
+  }
+
+  /* ---------- carousel: arrows, drag, snap ---------- */
+  /* scrollLeft at which each card sits snapped at the start edge */
+  function cardStops(strip) {
+    var base = strip.getBoundingClientRect().left - strip.scrollLeft +
+               (parseFloat(getComputedStyle(strip).paddingLeft) || 0);
+    return $$('.feat-card', strip).map(function (c) {
+      return Math.round(c.getBoundingClientRect().left - base);
+    });
+  }
+
+  function nearestStop(strip, x) {
+    var stops = cardStops(strip), best = 0;
+    stops.forEach(function (v, i) { if (Math.abs(v - x) < Math.abs(stops[best] - x)) best = i; });
+    return { i: best, stops: stops };
+  }
+
+  function updateArrows() {
+    var strip = $('#feat-strip'), prev = $('#feat-prev'), next = $('#feat-next');
+    if (!strip || !prev) return;
+    var max = strip.scrollWidth - strip.clientWidth;
+    prev.disabled = strip.scrollLeft <= 2;
+    next.disabled = strip.scrollLeft >= max - 2;
+    /* nothing to scroll at all: the arrows are just noise */
+    var none = max <= 2;
+    prev.classList.toggle('is-idle', none);
+    next.classList.toggle('is-idle', none);
+  }
+
+  /* one page = however many whole cards fit */
+  function pageStrip(dir) {
+    var strip = $('#feat-strip');
+    var at = nearestStop(strip, strip.scrollLeft), stops = at.stops;
+    if (!stops.length) return;
+    var step = stops.length > 1 ? stops[1] - stops[0] : strip.clientWidth;
+    var per = Math.max(1, Math.floor((strip.clientWidth + 1) / step));
+    var to = Math.max(0, Math.min(stops.length - 1, at.i + dir * per));
+    strip.scrollTo({ left: stops[to], behavior: REDUCE_MOTION ? 'auto' : 'smooth' });
+  }
+
+  function bindFeatured() {
+    var section = $('#featured');
+    if (!section) return;
+    var strip = $('#feat-strip');
+
+    $('#feat-prev').addEventListener('click', function () { pageStrip(-1); });
+    $('#feat-next').addEventListener('click', function () { pageStrip(1); });
+    strip.addEventListener('scroll', updateArrows, { passive: true });
+    window.addEventListener('resize', updateArrows);
+
+    /* tabs: click, arrows, Home/End */
+    var tabs = [$('#ftab-works'), $('#ftab-shop')];
+    tabs.forEach(function (t, i) {
+      t.addEventListener('click', function () { setFeatTab(i ? 'shop' : 'works'); });
+      t.addEventListener('keydown', function (e) {
+        var k = e.key, to = null;
+        if (k === 'ArrowRight' || k === 'ArrowLeft') to = i ? 0 : 1;
+        else if (k === 'Home') to = 0;
+        else if (k === 'End') to = 1;
+        if (to === null) return;
+        e.preventDefault();
+        setFeatTab(to ? 'shop' : 'works', true);
+      });
+    });
+
+    /* card clicks: the thumbnail plays, the text opens the song's guides */
+    strip.addEventListener('click', function (e) {
+      if (suppressClick) { e.preventDefault(); e.stopPropagation(); return; }
+      var play = e.target.closest('[data-play-yt]');
+      if (play) { playFeatVideo(play); return; }
+      var info = e.target.closest('[data-feat-song]');
+      if (info) {
+        var id = info.getAttribute('data-feat-song');
+        var song = SONGS.filter(function (x) { return String(x.id) === id; })[0];
+        if (song) { stopFeatVideo(); openSong(song); }
+      }
+    }, true);
+
+    /* click-and-drag with a mouse; touch keeps native swiping */
+    var drag = null, suppressClick = false;
+    strip.addEventListener('pointerdown', function (e) {
+      if (e.pointerType !== 'mouse' || e.button !== 0) return;
+      drag = { x: e.clientX, left: strip.scrollLeft, moved: false, id: e.pointerId };
+    });
+    strip.addEventListener('pointermove', function (e) {
+      if (!drag) return;
+      var dx = e.clientX - drag.x;
+      if (!drag.moved && Math.abs(dx) > 5) {
+        drag.moved = true;
+        strip.classList.add('is-dragging');
+        try { strip.setPointerCapture(drag.id); } catch (err) {}
+      }
+      if (drag.moved) { e.preventDefault(); strip.scrollLeft = drag.left - dx; }
+    });
+    function endDrag() {
+      if (!drag) return;
+      var moved = drag.moved;
+      drag = null;
+      if (!moved) return;
+      /* the click that ends a drag must not play or open anything */
+      suppressClick = true;
+      setTimeout(function () { suppressClick = false; }, 0);
+      var at = nearestStop(strip, strip.scrollLeft);
+      strip.classList.remove('is-dragging');
+      strip.scrollTo({ left: at.stops[at.i] || 0, behavior: REDUCE_MOTION ? 'auto' : 'smooth' });
+    }
+    strip.addEventListener('pointerup', endDrag);
+    strip.addEventListener('pointercancel', endDrag);
+    strip.addEventListener('lostpointercapture', endDrag);
+    /* a thumbnail that fails to load leaves the tinted card + play button
+       rather than a broken-image icon */
+    strip.addEventListener('error', function (e) {
+      if (e.target && e.target.tagName === 'IMG') e.target.hidden = true;
+    }, true);
+
+    /* images and links inside would otherwise start a native drag */
+    strip.addEventListener('dragstart', function (e) { e.preventDefault(); });
+
+    /* shop: order buttons */
+    $('#shop-grid').addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-shop-order]');
+      if (!btn) return;
+      var item = SHOP[+btn.getAttribute('data-shop-order')];
+      if (item) openShopOrder(item);
+    });
+  }
+
+  /* ---------- the shop ---------- */
+  function priceNum(p) {
+    var m = String(p || '').replace(/,/g, '').match(/\d+(\.\d+)?/);
+    return m ? parseFloat(m[0]) : NaN;
+  }
+
+  function renderShop() {
+    var grid = $('#shop-grid');
+    if (!grid) return;
+    grid.innerHTML = SHOP.map(function (it, i) {
+      var now = priceNum(it.price), was = priceNum(it.was);
+      var off = (isFinite(now) && isFinite(was) && was > now) ? Math.round((1 - now / was) * 100) : 0;
+      return '' +
+        '<div class="shop-card">' +
+          '<div class="shop-card__top">' +
+            '<span class="shop-card__ready">&#10022; ready now</span>' +
+            (off ? '<span class="shop-card__off">&minus;' + off + '%</span>' : '') +
+          '</div>' +
+          '<div class="shop-card__name">' +
+            '<span class="shop-card__title">' + esc(it.title) + '</span>' +
+            (it.artist ? '<span class="shop-card__orig">orig. ' + esc(it.artist) + '</span>' : '') +
+          '</div>' +
+          '<div class="shop-card__chips">' +
+            '<span class="tag tag--arr">vocal arrangement</span>' +
+            (it.complexity ? '<span class="shop-card__chip">' + esc(it.complexity) + '</span>' : '') +
+            (it.tracks ? '<span class="shop-card__chip">' + esc(it.tracks) + ' tracks</span>' : '') +
+          '</div>' +
+          (it.audio ? playerHtml(it.audio) : '') +
+          '<div class="shop-card__buy">' +
+            '<span class="shop-card__prices">' +
+              (it.price ? '<span class="shop-card__price">' + esc(it.price) + '</span>' : '') +
+              (it.was && off ? '<s class="shop-card__was"><span class="visually-hidden">was </span>' + esc(it.was) + '</s>' : '') +
+            '</span>' +
+            '<button class="shop-card__order" type="button" data-shop-order="' + i + '" ' +
+                    'aria-label="order ' + esc(it.title) + '">order this &#9829;</button>' +
+          '</div>' +
+        '</div>';
+    }).join('');
+    $$('.aplay', grid).forEach(paintVolume);
+    shopPrimed = false;
+  }
+
+  /* Reading each clip's length means requesting the file, so the shop waits
+     until it's actually opened — and until the page itself has loaded — so
+     those requests never compete with the first paint. */
+  var shopPrimed = false;
+  function primeShopAudio() {
+    if (shopPrimed) return;
+    shopPrimed = true;
+    var go = function () { $$('#shop-grid .aplay').forEach(primeDuration); };
+    if (document.readyState === 'complete') go();
+    else window.addEventListener('load', go, { once: true });
+  }
+
+  function openShopOrder(item) {
+    stopAudio();
+    var song = item.songId ? SONGS.filter(function (x) { return x.id === item.songId; })[0] : null;
+    state.modal = 'shop';
+    state.song = song || null;
+    state.shop = item;
+    state.view = 'form';
+    state.openYt = null;
+    state.form = blankForm();
+    state.form.song = item.title;
+    state.form.artist = item.artist || (song ? song.artist : '');
+    state.form.type = 'arrangement';
+    showModal();
+  }
+
+
+  /* ============================================================
+     ABOUT / PRICING / FAQ TABS
+     ============================================================ */
+
+  var INFO_TABS = ['about', 'pricing', 'faq'];
+  var infoTab = 'about';
+  var onInfoTab = function () {};   // the scroll-spy hooks in here
+
+  function selectInfoTab(id, focus) {
+    var section = $('#info');
+    if (!section || INFO_TABS.indexOf(id) === -1) return;
+    var changed = id !== infoTab;
+    infoTab = id;
+    section.setAttribute('data-tab', id);
+    INFO_TABS.forEach(function (t) {
+      var tab = $('#itab-' + t), on = t === id;
+      tab.setAttribute('aria-selected', String(on));
+      tab.tabIndex = on ? 0 : -1;
+      $('#' + t).hidden = !on;
+    });
+    if (focus) $('#itab-' + id).focus();
+    /* the CD hops up whenever the tab changes */
+    var pop = $('.info__cd-pop', section);
+    if (changed && pop && !REDUCE_MOTION) {
+      pop.classList.remove('is-pop');
+      void pop.offsetWidth;            // restart the animation
+      pop.classList.add('is-pop');
+    }
+    onInfoTab(id);
+  }
+
+  /* open a tab from anywhere (nav, hero, terms) and bring the section into view */
+  function goToInfoTab(id) {
+    selectInfoTab(id);
+    var section = $('#info');
+    if (section) section.scrollIntoView({ block: 'start' });
+    if (history.replaceState) history.replaceState(null, '', '#' + id);
+  }
+
+  function initInfoTabs() {
+    var section = $('#info');
+    if (!section) return;
+    section.classList.add('is-tabbed');
+    $('.itabs', section).hidden = false;
+
+    INFO_TABS.forEach(function (t, i) {
+      var tab = $('#itab-' + t);
+      tab.addEventListener('click', function () { selectInfoTab(t); });
+      tab.addEventListener('keydown', function (e) {
+        var k = e.key, to = null;
+        if (k === 'ArrowRight') to = (i + 1) % INFO_TABS.length;
+        else if (k === 'ArrowLeft') to = (i + INFO_TABS.length - 1) % INFO_TABS.length;
+        else if (k === 'Home') to = 0;
+        else if (k === 'End') to = INFO_TABS.length - 1;
+        if (to === null) return;
+        e.preventDefault();
+        selectInfoTab(INFO_TABS[to], true);
+      });
+    });
+
+    /* links to #about / #pricing / #faq open the matching tab */
+    $$('[data-tab-link]').forEach(function (a) {
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        goToInfoTab(a.getAttribute('data-tab-link'));
+      });
+    });
+
+    /* arriving on /#pricing etc. opens that tab */
+    var hash = (location.hash || '').slice(1);
+    selectInfoTab(INFO_TABS.indexOf(hash) !== -1 ? hash : 'about');
+    if (INFO_TABS.indexOf(hash) !== -1) {
+      window.addEventListener('load', function () { section.scrollIntoView({ block: 'start' }); }, { once: true });
+    }
+  }
 
   /* ============================================================
      MODAL
@@ -527,6 +986,7 @@
   function openSong(song) {
     state.modal = 'song';
     state.song  = song;
+    state.shop  = null;
     state.view  = 'versions';
     /* open the first youtube preview straight away */
     var withYt = versionsOf(song).filter(function (v) { return v.yt; })[0];
@@ -543,6 +1003,7 @@
   function openCustom() {
     state.modal = 'custom';
     state.song = null;
+    state.shop = null;
     state.view = 'choose';
     state.openYt = null;
     state.form = blankForm();
@@ -563,12 +1024,14 @@
     $('#modal-backdrop').hidden = true;
     document.body.classList.remove('modal-open');
     state.modal = null;
+    state.shop = null;
     state.view = 'versions';
     state.sending = false;
     if (state.lastFocused && state.lastFocused.focus) state.lastFocused.focus();
   }
 
   function turnaround() {
+    if (state.shop) return TAT.shop || TAT.catalog;
     if (state.song) return TAT.catalog;
     if (state.form.type === 'arrangement') return TAT.arrangement;
     return TAT.harmony;
@@ -598,6 +1061,21 @@
       if (song) { langLine.innerHTML = langChips(song); langLine.hidden = false; }
       else { langLine.innerHTML = ''; langLine.hidden = true; }
     }
+    if (state.modal === 'shop') {
+      var it = state.shop || {};
+      kicker.textContent = '✦ arrangement shop';
+      kicker.hidden = false;
+      $('#modal-title').textContent = it.title || '';
+      $('#modal-sub').textContent = 'ready-made vocal arrangement' +
+        (it.artist ? ' · orig. ' + it.artist : '') + (it.price ? ' · ' + it.price : '');
+      $('#view-choose').hidden = true;
+      $('#view-versions').hidden = true;
+      $('#view-form').hidden = state.view !== 'form';
+      $('#view-sent').hidden = state.view !== 'sent';
+      if (state.view === 'form') renderForm();
+      return;
+    }
+
     $('#modal-title').textContent = state.modal === 'custom'
       ? (state.view === 'choose' ? 'send a request'
          : (isOpenReq ? "let's talk about it" : 'request a song'))
@@ -625,6 +1103,7 @@
 
   var audioEl  = null;
   var audioSrc = null;
+  var audioBox = null;      // the player that owns the audio (a src can appear twice)
   var pendingSeek = null;   // scrub target set before metadata arrived
   /* Volume starts at 2 of the 4 ticks and is remembered across visits.
      Private-mode browsers throw on storage, so every touch is guarded. */
@@ -657,7 +1136,7 @@
     probe.addEventListener('loadedmetadata', function () {
       settled = true;
       /* if it started playing in the meantime, paintAudio owns the label */
-      if (audioSrc !== src) paintTime($('[data-aplay-time]', box), 0, probe.duration);
+      if (audioBox !== box) paintTime($('[data-aplay-time]', box), 0, probe.duration);
     });
     probe.addEventListener('error', function () {
       /* tearing the probe down also fires 'error' — only the first one is real */
@@ -735,14 +1214,14 @@
     if (audioEl) { try { audioEl.pause(); } catch (err) {} }
     audioEl = null;
     audioSrc = null;
+    audioBox = null;
     pendingSeek = null;
     resetAudioUI();
   }
 
   function paintAudio() {
-    if (!audioEl || !audioSrc) return;
-    var box = $('.aplay[data-aplay="' + audioSrc + '"]');
-    if (!box) return;
+    if (!audioEl || !audioBox) return;
+    var box = audioBox;
     var d = audioEl.duration, c = audioEl.currentTime;
     var f = $('[data-aplay-fill]', box);
     var k = $('[data-aplay-knob]', box);
@@ -759,11 +1238,12 @@
      out because no Audio object existed yet. */
   function ensureAudio(box) {
     var src = box.getAttribute('data-aplay');
-    if (audioEl && audioSrc === src) return audioEl;
+    if (audioEl && audioBox === box) return audioEl;
 
     stopAudio();
     box.classList.remove('is-missing');
     audioSrc = src;
+    audioBox = box;
     audioEl  = new Audio(src);
     audioEl.preload = 'metadata';
     audioEl.volume  = muted ? 0 : volume;
@@ -806,11 +1286,10 @@
   }
 
   function toggleAudio(box) {
-    var src = box.getAttribute('data-aplay');
     var btn = $('[data-aplay-toggle]', box);
 
     /* already loaded: just play/pause */
-    if (audioSrc === src && audioEl) {
+    if (audioBox === box && audioEl) {
       if (audioEl.paused) {
         var r = audioEl.play(); if (r && r.catch) r.catch(function () {});
         box.classList.add('is-playing');
@@ -828,6 +1307,29 @@
     if (pr && pr.catch) pr.catch(function () {});
     box.classList.add('is-playing');
     if (btn) { btn.innerHTML = '&#10074;&#10074;'; btn.setAttribute('aria-label', 'pause preview'); }
+  }
+
+  /* the preview player — the song popup and the shop cards share it */
+  function playerHtml(src) {
+    return '' +
+      '<div class="aplay" data-aplay="' + esc(src) + '">' +
+        '<button class="aplay__btn" type="button" data-aplay-toggle ' +
+                'aria-label="play preview">&#9654;</button>' +
+        '<div class="aplay__bar" data-aplay-bar>' +
+          '<div class="aplay__fill" data-aplay-fill></div>' +
+          '<div class="aplay__knob" data-aplay-knob></div>' +
+        '</div>' +
+        '<span class="aplay__time" data-aplay-time><b class="aplay__now">0:00</b></span>' +
+        '<div class="aplay__vol">' +
+          '<button class="aplay__volbtn" type="button" data-aplay-mute aria-label="mute"></button>' +
+          '<div class="aplay__volbar" data-aplay-volbar ' +
+               'role="slider" tabindex="0" aria-label="volume" ' +
+               'aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">' +
+            '<i class="aplay__tick"></i><i class="aplay__tick"></i>' +
+            '<i class="aplay__tick"></i><i class="aplay__tick"></i>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
   }
 
   function renderVersions() {
@@ -863,24 +1365,7 @@
           '</div>' +
           (v.audio
             ? '<div class="version__audio">' +
-                '<div class="aplay" data-aplay="' + esc(v.audio) + '">' +
-                  '<button class="aplay__btn" type="button" data-aplay-toggle ' +
-                          'aria-label="play preview">&#9654;</button>' +
-                  '<div class="aplay__bar" data-aplay-bar>' +
-                    '<div class="aplay__fill" data-aplay-fill></div>' +
-                    '<div class="aplay__knob" data-aplay-knob></div>' +
-                  '</div>' +
-                  '<span class="aplay__time" data-aplay-time><b class="aplay__now">0:00</b></span>' +
-                  '<div class="aplay__vol">' +
-                    '<button class="aplay__volbtn" type="button" data-aplay-mute aria-label="mute"></button>' +
-                    '<div class="aplay__volbar" data-aplay-volbar ' +
-                         'role="slider" tabindex="0" aria-label="volume" ' +
-                         'aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">' +
-                      '<i class="aplay__tick"></i><i class="aplay__tick"></i>' +
-                      '<i class="aplay__tick"></i><i class="aplay__tick"></i>' +
-                    '</div>' +
-                  '</div>' +
-                '</div>' +
+                playerHtml(v.audio) +
                 '<div class="version__foot">' +
                   '<span class="version__note" aria-hidden="true">\u266A</span>' +
                   '<span>preview clip \u2014 full guide delivered as isolated stems</span>' +
@@ -921,7 +1406,8 @@
        meaningless (and intimidating) on a "let's talk" enquiry. */
     /* The original link is only worth asking for on a song I haven't already
        worked on — from the catalog I know exactly which version it is. */
-    $('#field-links').hidden   = isOpen || !!state.song;
+    var isShop = state.modal === 'shop';
+    $('#field-links').hidden   = isOpen || !!state.song || isShop;
     /* The instrumental question applies to any song request: even a catalog
        guide may not line up against a commissioned backing track. */
     $('#field-instr').hidden     = isOpen;
@@ -931,7 +1417,7 @@
        From the catalog it stays collapsed, because I already have what I
        need. Ticking "custom instrumental" opens it and makes it required
        either way: that's the case where I can't go and find it myself. */
-    var newSong = !state.song;
+    var newSong = !state.song && !isShop;
     $('#instr-detail').hidden = !(f.customInstr || newSong);
     var ovReq = $('#offvocal-req'), ovOpt = $('#offvocal-opt');
     if (ovReq) ovReq.hidden = !f.customInstr;
@@ -953,14 +1439,24 @@
     $('#f-extra').value    = f.extra;
     $('#open-fields').hidden   = !isOpen;
     $('#custom-fields').hidden = isOpen || state.modal !== 'custom';
-    $('#field-type').hidden    = isOpen;
+    $('#field-type').hidden    = isOpen || isShop;
+    var shopNote = $('#shop-note');
+    if (shopNote) {
+      shopNote.hidden = !isShop;
+      if (isShop) {
+        var it = state.shop;
+        shopNote.innerHTML = 'You&rsquo;re ordering the ready-made arrangement of <strong>' +
+          esc(it.title) + '</strong>' + (it.price ? ' for <strong>' + esc(it.price) + '</strong>' : '') +
+          '. Add a melody guide or add-ons below if you want them.';
+      }
+    }
     $('#field-melody').hidden  = isOpen;
     $('#field-addons').hidden  = isOpen;
     $('#tat-note').hidden      = isOpen;
     /* From a catalog song the same link walks back to that song's guides,
        so you can re-check what's on hand without losing the modal. */
     var back = $('#back-to-choose');
-    back.hidden = false;
+    back.hidden = isShop;
     back.innerHTML = state.modal === 'song'
       ? '\u2190 Back to this song\u2019s guides'
       : '\u2190 Pick a different request type';
@@ -1020,7 +1516,7 @@
 
     /* arrangement-only block */
     var isArr = f.type === 'arrangement';
-    $('#arr-only').hidden = !isArr || isOpen;
+    $('#arr-only').hidden = !isArr || isOpen || isShop;
     $('#complexity-row').innerHTML = [
       { value: 'simple',       label: 'Simple' },
       { value: 'semi',         label: 'Semi-complex' },
@@ -1067,7 +1563,10 @@
       return a ? a.label + ' (' + a.price + ')' : k;
     });
 
-    var lines = [
+    var lines = [].concat(state.shop ? [
+      'SHOP ORDER:  ready-made arrangement — ' + (state.shop.price || 'price on site') +
+        (state.shop.was ? ' (was ' + state.shop.was + ')' : '')
+    ] : [], [
       'song:        ' + (f.song || '—'),
       'artist:      ' + (f.artist || '—'),
       'on-vocal:    ' + (f.onvocal || '—'),
@@ -1081,10 +1580,10 @@
       'contact:     ' + (f.contact || '—'),
       'in catalog:  ' + (state.song ? 'yes' : 'no'),
       'instrumental:' + (f.customInstr ? ' CUSTOM — ' + (f.offvocal || 'no link given') : ' official off-vocal')
-    ];
+    ]);
     if (f.extra) lines.push('details:     ' + f.extra);
 
-    if (f.type === 'arrangement') {
+    if (f.type === 'arrangement' && !state.shop) {
       lines.push('range:       ' + (f.range || '—'));
       lines.push('budget:      ' + (f.budget || '—'));
       lines.push('complexity:  ' + (f.complexity || 'let me pitch'));
@@ -1137,7 +1636,7 @@
         value: f.customInstr ? '**custom** — ' + (f.offvocal || 'no link given') : 'official off-vocal',
         inline: false },
       { name: 'guide type', value: f.type === 'harmony' ? '1:1 harmony guide' : 'vocal arrangement', inline: true },
-      { name: 'in catalog', value: state.song ? 'yes — discounted' : 'no — new request', inline: true },
+      { name: 'in catalog', value: state.shop ? 'shop item' : (state.song ? 'yes — discounted' : 'no — new request'), inline: true },
       { name: 'melody guide', value: (melodyOpt.label || f.melody) + ' (' + (melodyOpt.price || '') + ')', inline: true },
       { name: 'deadline', value: f.deadline || 'flexible', inline: true },
       { name: 'contact', value: f.contact || '—', inline: true },
@@ -1145,7 +1644,12 @@
     ];
     if (f.extra) fields.push({ name: 'details', value: f.extra.slice(0, 1024), inline: false });
 
-    if (f.type === 'arrangement') {
+    if (state.shop) {
+      fields.unshift({ name: 'shop order',
+        value: 'ready-made arrangement — ' + (state.shop.price || 'price on site') +
+               (state.shop.was ? ' (was ' + state.shop.was + ')' : ''),
+        inline: false });
+    } else if (f.type === 'arrangement') {
       fields.push({ name: 'vocal range', value: f.range || 'not given', inline: true });
       fields.push({ name: 'budget', value: f.budget || 'not given', inline: true });
       fields.push({ name: 'complexity', value: f.complexity || 'let me pitch directions', inline: true });
@@ -1164,9 +1668,9 @@
 
     var payload = {
       embeds: [{
-        title: ((f.song || 'untitled') + ' — ' + (f.artist || 'unknown artist')).slice(0, 256),
-        description: 'new commission request from the site',
-        color: 0xA8455F,
+        title: ((state.shop ? '[shop] ' : '') + (f.song || 'untitled') + ' — ' + (f.artist || 'unknown artist')).slice(0, 256),
+        description: state.shop ? 'shop order from the site' : 'new commission request from the site',
+        color: state.shop ? 0xC4577C : 0xA8455F,
         fields: fields,
         footer: { text: (CFG.brandName || 'harmony guides') + ' · request form' },
         timestamp: new Date().toISOString()
@@ -1255,7 +1759,7 @@
     }
 
     /* a catalog song already filled these in, so don't demand them again */
-    if (state.song) required = required.filter(function (r) {
+    if (state.song || state.shop) required = required.filter(function (r) {
       return r[1] !== 'song' && r[1] !== 'onvocal';
     });
 
@@ -1380,6 +1884,7 @@
         state.lang = [];
         state.type = [];
         state.cx   = [];
+        state.released = false;
         if (search) search.value = '';
         closeDropdowns();
         renderDropdown('lang');
@@ -1388,6 +1893,33 @@
         renderCatalog();
         if (search) search.focus();
       });
+    }
+
+    /* --- "has a released cover" toggle --- */
+    var relBtn = $('#filter-released');
+    if (relBtn) {
+      relBtn.addEventListener('click', function () {
+        state.released = !state.released;
+        renderCatalog();
+      });
+    }
+
+    /* --- phones: show 10 more, and move focus to the first new row --- */
+    var moreBtn = $('#cat-more');
+    if (moreBtn) {
+      moreBtn.addEventListener('click', function () {
+        var from = state.limit;
+        state.limit += PAGE;
+        renderCatalog(true);
+        var rows = $$('#song-list .song');
+        if (rows[from]) rows[from].focus();
+      });
+    }
+    /* crossing the phone breakpoint changes how many rows show */
+    if (phoneMq) {
+      var onMq = function () { renderCatalog(true); };
+      if (phoneMq.addEventListener) phoneMq.addEventListener('change', onMq);
+      else if (phoneMq.addListener) phoneMq.addListener(onMq);
     }
 
     /* --- catalog rows (delegated) --- */
@@ -1407,6 +1939,23 @@
       btn.addEventListener('click', function (e) { e.preventDefault(); openCustom(); });
     });
 
+    /* --- terms pop-up --- */
+    $$('[data-open-terms]').forEach(function (b) {
+      b.addEventListener('click', function (e) { e.preventDefault(); openTerms(b); });
+    });
+    var tback = $('#terms-backdrop');
+    if (tback) {
+      tback.addEventListener('click', function (e) {
+        if (e.target === tback || e.target.closest('[data-close-terms]')) closeTerms();
+      });
+      $('#terms-to-faq').addEventListener('click', function () {
+        termsReturn = null;
+        closeTerms();
+        goToInfoTab('faq');
+        var t = $('#itab-faq'); if (t) t.focus({ preventScroll: true });
+      });
+    }
+
     /* --- modal chrome --- */
     var backdrop = $('#modal-backdrop');
     backdrop.addEventListener('click', function (e) {
@@ -1415,87 +1964,30 @@
     });
 
     document.addEventListener('keydown', function (e) {
+      /* the terms pop-up is always the top layer, so it goes first */
+      if (termsOpen()) {
+        if (e.key === 'Escape') { closeTerms(); return; }
+        if (e.key === 'Tab') trapFocus(e, $('#terms-backdrop .modal'));
+        return;
+      }
       if (e.key === 'Escape' && anyDropdownOpen()) { closeDropdowns(); return; }
       if (e.key === 'Escape' && !backdrop.hidden) { closeModal(); return; }
       if (e.key === 'Tab' && !backdrop.hidden) trapFocus(e);
     });
 
     /* --- versions view --- */
+    bindPlayers($('#version-list'));
+    bindPlayers($('#shop-grid'));
+
     $('#version-list').addEventListener('click', function (e) {
-      /* audio: play / pause */
-      var play = e.target.closest('[data-aplay-toggle]');
-      if (play) { toggleAudio(play.closest('.aplay')); return; }
-
-      /* audio: mute toggle */
-      var mute = e.target.closest('[data-aplay-mute]');
-      if (mute) {
-        if (volume === 0) setVolume(preMute || DEFAULT_VOLUME);
-        else { preMute = volume; setVolume(0); }
-        return;
-      }
-
-      /* scrubbing and volume are handled on pointerdown below, so they drag */
-      if (e.target.closest('[data-aplay-bar]') || e.target.closest('[data-aplay-volbar]')) return;
+      /* the player's own clicks are handled by bindPlayers */
+      if (e.target.closest('.aplay')) return;
 
       var btn = e.target.closest('[data-yt]');
       if (!btn) return;
       var key = btn.getAttribute('data-yt');
       state.openYt = state.openYt === key ? null : key;
       renderVersions();
-    });
-
-    /* the volume ticks are a real slider: arrows nudge, home/end pin it */
-    $('#version-list').addEventListener('keydown', function (e) {
-      var vb = e.target.closest && e.target.closest('[data-aplay-volbar]');
-      if (!vb) return;
-      var step = 0.25, v = muted ? 0 : volume, k = e.key;
-      if (k === 'ArrowRight' || k === 'ArrowUp')        v += step;
-      else if (k === 'ArrowLeft' || k === 'ArrowDown')  v -= step;
-      else if (k === 'Home')                            v = 0;
-      else if (k === 'End')                             v = 1;
-      else return;
-      e.preventDefault();
-      setVolume(v);
-    });
-
-    /* press-and-drag scrubbing */
-    $('#version-list').addEventListener('pointerdown', function (e) {
-      var vol = e.target.closest('[data-aplay-volbar]');
-      var bar = vol || e.target.closest('[data-aplay-bar]');
-      if (!bar) return;
-      var box = bar.closest('.aplay');
-      if (!box) return;
-
-      e.preventDefault();                     // don't start a text selection
-      var rect  = bar.getBoundingClientRect();
-      var startX = e.clientX, dragged = false;
-      var at = vol
-        ? function (ev) { setVolume((ev.clientX - rect.left) / rect.width); }
-        : function (ev) { seekAudio(box, (ev.clientX - rect.left) / rect.width); };
-
-      at(e);
-      var move = function (ev) {
-        if (Math.abs(ev.clientX - startX) > 3) dragged = true;
-        at(ev);
-      };
-      var up = function (ev) {
-        at(ev);
-        window.removeEventListener('pointermove', move);
-        window.removeEventListener('pointerup', up);
-        window.removeEventListener('pointercancel', up);
-
-        /* A drag released outside the modal lands a click on the backdrop,
-           which would close the whole popup mid-scrub. Swallow that one
-           click (and only if we actually dragged). */
-        if (!dragged) return;
-        var swallow = function (ce) { ce.stopPropagation(); done(); };
-        var done = function () { window.removeEventListener('click', swallow, true); };
-        window.addEventListener('click', swallow, true);
-        setTimeout(done, 300);
-      };
-      window.addEventListener('pointermove', move);
-      window.addEventListener('pointerup', up);
-      window.addEventListener('pointercancel', up);
     });
 
     $('#to-form').addEventListener('click', function () {
@@ -1614,15 +2106,92 @@
     }
   }
 
+  /* Wire up every preview player inside `root` (delegated, so players
+     rendered later still work). Used for the song popup and the shop. */
+  function bindPlayers(root) {
+    if (!root) return;
+
+    root.addEventListener('click', function (e) {
+      /* audio: play / pause */
+      var play = e.target.closest('[data-aplay-toggle]');
+      if (play) { toggleAudio(play.closest('.aplay')); return; }
+
+      /* audio: mute toggle */
+      var mute = e.target.closest('[data-aplay-mute]');
+      if (mute) {
+        if (volume === 0) setVolume(preMute || DEFAULT_VOLUME);
+        else { preMute = volume; setVolume(0); }
+      }
+      /* scrubbing and volume are handled on pointerdown below, so they drag */
+    });
+
+    /* the volume ticks are a real slider: arrows nudge, home/end pin it */
+    root.addEventListener('keydown', function (e) {
+      var vb = e.target.closest && e.target.closest('[data-aplay-volbar]');
+      if (!vb) return;
+      var step = 0.25, v = muted ? 0 : volume, k = e.key;
+      if (k === 'ArrowRight' || k === 'ArrowUp')        v += step;
+      else if (k === 'ArrowLeft' || k === 'ArrowDown')  v -= step;
+      else if (k === 'Home')                            v = 0;
+      else if (k === 'End')                             v = 1;
+      else return;
+      e.preventDefault();
+      setVolume(v);
+    });
+
+    /* press-and-drag scrubbing */
+    root.addEventListener('pointerdown', function (e) {
+      var vol = e.target.closest('[data-aplay-volbar]');
+      var bar = vol || e.target.closest('[data-aplay-bar]');
+      if (!bar) return;
+      var box = bar.closest('.aplay');
+      if (!box) return;
+
+      e.preventDefault();                     // don't start a text selection
+      var rect  = bar.getBoundingClientRect();
+      var startX = e.clientX, dragged = false;
+      var at = vol
+        ? function (ev) { setVolume((ev.clientX - rect.left) / rect.width); }
+        : function (ev) { seekAudio(box, (ev.clientX - rect.left) / rect.width); };
+
+      at(e);
+      var move = function (ev) {
+        if (Math.abs(ev.clientX - startX) > 3) dragged = true;
+        at(ev);
+      };
+      var up = function (ev) {
+        at(ev);
+        window.removeEventListener('pointermove', move);
+        window.removeEventListener('pointerup', up);
+        window.removeEventListener('pointercancel', up);
+
+        /* A drag released outside the modal lands a click on the backdrop,
+           which would close the whole popup mid-scrub. Swallow that one
+           click (and only if we actually dragged). */
+        if (!dragged) return;
+        var swallow = function (ce) { ce.stopPropagation(); done(); };
+        var done = function () { window.removeEventListener('click', swallow, true); };
+        window.addEventListener('click', swallow, true);
+        setTimeout(done, 300);
+      };
+      window.addEventListener('pointermove', move);
+      window.addEventListener('pointerup', up);
+      window.addEventListener('pointercancel', up);
+    });
+
+  }
+
   /* keep Tab inside the modal while it's open */
-  function trapFocus(e) {
-    var modal = $('#modal-backdrop .modal');
+  function trapFocus(e, modal) {
+    modal = modal || $('#modal-backdrop .modal');
     var focusable = $$(
       'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
       modal
     ).filter(function (n) { return n.offsetParent !== null; });
 
     if (!focusable.length) return;
+    /* focus that has slipped outside (e.g. after a click on the backdrop) comes back in */
+    if (!modal.contains(document.activeElement)) { e.preventDefault(); focusable[0].focus(); return; }
     var first = focusable[0];
     var last  = focusable[focusable.length - 1];
 
@@ -1646,9 +2215,21 @@
     var links = $$('.nav__link');
     if (!links.length) return;
 
-    var ids = links.map(function (a) { return (a.getAttribute('href') || '').slice(1); })
-                   .filter(function (id) { return id && document.getElementById(id); });
-    if (!ids.length) return;
+    var infoEl = document.getElementById('info');
+    var targets = links.map(function (a) {
+      var id = (a.getAttribute('href') || '').slice(1);
+      var tab = a.getAttribute('data-tab-link');
+      return { id: id, tab: tab, el: tab ? infoEl : document.getElementById(id) };
+    }).filter(function (t) { return t.id && t.el; });
+    if (!targets.length) return;
+
+    /* what counts right now: skip hidden sections and the closed tabs */
+    function live() {
+      return targets.filter(function (t) {
+        if (t.el.hidden) return false;
+        return !t.tab || t.tab === infoTab;
+      });
+    }
 
     var lockedId  = null;   // the link we're jumping to
     var lockUntil = 0;      // hard deadline so a lock can never get stuck
@@ -1662,18 +2243,18 @@
     function currentId() {
       var nav  = $('.nav');
       var line = (nav ? nav.getBoundingClientRect().bottom : 0) + 28;
-      var best = ids[0];
+      var list = live();
+      var best = list[0].id;
 
-      ids.forEach(function (id) {
-        var el = document.getElementById(id);
-        if (el && el.getBoundingClientRect().top <= line) best = id;
+      list.forEach(function (t) {
+        if (t.el.getBoundingClientRect().top <= line) best = t.id;
       });
 
       /* at the very bottom nothing further can cross the line, so make sure
          the last section wins rather than whatever happened to be closest */
       var atBottom = window.innerHeight + window.pageYOffset >=
                      document.documentElement.scrollHeight - 4;
-      if (atBottom) best = ids[ids.length - 1];
+      if (atBottom) best = list[list.length - 1].id;
 
       return best;
     }
@@ -1722,6 +2303,9 @@
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll);
     window.addEventListener('scrollend', onScrollEnd);
+
+    /* switching tabs moves the highlight to the newly opened tab's link */
+    onInfoTab = function () { if (!locked()) setActive(currentId()); };
 
     setActive(currentId());
   }
@@ -1869,7 +2453,10 @@
     renderTerms();
     initFilters();
     renderCatalog();
+    renderFeatured();
+    initInfoTabs();
     bindEvents();
+    bindFeatured();
     initScrollSpy();
     initSparkle();
     initGlitter();

@@ -155,6 +155,36 @@ Open `data/catalog.js` and copy an existing block:
   Chrome and Edge on Windows draw 🇯🇵 as the bare letters "JP". If you ever
   strip that font out, switch these to non-flag emoji.
 
+## Featured works and the arrangement shop (from the sheet)
+
+Both come from the Google Sheet, like the catalog, and update on the next sync.
+
+**Featured works** — tick the `featured` box on any row that has a yt link.
+To set the carousel order, put 1, 2, 3… in the `featured order` column (or type
+the number straight into `featured`). Numbered rows go first, lowest first;
+ticked rows without a number follow in sheet order. Rows without a yt link
+are skipped, since the card is the video.
+
+**Arrangement shop** — lives on a separate tab named exactly `shop`, with these
+headers in row 1:
+
+| song name | artist | complexity | # tracks | price | original | sold |
+|---|---|---|---|---|---|---|
+
+- Put `complexity` and `# tracks` on the shop tab (the tab can be named
+  `shop` or `Shop`). If they're blank, they're borrowed from a matching
+  vocal-arrangement row on the main tab that has no client and no yt link —
+  never from a released one.
+- **Preview clip:** drop it in `audio/` named after the song plus `-shop`,
+  e.g. `shoujo-rei-shop.mp3` or `kuchisake-shop.mp3`. (An `audio` column on
+  the shop tab works too.) No clip, no player on the card.
+- `price` and `original` (or `original price`) can be plain numbers (`40` becomes `$40`) or any
+  text. Leave `original` blank and the card shows no discount.
+- Add a `sold` column and tick it to take an item down without deleting the row.
+- No `shop` tab, or nothing unsold on it, and the shop tab on the site simply
+  doesn't appear.
+- The old `available` column on the main tab isn't used.
+
 ## The catalog filters
 
 All three filter dropdowns — language, complexity, guide type — are
@@ -174,6 +204,11 @@ ordered simple → semi-complex → complex, with anything unrecognised after.
 
 All in `data/content.js`. The pricing section and the request form read from the
 same lists, so an edit updates both at once — they can't drift apart.
+
+The terms live there too, in `window.TERMS`. The terms pop-up (footer link, and
+the line under the request form's send button) shows each topic's `short` line,
+with the full `items` wording one click away. Edit `short` when you change a
+term so the two stay in step.
 
 ## Your links and art
 

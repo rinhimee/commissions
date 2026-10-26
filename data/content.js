@@ -46,6 +46,7 @@ window.ADDONS = [
 /* Turnaround copy shown in the form, depending on what's being requested. */
 window.TURNAROUND = {
   catalog:     "Estimated turnaround time: 1–5 days.",
+  shop:        "It's already finished — I'll send it over once payment is in.",
   arrangement: "Estimated turnaround time: 2–4 weeks.",
   harmony:     "Estimated turnaround time: 1–2 weeks."
 };
@@ -105,14 +106,16 @@ window.FAQS = [
 
 /* ============================================================
    TERMS
-   Rendered under the FAQ. Where these overlap with an FAQ answer,
-   the FAQ is the fuller version and wins — the entries here stay
-   deliberately short and point at it rather than restating numbers
-   that would then have two sources of truth.
+   Shown in the "terms" pop-up (footer link, and the line under the
+   request form's send button). Each topic shows its `short` line;
+   "the full wording" opens `items` (and `note`) underneath.
+   Where these overlap with an FAQ answer, the FAQ is the fuller
+   version and wins.
    ============================================================ */
 window.TERMS = [
   {
     h: "general",
+    short: "I may turn down a commission if I don\u2019t feel I\u2019m the right fit. Please pass the guides on to whoever is tuning your vocals.",
     items: [
       "I may turn down a commission if I don't feel I'm the right fit for the project.",
       "Please pass the harmony guides on to whoever is tuning your vocals \u2014 every zip includes a readme with the tuning and timing notes below."
@@ -121,6 +124,7 @@ window.TERMS = [
   },
   {
     h: "payments",
+    short: "Quotes are non-committal. Pay in full upfront, or 50% deposit + 50% on completion, through PayPal.",
     items: [
       "Quotes are non-committal. If one lands outside your budget, just say so \u2014 it's genuinely not a problem.",
       "For complex or original arrangements you're welcome to name your budget instead, and we'll scope the complexity to fit it.",
@@ -130,6 +134,7 @@ window.TERMS = [
   },
   {
     h: "deadlines and delivery",
+    short: "Turnaround depends on the project. Put any hard deadline in the request form so I can say upfront if it\u2019s doable.",
     items: [
       "Turnaround depends on what's being made \u2014 the estimate shown on the request form is the one that applies to your project.",
       "If you have a hard deadline, put it in the request form so I can tell you upfront whether it's doable.",
@@ -138,6 +143,7 @@ window.TERMS = [
   },
   {
     h: "revisions",
+    short: "Revisions are welcome. Major additions or significant rewrites may cost extra.",
     items: [
       "Revisions are welcome \u2014 see the FAQ for what's included free and what counts as a major revision.",
       "Major additions that weren't part of the original request, or significant rewrites, may incur an additional fee."
@@ -145,6 +151,7 @@ window.TERMS = [
   },
   {
     h: "use and credit",
+    short: "Credit \u201cHarmony Guides: rin\u59EB\u201d or \u201cVocal Arrangement: rin\u59EB\u201d unless the no-credit add-on was paid. My vocals are reference only.",
     items: [
       "Unless a no-credit fee has been paid, please credit me in the upload description as \u201cHarmony Guides: rin\u59EB\u201d or \u201cVocal Arrangement: rin\u59EB\u201d, depending on what was commissioned, along with a link to my Twitter.",
       "My vocals are a reference for you to learn and re-record in your own voice \u2014 they may not be used as anything else. If you'd like me to actually sing on your track, ask about vocal commissions."
@@ -152,6 +159,7 @@ window.TERMS = [
   },
   {
     h: "intellectual property",
+    short: "Please don\u2019t share or redistribute my guides \u2014 doing so will result in being blacklisted.",
     items: [
       "Please don't share or redistribute my guides to anyone else. Doing so will result in being blacklisted.",
       "Songs I've already worked on are discounted \u2014 the FAQ explains how the discount is worked out."
@@ -159,6 +167,7 @@ window.TERMS = [
   },
   {
     h: "refunds",
+    short: "Full refund before I start; up to 50% once started; none once complete.",
     items: [
       "Full refund, no questions, if I haven't started your commission yet.",
       "Once I've started, up to 50% can be refunded depending on how far along it is.",
@@ -167,6 +176,7 @@ window.TERMS = [
   },
   {
     h: "communication",
+    short: "I reply on Discord or email within 1\u20133 days for new requests, then within 24 hours. Please reply within about 24 hours too.",
     items: [
       "I'll reach out on whichever you gave me in the form \u2014 Discord or email.",
       "Please allow 1\u20133 days for a reply to an initial commission request. After that I'll do my best to answer within 24 hours.",

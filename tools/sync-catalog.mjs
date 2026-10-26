@@ -47,9 +47,14 @@ const LANG_CODES = {
    commits the old catalog because nothing "changed". Sending an explicit
    `tq` query forces a fresh evaluation, and the timestamp defeats any
    intermediate cache. */
-const csvUrl = () => 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq'
+/* The shop lives on its own tab, found by name so its gid never matters.
+   Tab names may be matched case-sensitively, so try the usual spellings. */
+const SHOP_TAB = 'shop';
+const SHOP_TAB_NAMES = ['shop', 'Shop', 'SHOP'];
+
+const csvUrl = (sheetName) => 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq'
   + '?tqx=out:csv'
-  + '&gid=' + GID
+  + (sheetName ? '&sheet=' + encodeURIComponent(sheetName) : '&gid=' + GID)
   + '&headers=1'
   + '&tq=' + encodeURIComponent('select *')
   + '&_=' + Date.now();
@@ -81,6 +86,20 @@ export function parseCsv(text) {
 const norm = s => String(s ?? '').trim();
 const key  = s => norm(s).toLowerCase().replace(/[^a-z0-9]/g, '');
 
+/* Find a column by any of several header names. An exact header match wins
+   over a partial one, so "featured" never grabs "featured order". */
+function columnFinder(headerRow) {
+  const head = headerRow.map(key);
+  return (...names) => {
+    for (const n of names) { const i = head.indexOf(key(n)); if (i !== -1) return i; }
+    for (const n of names) { const i = head.findIndex(h => h.includes(key(n))); if (i !== -1) return i; }
+    return -1;
+  };
+}
+
+/* checkbox cells come through as TRUE/FALSE; also accept yes/x/1 */
+const truthy = v => /^(true|yes|y|x|1|✓|✔)$/i.test(norm(v));
+
 /* youtube URL (any shape) -> bare video id */
 /* "Spanish, English, Korean" -> ["ES","EN","KR"];  "Chinese (Mandarin)" -> ["CN"] */
 export function langCodes(raw) {
@@ -108,14 +127,7 @@ export function buildSongs(rows) {
   const headerAt = rows.findIndex(r => r.some(c => key(c).includes('song')));
   if (headerAt === -1) throw new Error('no header row with a "song name" column');
 
-  const head = rows[headerAt].map(key);
-  const col = (...names) => {
-    for (const n of names) {
-      const i = head.findIndex(h => h === key(n) || h.includes(key(n)));
-      if (i !== -1) return i;
-    }
-    return -1;
-  };
+  const col = columnFinder(rows[headerAt]);
   const iSong = col('songname', 'song', 'title');
   const iArt  = col('artist');
   const iLang = col('language', 'lang');
@@ -125,6 +137,8 @@ export function buildSongs(rows) {
   const iTracks = col('tracks');
   const iYt   = col('ytlink', 'yt', 'youtube', 'link');
   const iAudio = col('audio', 'preview', 'mp3');
+  const iFeat  = col('featured');
+  const iFeatOrder = col('featuredorder', 'featureorder');
 
   if (iSong === -1 || iType === -1) throw new Error('sheet needs at least "song name" and "type" columns');
 
@@ -161,6 +175,16 @@ export function buildSongs(rows) {
 
     const audio = iAudio !== -1 ? norm(r[iAudio]) : '';
     if (audio) entry.audio = audio;
+
+    /* featured: a ticked box, or a number typed straight into the cell.
+       The "featured order" number sets the carousel position; ticked rows
+       without one go after the numbered ones. */
+    const featCell  = iFeat !== -1 ? norm(r[iFeat]) : '';
+    const orderCell = iFeatOrder !== -1 ? norm(r[iFeatOrder]) : '';
+    const orderNum  = parseFloat(orderCell || featCell);
+    if (truthy(featCell) || Number.isFinite(parseFloat(featCell)) || Number.isFinite(parseFloat(orderCell))) {
+      entry.featured = Number.isFinite(orderNum) && orderNum > 0 ? orderNum : true;
+    }
 
     const k = `${title.toLowerCase()}::${artist.toLowerCase()}`;
     let song = byKey.get(k);
@@ -202,6 +226,7 @@ export function attachAudio(songs, files) {
   for (const file of files) {
     if (!/\.(mp3|m4a|ogg|wav)$/i.test(file)) continue;
     const stem = file.replace(/\.[^.]+$/, '');
+    if (/-shop$/.test(stem)) continue;          // shop previews are placed by buildShop
     /* Direct match wins; an alias is only a fallback. Otherwise correcting a
        title in the sheet would make its alias point at a song that no longer
        exists and silently drop the audio — which is exactly what happened when
@@ -211,6 +236,69 @@ export function attachAudio(songs, files) {
     if (!entry.audio) { entry.audio = 'audio/' + file; attached++; }
   }
   return { attached, unmatched };
+}
+
+/* ---------- the arrangement shop tab ----------
+   One row per arrangement for sale: song name, artist, price, original
+   price, sold. Complexity and tracks can be typed here, or are taken from a
+   matching *unreleased* vocal-arrangement row on the main sheet (no client,
+   no yt link) — never from a released one, whose clip is a different take.
+   The preview clip: an `audio` column, else audio/<song-title>-shop.mp3,
+   else that unreleased row's clip. */
+const money = v => {
+  const t = norm(v);
+  if (!t) return '';
+  return /^\d+(\.\d+)?$/.test(t) ? '$' + t : t;
+};
+
+export function buildShop(rows, songs, files = []) {
+  const headerAt = rows.findIndex(r => r.some(c => key(c).includes('song')) && r.some(c => key(c).includes('price')));
+  /* No header with both a song and a price column means this isn't the shop
+     tab (gviz falls back to the first tab when a name doesn't exist). */
+  if (headerAt === -1) return null;
+
+  const col = columnFinder(rows[headerAt]);
+  const iSong = col('songname', 'song', 'title');
+  const iArt  = col('artist');
+  const iPrice = col('price', 'saleprice', 'newprice');
+  const iWas  = col('originalprice', 'original', 'was', 'oldprice', 'regularprice');
+  const iSold = col('sold');
+  const iCplx = col('complexity');
+  const iTracks = col('tracks');
+  const iAudio = col('audio', 'preview', 'mp3');
+  const get = (r, i) => (i === -1 ? '' : norm(r[i]));
+
+  const out = [];
+  const missing = [];
+  rows.slice(headerAt + 1).forEach(r => {
+    const title = get(r, iSong);
+    if (!title || truthy(get(r, iSold))) return;
+    const artist = get(r, iArt);
+
+    const tk = key(title), ak = key(artist);
+    const song = songs.find(s => key(s.title) === tk && (!ak || key(s.artist) === ak))
+              || songs.find(s => key(s.title) === tk);
+    /* only an arrangement nobody's attached to can stand in for the shop item */
+    const arrs = song ? song.arrangements : [];
+    const arr = arrs.find(a => !a.client && !a.yt) || null;
+    if (!song) missing.push(title);
+
+    const item = {
+      title: song ? song.title : title,
+      artist: artist || (song ? song.artist : ''),
+      complexity: (get(r, iCplx) || (arr && arr.complexity) || '').toLowerCase(),
+      price: money(get(r, iPrice)),
+      was: money(get(r, iWas))
+    };
+    const tracks = parseInt(get(r, iTracks), 10) || (arr && arr.tracks) || 0;
+    if (tracks) item.tracks = tracks;
+    const shopFile = files.find(f => f.replace(/\.[^.]+$/, '') === audioSlug(title) + '-shop');
+    const audio = get(r, iAudio) || (shopFile ? 'audio/' + shopFile : '') || (arr && arr.audio) || '';
+    if (audio) item.audio = audio;
+    if (song) item.songId = song.id;
+    out.push(item);
+  });
+  return { items: out, missing };
 }
 
 /* ---------- emit data/catalog.js ---------- */
@@ -223,10 +311,25 @@ function entryJs(e, indent) {
   if (e.client) parts.push(`${p}client: ${q(e.client)}`);
   if (e.yt)     parts.push(`${p}yt: ${q(e.yt)}`);
   if (e.audio)  parts.push(`${p}audio: ${q(e.audio)}`);
+  if (e.featured) parts.push(`${p}featured: ${e.featured === true ? 'true' : e.featured}`);
   return parts.join(',\n');
 }
 
-export function render(songs, languages) {
+function shopJs(items) {
+  if (!items.length) return '[]';
+  return '[\n' + items.map(it => {
+    const bits = [`title: ${q(it.title)}`, `artist: ${q(it.artist)}`];
+    if (it.songId) bits.push(`songId: ${it.songId}`);
+    if (it.complexity) bits.push(`complexity: ${q(it.complexity)}`);
+    if (it.tracks) bits.push(`tracks: ${it.tracks}`);
+    if (it.audio) bits.push(`audio: ${q(it.audio)}`);
+    bits.push(`price: ${q(it.price)}`);
+    if (it.was) bits.push(`was: ${q(it.was)}`);
+    return '    { ' + bits.join(', ') + ' }';
+  }).join(',\n') + '\n]';
+}
+
+export function render(songs, languages, shop = []) {
   const body = songs.map(s => {
     const bits = [
       `    id: ${s.id}`,
@@ -255,6 +358,9 @@ export function render(songs, languages) {
 window.SONGS = [
 ${body}
 ];
+
+/* arrangement shop — from the "${SHOP_TAB}" tab; sold rows are left out */
+window.SHOP = ${shopJs(shop)};
 
 ${languages}`;
 }
@@ -285,7 +391,7 @@ if (isMain) {
 `;
   }
 
-  const res = await fetch(csvUrl(), {
+  const res = await fetch(csvUrl(''), {
     redirect: 'follow',
     headers: { 'cache-control': 'no-cache', pragma: 'no-cache' }
   });
@@ -297,7 +403,10 @@ if (isMain) {
      Losing songs should be loud, not committed. */
   let previous = 0;
   try {
-    previous = (readFileSync(out, 'utf8').match(/^\s{2}\{$/gm) || []).length;
+    const cur = readFileSync(out, 'utf8');
+    const start = cur.indexOf('window.SONGS');
+    const end = cur.indexOf('\n];', start);
+    previous = (cur.slice(start, end === -1 ? undefined : end).match(/^\s{2}\{$/gm) || []).length;
   } catch {}
   if (previous && songs.length < previous) {
     throw new Error(
@@ -318,9 +427,34 @@ if (isMain) {
     audio.unmatched.forEach(f => console.log('  - ' + f));
   }
 
-  writeFileSync(out, render(songs, languages));
+  /* the shop tab is optional: missing or unreadable just means no shop */
+  let shop = [];
+  try {
+    let built = null;
+    for (const name of SHOP_TAB_NAMES) {
+      const sres = await fetch(csvUrl(name), {
+        redirect: 'follow',
+        headers: { 'cache-control': 'no-cache', pragma: 'no-cache' }
+      });
+      built = sres.ok ? buildShop(parseCsv(await sres.text()), songs, files) : null;
+      if (built) break;
+    }
+    if (!built) console.log(`no "${SHOP_TAB}" tab with song + price columns — shop left empty`);
+    else {
+      shop = built.items;
+      console.log(`shop: ${shop.length} item(s) for sale`);
+      built.missing.forEach(t => console.log(`  - shop item "${t}" matched no song on the main sheet`));
+    }
+  } catch (err) {
+    console.log('could not read the shop tab (' + err.message + ') — shop left empty');
+  }
+
+  writeFileSync(out, render(songs, languages, shop));
   const withYt = songs.reduce((n, sg) =>
     n + (sg.harmony && sg.harmony.yt ? 1 : 0)
       + (sg.arrangements || []).filter(a => a.yt).length, 0);
-  console.log(`wrote data/catalog.js — ${songs.length} songs, ${withYt} youtube link(s)`);
+  const featured = songs.reduce((n, sg) =>
+    n + (sg.harmony && sg.harmony.featured ? 1 : 0)
+      + (sg.arrangements || []).filter(a => a.featured).length, 0);
+  console.log(`wrote data/catalog.js — ${songs.length} songs, ${withYt} youtube link(s), ${featured} featured`);
 }

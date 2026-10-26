@@ -106,11 +106,11 @@
     </div>
     <div class="nav__links">
       <a class="nav__link" href="#top">home</a>
+      <a class="nav__link" href="#featured">featured</a>
       <a class="nav__link" href="#catalog">catalog</a>
-      <a class="nav__link" href="#about">about</a>
-      <a class="nav__link" href="#pricing">pricing</a>
-      <a class="nav__link" href="#faq">faq</a>
-      <a class="nav__link" href="#terms">terms</a>
+      <a class="nav__link" href="#about" data-tab-link="about">about</a>
+      <a class="nav__link" href="#pricing" data-tab-link="pricing">pricing</a>
+      <a class="nav__link" href="#faq" data-tab-link="faq">faq</a>
       <button class="nav__cta" type="button" data-open-custom>request a song &#9829;</button>
     </div>
   </nav>
@@ -133,10 +133,10 @@
         Everything that i&rsquo;ve worked on before is listed below for your convenience! If your song&rsquo;s in the list,
         you&rsquo;ll get your guides faster <em>and</em> cheaper! ( ᵔ ⩊ ᵔ )
       </p>
-      <a class="hero__cta rise" style="animation-delay:.86s" href="#portfolio" data-hero-playlist>
+      <a class="hero__cta rise" style="animation-delay:.86s" href="#featured" data-hero-playlist>
         &#9654; all released projects
       </a>
-      <a class="hero__cta hero__cta--soft rise" style="animation-delay:.93s" href="#about">
+      <a class="hero__cta hero__cta--soft rise" style="animation-delay:.93s" href="#about" data-tab-link="about">
         &#9825; learn more
       </a>
     </div>
@@ -148,6 +148,47 @@
         <div class="hero__note" aria-hidden="true">&#9834;</div>
         <div class="hero__tag" aria-hidden="true">&#10022; harmony &#10022;</div>
         <div class="hero__spark" aria-hidden="true">&#10022;</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= featured works + arrangement shop ================= -->
+  <!-- Filled in by app.js from the sheet: rows ticked "featured" become the
+       carousel, the "shop" tab becomes the shop. With neither, the whole
+       section stays hidden. -->
+  <section class="feat" id="featured" aria-labelledby="featured-title">
+    <div class="ftabs" role="tablist" aria-label="featured works and arrangement shop">
+      <button class="ftab ftab--feat" role="tab" type="button" id="ftab-works"
+              aria-controls="fpanel-works" aria-selected="true">&#9654; featured works</button>
+      <button class="ftab ftab--shop" role="tab" type="button" id="ftab-shop"
+              aria-controls="fpanel-shop" aria-selected="false" tabindex="-1">
+        &#10022; arrangement shop <span class="ftab__count" id="shop-count"></span>
+      </button>
+    </div>
+
+    <div class="feat__card">
+      <div class="feat__head">
+        <div>
+          <div class="kicker feat__kicker">&#10022; featured works</div>
+          <h2 class="feat__title" id="featured-title">Hear it in action &#9834;</h2>
+        </div>
+        <div class="feat__tools">
+          <button class="feat__arrow" type="button" id="feat-prev" aria-label="scroll featured works left">&lsaquo;</button>
+          <button class="feat__arrow" type="button" id="feat-next" aria-label="scroll featured works right">&rsaquo;</button>
+          <a class="portfolio__btn" id="playlist-link" href="#" hidden>&#9654; full playlist</a>
+        </div>
+      </div>
+
+      <div class="fpanel" id="fpanel-works" role="tabpanel" aria-labelledby="ftab-works">
+        <div class="strip" id="feat-strip"></div>
+      </div>
+
+      <div class="fpanel" id="fpanel-shop" role="tabpanel" aria-labelledby="ftab-shop" hidden>
+        <p class="shop__intro">
+          Original vocal arrangements from projects that didn&rsquo;t end up happening &mdash;
+          fully written, recorded, and ready to send, at a big discount.
+        </p>
+        <div class="shop-grid" id="shop-grid"></div>
       </div>
     </div>
   </section>
@@ -194,11 +235,17 @@
              aria-label="filter by guide type" hidden></div>
       </div>
 
+      <button class="chip-toggle" id="filter-released" type="button" aria-pressed="false">
+        &#9654; has a released cover
+      </button>
+
       <span class="filters__count" id="count" aria-live="polite"></span>
       <button class="filters__reset" id="reset-filters" type="button" hidden>clear filters</button>
     </div>
 
     <div class="cat-scroll" id="song-list"></div>
+    <!-- phones only: the list shows 10 at a time -->
+    <button class="cat-more" id="cat-more" type="button" hidden>show more songs</button>
 
     <button class="custom-cta" type="button" data-open-custom>
       <span>
@@ -209,81 +256,94 @@
     </button>
   </section>
 
-  <!-- ================= about ================= -->
-  <section class="about" id="about" aria-labelledby="about-title">
-    <div class="about__card about__card--rose">
-      <h2 id="about-title">Need harms? I&rsquo;m your girl &#9834;</h2>
-      <p>
-        Hi, I'm rin, aka rin姫! I've been recording covers online since 2020, and I create harmony guides and original vocal arrangements for youtaites, cover singers, and VTubers. <br><br> I'm a huge, long-time choir and a cappella nerd, and I really love how harms and adlibs can completely change the sound of a song.
-      </p>
-      <div class="about__socials" id="socials"></div>
-    </div>
-    <div class="about__card about__card--mint">
-      <h2>What&rsquo;s the difference?</h2>
-      <p> 
-        Each layer is recorded separately, so you can easily follow and sing along to the guides without having to pick them apart yourself. 
-      </p>
-      <p>
-        <strong class="about__term">Harmony guide (1:1)</strong>
-        I transcribe the original song&rsquo;s harmonies as close to exactly as possible.
-      </p>
-      <p>
-        <strong class="about__term">Vocal arrangement</strong>
-        I arrange original harmonies and/or adlibs, built around your voice, so that your
-        cover is extra special and one-of-a-kind.
-      </p>
-    </div>
-  </section>
-
-  <!-- ================= pricing ================= -->
-  <section class="section section--cream pricing" id="pricing" aria-labelledby="pricing-title">
-    <h2 class="section-title" id="pricing-title">Pricing</h2>
-    <p class="section-sub">Price quotes are non-committal and are always provided before payment, free of charge, so feel free to reach out at any time.</p>
-
-    <div class="price-grid" id="price-grid"></div>
-    <div class="callout">
-      Please note that the prices above are minimum base prices for 1-2 simple harmony/adlib tracks. The final quote will increase based on length and complexity.
+  <!-- ================= about / pricing / faq (tabs) ================= -->
+  <!-- Without JavaScript all three panels simply stack; app.js turns them
+       into folder tabs. Nav links to #about / #pricing / #faq open the tab. -->
+  <section class="info" id="info" data-tab="about" aria-label="about, pricing and faq">
+    <div class="info__cd" aria-hidden="true">
+      <div class="info__cd-pop">
+        <div class="info__cd-disc">
+          <span class="info__cd-label"><span class="info__cd-hole"></span></span>
+          <span class="info__cd-note">&#9834;</span>
+          <span class="info__cd-star">&#10022;</span>
+        </div>
+      </div>
     </div>
 
-    <h3 class="subhead">Main melody guide</h3>
-    <p class="section-sub">An optional lead vocal track so you can hear where the harmonies sit against the melody. Please note that if you pick <strong>partial</strong> but the song has harmonies running
-      through basically the whole thing, I&rsquo;ll let you know and quote it as a full melody guide instead.
-    </p>
-    <div class="melody-grid" id="melody-grid"></div>
-
-    <h3 class="subhead" style="margin-bottom:14px;">Add-ons</h3>
-    <div class="addon-list" id="addon-list"></div>
-  </section>
-
-  <!-- ================= faq ================= -->
-  <section class="section section--mint faq" id="faq" aria-labelledby="faq-title">
-    <h2 class="faq__title" id="faq-title">FAQ &#9825;</h2>
-    <div class="faq__list" id="faq-list"></div>
-  </section>
-
-  <!-- ================= terms ================= -->
-  <section class="section terms" id="terms" aria-labelledby="terms-title">
-    <h2 class="terms__title" id="terms-title">Terms &#10022;</h2>
-    <p class="terms__intro">
-      TL;DR be kind, credit me, and don&rsquo;t pass the guides around.
-    </p>
-    <div class="terms__grid" id="terms-list"></div>
-  </section>
-
-  <!-- ================= portfolio ================= -->
-  <section class="section section--rose portfolio" id="portfolio" aria-labelledby="portfolio-title">
-    <div>
-      <div class="kicker portfolio__kicker">portfolio</div>
-      <h2 id="portfolio-title">Released projects</h2>
-      <p>All the music I've worked on the harmony guides & arrangements for in one playlist!</p>
+    <div class="itabs" role="tablist" aria-label="about, pricing and faq" hidden>
+      <button class="itab itab--about" role="tab" type="button" id="itab-about"
+              aria-controls="about" aria-selected="true">about me &#9834;</button>
+      <button class="itab itab--pricing" role="tab" type="button" id="itab-pricing"
+              aria-controls="pricing" aria-selected="false" tabindex="-1">pricing</button>
+      <button class="itab itab--faq" role="tab" type="button" id="itab-faq"
+              aria-controls="faq" aria-selected="false" tabindex="-1">faq &#9825;</button>
     </div>
-    <a class="portfolio__btn" id="playlist-link" href="#" hidden>&#9654; youtube playlist </a>
+
+    <!-- about -->
+    <div class="ipanel ipanel--about" id="about" role="tabpanel" aria-labelledby="itab-about">
+      <div class="about2">
+        <div class="about2__col">
+          <h2 class="about2__h" id="about-title">Need harms? I&rsquo;m your girl &#9834;</h2>
+          <p>
+            Hi, I'm rin, aka rin姫! I've been recording covers online since 2020, and I create harmony guides and original vocal arrangements for youtaites, cover singers, and VTubers.
+          </p>
+          <p>
+            I'm a huge, long-time choir and a cappella nerd, and I really love how harms and adlibs can completely change the sound of a song.
+          </p>
+          <div class="about__socials" id="socials"></div>
+        </div>
+        <div class="about2__col about2__col--right">
+          <h2 class="about2__h">What&rsquo;s the difference?</h2>
+          <p>
+            Each layer is recorded separately, so you can easily follow and sing along to the guides without having to pick them apart yourself.
+          </p>
+          <div class="about2__def about2__def--teal">
+            <strong class="about2__term">Harmony guide (1:1)</strong>
+            I transcribe the original song&rsquo;s harmonies as close to exactly as possible.
+          </div>
+          <div class="about2__def">
+            <strong class="about2__term">Vocal arrangement</strong>
+            I arrange original harmonies and/or adlibs, built around your voice, so that your
+            cover is extra special and one-of-a-kind.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- pricing -->
+    <div class="ipanel ipanel--pricing pricing" id="pricing" role="tabpanel" aria-labelledby="itab-pricing">
+      <h2 class="section-title" id="pricing-title">Pricing</h2>
+      <p class="section-sub">Price quotes are non-committal and are always provided before payment, free of charge, so feel free to reach out at any time.</p>
+
+      <div class="price-grid" id="price-grid"></div>
+      <div class="callout">
+        Please note that the prices above are minimum base prices for 1-2 simple harmony/adlib tracks. The final quote will increase based on length and complexity.
+      </div>
+
+      <h3 class="subhead">Main melody guide</h3>
+      <p class="section-sub">An optional lead vocal track so you can hear where the harmonies sit against the melody. Please note that if you pick <strong>partial</strong> but the song has harmonies running
+        through basically the whole thing, I&rsquo;ll let you know and quote it as a full melody guide instead.
+      </p>
+      <div class="melody-grid" id="melody-grid"></div>
+
+      <h3 class="subhead" style="margin-bottom:14px;">Add-ons</h3>
+      <div class="addon-list" id="addon-list"></div>
+    </div>
+
+    <!-- faq -->
+    <div class="ipanel ipanel--faq faq" id="faq" role="tabpanel" aria-labelledby="itab-faq">
+      <h2 class="faq__title" id="faq-title">FAQ &#9825;</h2>
+      <div class="faq__list" id="faq-list"></div>
+    </div>
   </section>
 
   <!-- ================= footer ================= -->
   <footer class="footer">
     <span class="footer__note">thanks for scrolling all the way down :3 &#9825;</span>
-    <a class="footer__top" href="#top">&uarr; back to top</a>
+    <span class="footer__links">
+      <button class="footer__terms" type="button" data-open-terms>terms &#10022;</button>
+      <a class="footer__top" href="#top">&uarr; back to top</a>
+    </span>
   </footer>
 </div>
 
@@ -337,6 +397,8 @@
         </button>
 
         <div class="form-error" id="form-error" role="alert" hidden></div>
+
+        <div class="callout shop-note" id="shop-note" hidden></div>
 
         <p class="form-legend">Fields marked <span class="req" aria-hidden="true">*</span> are required.</p>
 
@@ -495,6 +557,10 @@
 
         <button class="btn-primary" type="submit" id="submit-btn">Send request &#9825;</button>
         <p class="form-note" id="form-note">I&rsquo;ll follow up with a quote, then invoice through PayPal.</p>
+        <p class="form-note form-note--terms">
+          Sending a request means you&rsquo;re OK with my
+          <button class="link-btn" type="button" data-open-terms>terms &#10022;</button>
+        </p>
       </form>
     </div>
 
@@ -513,8 +579,42 @@
   </div>
 </div>
 
+<!-- ================= terms pop-up ================= -->
+<div class="modal-backdrop terms-backdrop" id="terms-backdrop" hidden>
+  <div class="modal tmodal" role="dialog" aria-modal="true" aria-labelledby="tmodal-title">
+    <div class="modal__head tmodal__head">
+      <div>
+        <h2 class="modal__title tmodal__title" id="tmodal-title">Terms &#10022;</h2>
+        <div class="tmodal__sub">the short version &mdash; the FAQ has the details</div>
+      </div>
+      <button class="modal__close tmodal__close" type="button" data-close-terms aria-label="close terms">&times;</button>
+    </div>
+    <div class="tmodal__body">
+      <div class="tmodal__grid" id="terms-list"></div>
+    </div>
+    <div class="tmodal__foot">
+      <button class="link-btn" type="button" id="terms-to-faq">read the FAQ</button>
+      <button class="btn-primary tmodal__ok" type="button" data-close-terms>got it &hearts;</button>
+    </div>
+  </div>
+</div>
+
 <script src="config.js"></script>
 <script src="data/catalog.js"></script>
+<script>
+  /* Tell the CSS straight away whether there are featured works and a shop,
+     so the featured section takes its final size on the first paint instead
+     of popping in (and shoving the page down) once app.js arrives. */
+  (function () {
+    var r = document.documentElement, works = false, shop = false;
+    (window.SONGS || []).forEach(function (s) {
+      [s.harmony].concat(s.arrangements || []).forEach(function (e) { if (e && e.featured && e.yt) works = true; });
+    });
+    (window.SHOP || []).forEach(function (it) { if (it && it.title && !it.sold) shop = true; });
+    if (works) r.classList.add('has-featured');
+    if (shop) r.classList.add('has-shop');
+  })();
+</script>
 <script src="data/content.js"></script>
 <script src="assets/app.js"></script>
 </body>
