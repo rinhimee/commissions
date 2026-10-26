@@ -2092,30 +2092,41 @@ html:not(.has-shop) .ftabs { display: none; }
 
 /* ---------- 24. catalog: released badge, toggle, show more --- */
 
-/* "♪ released cover" on the right of a row: a flat ticket stub, not a
-   button — notched ends, a slight tilt, no shadow, and it ignores the
-   pointer because the whole row is what opens the song. */
+/* "♪ released cover" on the right of a row: a torn-off ticket stub, not a
+   button. Two parts — a darker stub holding the ♪, a dashed tear line, then
+   the label — with perforated short edges and a slight tilt, like it's
+   stuck on. It ignores the pointer: the whole row is what opens the song. */
 .tag--released {
-  display: inline-flex; align-items: center; gap: 5px;
-  font-size: 11.5px; font-weight: 700; color: var(--teal-ink);
-  background: var(--teal-mint);                 /* #E1F2F2 */
-  padding: 5px 14px;
-  border-radius: 4px;
-  box-shadow: none;
+  display: inline-flex; align-items: stretch;
+  padding: 0; background: none; box-shadow: none; border-radius: 0;
+  font-size: 11.5px; font-weight: 700; color: var(--teal-ink);   /* #14484A */
   white-space: nowrap;
   transform: rotate(-4deg);
-  margin-right: 10px;                           /* a little more room before the › */
+  margin-right: 10px;
   pointer-events: none;
   /* its own layer, so the row's hover lift doesn't re-draw the tilted text
      (that re-draw is what made the old badge's icon jitter) */
   will-change: transform;
-  /* notched ticket edges */
-  -webkit-mask: radial-gradient(circle 5px at 0 50%, #0000 98%, #000) left / 51% 100% no-repeat,
-                radial-gradient(circle 5px at 100% 50%, #0000 98%, #000) right / 51% 100% no-repeat;
-          mask: radial-gradient(circle 5px at 0 50%, #0000 98%, #000) left / 51% 100% no-repeat,
-                radial-gradient(circle 5px at 100% 50%, #0000 98%, #000) right / 51% 100% no-repeat;
+  /* torn / perforated short edges */
+  -webkit-mask:
+    radial-gradient(circle 2.6px at 0 50%, #0000 97%, #000) left / 51% 6px repeat-y,
+    radial-gradient(circle 2.6px at 100% 50%, #0000 97%, #000) right / 51% 6px repeat-y;
+          mask:
+    radial-gradient(circle 2.6px at 0 50%, #0000 97%, #000) left / 51% 6px repeat-y,
+    radial-gradient(circle 2.6px at 100% 50%, #0000 97%, #000) right / 51% 6px repeat-y;
 }
-.tag--released .note-ico { color: var(--teal-mid); }
+.tag--released .tk__stub {
+  display: flex; align-items: center;
+  padding: 6px 8px 6px 11px;
+  background: var(--teal);                       /* #96D6D8 */
+  border-right: 1.5px dashed var(--teal-wash);   /* the tear line, #EFF8F8 */
+}
+.tag--released .tk__main {
+  display: flex; align-items: center;
+  padding: 6px 13px 6px 9px;
+  background: var(--teal-mint);                  /* #E1F2F2 */
+}
+.tag--released .note-ico { color: var(--teal-ink); }
 
 /* the filter's white disc holding the drawn ♪ */
 .chip-toggle__icon {

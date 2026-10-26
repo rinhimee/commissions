@@ -556,7 +556,10 @@
             '</span>' +
           '</span>' +
           '<span class="song__right">' +
-            (hasYt ? '<span class="tag tag--released">' + NOTE_SVG + 'released cover</span>' : '') +
+            (hasYt ? '<span class="tag tag--released">' +
+                       '<span class="tk__stub" aria-hidden="true">' + NOTE_SVG + '</span>' +
+                       '<span class="tk__main">released cover</span>' +
+                     '</span>' : '') +
             '<span class="song__chev" aria-hidden="true">&rsaquo;</span>' +
           '</span>' +
         '</button>';
