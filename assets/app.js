@@ -719,7 +719,19 @@
   }
 
   /* ---------- lite YouTube: the iframe only exists after a click ---------- */
+  /* A playing card is watched; once less than a quarter of it is on screen
+     — scrolled down the page, or slid out of the carousel — it stops.
+     (The observer accounts for the strip clipping its cards.) */
+  var featWatch = window.IntersectionObserver
+    ? new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (en.intersectionRatio < 0.25 && en.target.classList.contains('is-playing')) stopFeatVideo();
+        });
+      }, { threshold: [0, 0.25] })
+    : null;
+
   function stopFeatVideo() {
+    if (featWatch) featWatch.disconnect();
     $$('.feat-card.is-playing').forEach(function (card) {
       var media = $('.feat-card__media', card);
       var frame = $('iframe', media);
@@ -743,6 +755,7 @@
     btn.hidden = true;
     media.appendChild(frame);
     card.classList.add('is-playing');
+    if (featWatch) featWatch.observe(card);
     frame.focus();
   }
 
@@ -1114,8 +1127,18 @@
     if (focusTarget) focusTarget.focus();
   }
 
+  /* A hidden iframe keeps playing, so a video only stops when its iframe is
+     gone. Called whenever the song's guides stop being what's on screen. */
+  function stopModalVideo() {
+    $$('#version-list iframe').forEach(function (f) { f.parentNode.removeChild(f); });
+    $$('#version-list .version__embed').forEach(function (e) { e.hidden = true; });
+    $$('#version-list [data-yt]').forEach(function (b) { b.setAttribute('aria-expanded', 'false'); });
+    state.openYt = null;
+  }
+
   function closeModal() {
     stopAudio();
+    stopModalVideo();
     $('#modal-backdrop').hidden = true;
     document.body.classList.remove('modal-open');
     state.modal = null;
@@ -1190,6 +1213,7 @@
     $('#view-sent').hidden     = state.view !== 'sent';
 
     if (state.modal === 'song' && state.view === 'versions') renderVersions();
+    else stopModalVideo();          /* on to the form: the video goes too */
     if (state.view === 'form') renderForm();
   }
 
