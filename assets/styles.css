@@ -2096,25 +2096,40 @@ html:not(.has-shop) .ftabs { display: none; }
   box-shadow: 0 3px 0 var(--teal-shadow);
 }
 .song__released-dot {
+  position: relative; flex-shrink: 0;
   width: 18px; height: 18px; border-radius: 50%;
-  background: var(--white); color: var(--teal-mid);
-  display: inline-flex; align-items: center; justify-content: center;
-  font-size: 8px; padding-left: 1px;
+  background: var(--white);
+}
+/* the ▶ is a drawn shape, not a text glyph: a glyph gets re-hinted to a
+   different sub-pixel spot when the row's hover lift ends, which read as a
+   jitter. Whole-pixel geometry, nudged right to sit optically centred. */
+.song__released-dot::after,
+.chip-toggle__icon::after {
+  content: ''; position: absolute; left: 7px; top: 5px;
+  width: 0; height: 0;
+  border-style: solid; border-width: 4px 0 4px 6px;
+  border-color: transparent transparent transparent var(--teal-mid);
 }
 
-/* sits beside the dropdowns and matches their height */
+/* sits beside the dropdowns and matches their size and resting shadow */
 .chip-toggle {
-  display: inline-flex; align-items: center; gap: 6px;
-  min-height: 44px; padding: 10px 18px;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 11px 16px 11px 12px;
   border: 2px solid var(--teal-line); border-radius: var(--pill);
   background: var(--teal-wash); color: var(--teal-ink);
-  font: 700 14px var(--font-body); cursor: pointer;
-  transition: background .14s var(--ease), border-color .14s var(--ease), color .14s var(--ease);
+  font: 600 14px var(--font-body); cursor: pointer;
+  box-shadow: 0 3px 0 var(--teal-line);
+  transition: background .14s var(--ease), border-color .14s var(--ease), box-shadow .14s var(--ease);
 }
 .chip-toggle:hover { border-color: var(--teal); }
 .chip-toggle.is-on {
-  background: var(--teal); border-color: var(--teal-shadow); color: var(--teal-ink);
+  background: var(--teal); border-color: var(--teal-shadow);
   box-shadow: 0 3px 0 var(--teal-shadow);
+}
+.chip-toggle__icon {
+  position: relative; flex-shrink: 0;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--white);
 }
 
 .cat-more {

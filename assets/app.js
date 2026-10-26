@@ -551,7 +551,7 @@
             '</span>' +
           '</span>' +
           '<span class="song__right">' +
-            (hasYt ? '<span class="song__released"><span class="song__released-dot" aria-hidden="true">&#9654;</span>released</span>' : '') +
+            (hasYt ? '<span class="song__released"><span class="song__released-dot" aria-hidden="true"></span>released</span>' : '') +
             '<span class="song__chev" aria-hidden="true">&rsaquo;</span>' +
           '</span>' +
         '</button>';
@@ -884,10 +884,32 @@
   var infoTab = 'about';
   var onInfoTab = function () {};   // the scroll-spy hooks in here
 
+  /* The incoming panel starts at the outgoing panel's height and eases to its
+     own, so the container grows (or shrinks) instead of snapping. Its own
+     box-shadow isn't clipped by its overflow, so the flat shadow rides along. */
+  var panelAnim = null;
+  function tweenPanel(from, panel) {
+    if (panelAnim) { panelAnim.cancel(); panelAnim = null; }
+    if (REDUCE_MOTION || !panel.animate || !from) return;
+    var to = panel.offsetHeight;
+    if (Math.abs(to - from) < 2) return;
+    /* longer distances take a little longer, within a tight range */
+    var ms = Math.round(Math.min(520, Math.max(280, 200 + Math.abs(to - from) * 0.3)));
+    panel.style.overflow = 'hidden';
+    panelAnim = panel.animate([{ height: from + 'px' }, { height: to + 'px' }],
+                              { duration: ms, easing: 'cubic-bezier(.2, .8, .3, 1)' });
+    var done = function () { panel.style.overflow = ''; panelAnim = null; };
+    panelAnim.onfinish = done;
+    panelAnim.oncancel = function () { panel.style.overflow = ''; };
+  }
+
   function selectInfoTab(id, focus) {
     var section = $('#info');
     if (!section || INFO_TABS.indexOf(id) === -1) return;
     var changed = id !== infoTab;
+    var oldPanel = $('#' + infoTab);
+    var fromH = changed && section.classList.contains('is-tabbed') && oldPanel && !oldPanel.hidden
+      ? oldPanel.getBoundingClientRect().height : 0;
     infoTab = id;
     section.setAttribute('data-tab', id);
     INFO_TABS.forEach(function (t) {
@@ -896,6 +918,7 @@
       tab.tabIndex = on ? 0 : -1;
       $('#' + t).hidden = !on;
     });
+    if (fromH) tweenPanel(fromH, $('#' + id));
     if (focus) $('#itab-' + id).focus();
     /* the CD hops up whenever the tab changes */
     var pop = $('.info__cd-pop', section);
