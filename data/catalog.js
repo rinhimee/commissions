@@ -348,7 +348,7 @@ window.SONGS = [
     harmony: {
       complexity: "simple",
       tracks: 3,
-      audio: "audio/cure-ver-mizisua.mp3"
+      audio: "audio/cure-mizisua.mp3"
     },
     arrangements: []
   },
@@ -474,8 +474,7 @@ window.SONGS = [
     language: ["EN", "JP"],
     harmony: {
       complexity: "complex",
-      tracks: 8,
-      audio: "audio/ethyria.mp3"
+      tracks: 8
     },
     arrangements: []
   },
@@ -561,8 +560,7 @@ window.SONGS = [
     language: "EN",
     harmony: {
       complexity: "semi-complex",
-      tracks: 9,
-      audio: "audio/fortnight.mp3"
+      tracks: 9
     },
     arrangements: []
   },
@@ -573,8 +571,7 @@ window.SONGS = [
     language: "JP",
     harmony: {
       complexity: "simple",
-      tracks: 3,
-      audio: "audio/fukujusou.mp3"
+      tracks: 3
     },
     arrangements: []
   },
@@ -585,8 +582,7 @@ window.SONGS = [
     language: ["EN", "KR"],
     harmony: {
       complexity: "semi-complex",
-      tracks: 12,
-      audio: "audio/golden.mp3"
+      tracks: 12
     },
     arrangements: []
   },
@@ -729,8 +725,7 @@ window.SONGS = [
     language: "EN",
     harmony: {
       complexity: "simple",
-      tracks: 5,
-      audio: "audio/i-got-you-garage-ver.mp3"
+      tracks: 5
     },
     arrangements: []
   },
@@ -758,7 +753,7 @@ window.SONGS = [
         tracks: 9,
         client: "Amanogawa Shiina (Phase Connect)",
         yt: "UA4P9pZOuHQ",
-        audio: "audio/i-really-want-to-stay-at-your-house-1.mp3",
+        audio: "audio/i-really-wanna-stay-at-your-house-1.mp3",
         featured: 2
       }
     ]
@@ -772,8 +767,7 @@ window.SONGS = [
     arrangements: [
       {
         complexity: "complex",
-        tracks: 14,
-        audio: "audio/i-wonder-1.mp3"
+        tracks: 14
       }
     ]
   },
@@ -795,8 +789,7 @@ window.SONGS = [
     language: "JP",
     harmony: {
       complexity: "semi-complex",
-      tracks: 5,
-      audio: "audio/idsmile.mp3"
+      tracks: 5
     },
     arrangements: []
   },
@@ -817,41 +810,28 @@ window.SONGS = [
   },
   {
     id: 65,
-    title: "Ikenai Borderline",
-    artist: "Walküre",
-    language: "JP",
-    harmony: {
-      complexity: "simple",
-      audio: "audio/ikenai-borderline.mp3"
-    },
-    arrangements: []
-  },
-  {
-    id: 66,
     title: "INTERNET OVERDOSE",
     artist: "Aiobahn feat. KOTOKO",
     language: "JP",
     harmony: {
       complexity: "semi-complex",
-      tracks: 8,
-      audio: "audio/internet-overdose.mp3"
+      tracks: 8
     },
     arrangements: []
   },
   {
-    id: 67,
+    id: 66,
     title: "IRIS OUT",
     artist: "Kenshi Yonezu",
     language: ["EN", "JP"],
     harmony: {
       complexity: "simple",
-      tracks: 5,
-      audio: "audio/iris-out.mp3"
+      tracks: 5
     },
     arrangements: []
   },
   {
-    id: 68,
+    id: 67,
     title: "Issun no Aka",
     artist: "yama",
     language: "JP",
@@ -866,7 +846,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 69,
+    id: 68,
     title: "Jealous Type",
     artist: "Doja Cat",
     language: "EN",
@@ -877,19 +857,18 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 70,
+    id: 69,
     title: "Karma",
     artist: "VIVINOS / Alien Stage",
     language: "KR",
     harmony: {
       complexity: "simple",
-      tracks: 4,
-      audio: "audio/karma.mp3"
+      tracks: 4
     },
     arrangements: []
   },
   {
-    id: 71,
+    id: 70,
     title: "Keitai Renwa",
     artist: "mafumafu / Nightcord at 25:00",
     language: "JP",
@@ -902,7 +881,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 72,
+    id: 71,
     title: "Kimi no Kioku",
     artist: "Persona 3",
     language: "JP",
@@ -916,20 +895,19 @@ window.SONGS = [
     ]
   },
   {
-    id: 73,
+    id: 72,
     title: "Kimi to Tea for Two",
     artist: "Wasuta",
     language: "JP",
     harmony: {
       complexity: "simple",
       tracks: 10,
-      yt: "uZyHHpfXZdY",
-      audio: "audio/kimi-to-tea-for-two.mp3"
+      yt: "uZyHHpfXZdY"
     },
     arrangements: []
   },
   {
-    id: 74,
+    id: 73,
     title: "Kimisen",
     artist: "iLIFE!",
     language: "JP",
@@ -940,7 +918,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 75,
+    id: 74,
     title: "Kiss Me Patissier",
     artist: "CANDY TUNE",
     language: "JP",
@@ -951,7 +929,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 76,
+    id: 75,
     title: "Know About Me",
     artist: "NMIXX",
     language: ["KR", "EN"],
@@ -963,7 +941,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 77,
+    id: 76,
     title: "Koikyun!",
     artist: "iDOLM@STER",
     language: "JP",
@@ -973,7 +951,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 78,
+    id: 77,
     title: "Kokoro no Chizu",
     artist: "BOYSTYLE",
     language: "JP",
@@ -984,7 +962,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 79,
+    id: 78,
     title: "Kono Yoru Ni Kanpai",
     artist: "Megatera Zero",
     language: "JP",
@@ -996,7 +974,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 80,
+    id: 79,
     title: "Kuroi Uta",
     artist: "Eir Aoi",
     language: "JP",
@@ -1008,19 +986,18 @@ window.SONGS = [
     ]
   },
   {
-    id: 81,
+    id: 80,
     title: "Kyoufuu All Back",
     artist: "Yukopi",
     language: "JP",
     harmony: {
       complexity: "simple",
-      tracks: 2,
-      audio: "audio/kyoufuu-all-back.mp3"
+      tracks: 2
     },
     arrangements: []
   },
   {
-    id: 82,
+    id: 81,
     title: "Kyunshi",
     artist: "Yakousei Amuse",
     language: "JP",
@@ -1031,19 +1008,18 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 83,
+    id: 82,
     title: "Lady Marmalade",
     artist: "Christina Aguilera",
     language: "EN",
     harmony: {
       complexity: "complex",
-      tracks: 11,
-      audio: "audio/lady-marmalade.mp3"
+      tracks: 11
     },
     arrangements: []
   },
   {
-    id: 84,
+    id: 83,
     title: "Leopardess",
     artist: "VALSHE",
     language: "JP",
@@ -1056,7 +1032,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 85,
+    id: 84,
     title: "Let Me Be With You",
     artist: "Round Table",
     language: "JP",
@@ -1072,7 +1048,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 86,
+    id: 85,
     title: "Letter in Orange (Math Rock Ver.)",
     artist: "Arknights",
     language: "EN",
@@ -1080,13 +1056,12 @@ window.SONGS = [
     arrangements: [
       {
         complexity: "semi-complex",
-        tracks: 13,
-        client: "Acta Aetherion"
+        tracks: 13
       }
     ]
   },
   {
-    id: 87,
+    id: 86,
     title: "Life Will Change",
     artist: "Persona 5",
     language: "EN",
@@ -1094,14 +1069,13 @@ window.SONGS = [
     arrangements: [
       {
         complexity: "complex",
-        tracks: 18,
         client: "Chiaki Katsumi",
         yt: "MUpIqtAxchc"
       }
     ]
   },
   {
-    id: 88,
+    id: 87,
     title: "Like A Sunny Day, Like A Rainy Day",
     artist: "Silence Wang",
     language: "CN",
@@ -1113,7 +1087,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 89,
+    id: 88,
     title: "Love Wins All",
     artist: "IU",
     language: "KR",
@@ -1126,7 +1100,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 90,
+    id: 89,
     title: "Lover Girl",
     artist: "Laufey",
     language: "EN",
@@ -1134,40 +1108,36 @@ window.SONGS = [
     arrangements: [
       {
         complexity: "semi-complex",
-        tracks: 6,
         client: "jelly ft. Lan Philia (Aegis-Link)",
         yt: "j6Xqlnn-LGc"
       }
     ]
   },
   {
-    id: 91,
+    id: 90,
     title: "Machine Love",
     artist: "JamieP",
     language: ["EN", "JP"],
     harmony: {
       complexity: "complex",
-      tracks: 14,
-      yt: "OHbBa3ZvXZk",
-      audio: "audio/machine-love.mp3"
+      yt: "OHbBa3ZvXZk"
     },
     arrangements: []
   },
   {
-    id: 92,
+    id: 91,
     title: "Make You Mine",
     artist: "",
     language: "JP",
     harmony: null,
     arrangements: [
       {
-        complexity: "simple",
-        tracks: 20
+        complexity: "simple"
       }
     ]
   },
   {
-    id: 93,
+    id: 92,
     title: "Many Universes",
     artist: "Yanagi Nagi",
     language: "JP",
@@ -1177,13 +1147,12 @@ window.SONGS = [
         complexity: "semi-complex",
         tracks: 11,
         client: "Reiyla",
-        yt: "i2sMc_Wz53w",
-        audio: "audio/many-universes-1.mp3"
+        yt: "i2sMc_Wz53w"
       }
     ]
   },
   {
-    id: 94,
+    id: 93,
     title: "Mekurumeku Rendezvous",
     artist: "FUWAMOCO",
     language: "JP",
@@ -1195,7 +1164,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 95,
+    id: 94,
     title: "Mermaid festa vol. 2 ~Passionate~",
     artist: "μ's",
     language: "JP",
@@ -1203,13 +1172,12 @@ window.SONGS = [
     arrangements: [
       {
         complexity: "semi-complex",
-        tracks: 14,
         yt: "4Nrh0VyDjP0"
       }
     ]
   },
   {
-    id: 96,
+    id: 95,
     title: "Metrocity",
     artist: "imase & natori",
     language: "JP",
@@ -1217,85 +1185,77 @@ window.SONGS = [
     arrangements: [
       {
         complexity: "complex",
-        tracks: 32,
         client: "Dima & Remy",
         yt: "fY48PaWNKak"
       }
     ]
   },
   {
-    id: 97,
+    id: 96,
     title: "Minna Daisuki",
     artist: "",
     language: "JP",
     harmony: null,
     arrangements: [
       {
-        complexity: "semi-complex",
-        tracks: 10
+        complexity: "simple"
       }
     ]
   },
   {
-    id: 98,
+    id: 97,
     title: "Miracle Hinacle",
     artist: "",
     language: "JP",
     harmony: null,
     arrangements: [
       {
-        complexity: "simple",
-        tracks: 5,
-        audio: "audio/miracle-hinacle-1.mp3"
+        complexity: "simple"
       }
     ]
   },
   {
-    id: 99,
+    id: 98,
     title: "MoeChakkaFire (ver. Ellen Joe)",
     artist: "issey",
     language: "JP",
     harmony: {
       complexity: "simple",
-      tracks: 5,
-      audio: "audio/moechakkafire-ver-ellen-joe.mp3"
+      tracks: 5
     },
     arrangements: []
   },
   {
-    id: 100,
+    id: 99,
     title: "Monitoring",
     artist: "DECO*27",
     language: ["JP", "EN"],
     harmony: {
       complexity: "simple",
-      tracks: 4,
-      audio: "audio/monitoring.mp3"
+      tracks: 4
     },
     arrangements: [
       {
         complexity: "complex",
         tracks: 19,
-        client: "totallymagus",
-        audio: "audio/monitoring-1.mp3"
+        client: "totallymagus"
       }
     ]
   },
   {
-    id: 101,
+    id: 100,
     title: "Mutant Love",
     artist: "",
     language: "JP",
     harmony: null,
     arrangements: [
       {
-        complexity: "simple",
-        tracks: 4
+        complexity: "simple"
       }
     ]
   },
   {
-    id: 102,
+    id: 101,
     title: "My Favorite Things",
     artist: "ver. Big Band Chorus",
     language: "EN",
@@ -1311,41 +1271,38 @@ window.SONGS = [
     ]
   },
   {
-    id: 103,
+    id: 102,
     title: "Mysterious Messenger",
     artist: "Mystic Messenger",
     language: "EN",
     harmony: {
-      complexity: "simple",
-      tracks: 4
+      complexity: "simple"
     },
     arrangements: []
   },
   {
-    id: 104,
+    id: 103,
     title: "Natsuroiro Egao de 1, 2, Jump!",
     artist: "μ's",
     language: "JP",
     harmony: {
       complexity: "simple",
-      tracks: 10,
       yt: "icFZfOQmbnk"
     },
     arrangements: []
   },
   {
-    id: 105,
+    id: 104,
     title: "Natural Disaster",
     artist: "Bao The Whale, Trickywi, Vienna, & Yuzu",
     language: "EN",
     harmony: {
-      complexity: "complex",
-      tracks: 13
+      complexity: "complex"
     },
     arrangements: []
   },
   {
-    id: 106,
+    id: 105,
     title: "Netsuai Frozen",
     artist: "",
     language: "JP",
@@ -1356,7 +1313,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 107,
+    id: 106,
     title: "Nice da ne",
     artist: "",
     language: "JP",
@@ -1367,7 +1324,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 108,
+    id: 107,
     title: "Not A Devil",
     artist: "",
     language: "JP",
@@ -1380,7 +1337,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 109,
+    id: 108,
     title: "Only By Chasing The Wind",
     artist: "",
     language: "JP",
@@ -1393,7 +1350,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 110,
+    id: 109,
     title: "Oral Hex",
     artist: "",
     language: "JP",
@@ -1406,7 +1363,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 111,
+    id: 110,
     title: "Otonoke",
     artist: "",
     language: "JP",
@@ -1419,7 +1376,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 112,
+    id: 111,
     title: "Palette",
     artist: "Tokoyami Towa",
     language: "JP",
@@ -1431,7 +1388,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 113,
+    id: 112,
     title: "Palette",
     artist: "Yuyoyuppe",
     language: "JP",
@@ -1444,7 +1401,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 114,
+    id: 113,
     title: "PAPERMOON",
     artist: "",
     language: "EN",
@@ -1457,7 +1414,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 115,
+    id: 114,
     title: "Phoenix",
     artist: "",
     language: "JP",
@@ -1470,7 +1427,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 116,
+    id: 115,
     title: "POP/STARS",
     artist: "K/DA",
     language: ["EN", "KR"],
@@ -1481,57 +1438,55 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 117,
+    id: 116,
     title: "POP/STARS (ver. Seraphine)",
     artist: "",
-    language: "EN",
-    harmony: {
-      complexity: "simple",
-      tracks: 8,
-      audio: "audio/pop-stars-ver-seraphine.mp3"
-    },
-    arrangements: []
+    language: "JP",
+    harmony: null,
+    arrangements: [
+      {
+        complexity: "simple"
+      }
+    ]
   },
   {
-    id: 118,
+    id: 117,
     title: "Prism no Mahou",
     artist: "",
     language: "JP",
-    harmony: {
-      complexity: "simple",
-      tracks: 9,
-      audio: "audio/prism-no-mahou.mp3"
-    },
-    arrangements: []
+    harmony: null,
+    arrangements: [
+      {
+        complexity: "simple"
+      }
+    ]
   },
   {
-    id: 119,
+    id: 118,
     title: "Psycho",
     artist: "Chogakusei",
     language: "JP",
     harmony: null,
     arrangements: [
       {
-        complexity: "simple",
-        tracks: 7
+        complexity: "simple"
       }
     ]
   },
   {
-    id: 120,
+    id: 119,
     title: "Radio Galaxy",
     artist: "FRUITS ZIPPER",
     language: "JP",
     harmony: null,
     arrangements: [
       {
-        complexity: "simple",
-        tracks: 4
+        complexity: "simple"
       }
     ]
   },
   {
-    id: 121,
+    id: 120,
     title: "Ref:rain",
     artist: "",
     language: "JP",
@@ -1543,32 +1498,31 @@ window.SONGS = [
     ]
   },
   {
-    id: 122,
+    id: 121,
     title: "Ringo Biyori",
     artist: "",
     language: "JP",
     harmony: null,
     arrangements: [
       {
-        complexity: "simple",
-        tracks: 13
+        complexity: "simple"
+      }
+    ]
+  },
+  {
+    id: 122,
+    title: "Ripples of Past Reverie",
+    artist: "",
+    language: "JP",
+    harmony: null,
+    arrangements: [
+      {
+        complexity: "simple"
       }
     ]
   },
   {
     id: 123,
-    title: "Ripples of Past Reverie",
-    artist: "",
-    language: "JP",
-    harmony: {
-      complexity: "simple",
-      tracks: 4,
-      audio: "audio/ripples-of-past-reverie.mp3"
-    },
-    arrangements: []
-  },
-  {
-    id: 124,
     title: "Risk It All",
     artist: "Bruno Mars",
     language: "EN",
@@ -1576,14 +1530,13 @@ window.SONGS = [
     arrangements: [
       {
         complexity: "semi-complex",
-        tracks: 14,
         yt: "_ZJRpPZGauQ",
         featured: 3
       }
     ]
   },
   {
-    id: 125,
+    id: 124,
     title: "Rockin' Around The Christmas Tree",
     artist: "Brenda Lee",
     language: "EN",
@@ -1594,7 +1547,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 126,
+    id: 125,
     title: "Sakurairo no Claim",
     artist: "Ensemble Stars!!",
     language: "JP",
@@ -1605,60 +1558,55 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 127,
+    id: 126,
     title: "Sanctuary Inside",
     artist: "",
     language: "JP",
     harmony: null,
     arrangements: [
       {
-        complexity: "simple",
-        tracks: 13,
-        client: "Acta Aetherion"
+        complexity: "simple"
       }
     ]
   },
   {
-    id: 128,
+    id: 127,
     title: "Seidaku Awasete Itadaku-nya",
     artist: "wasuta",
     language: "JP",
     harmony: null,
     arrangements: [
       {
-        complexity: "simple",
-        tracks: 3
+        complexity: "simple"
       }
     ]
   },
   {
-    id: 129,
+    id: 128,
     title: "Seimeisen",
     artist: "",
     language: "JP",
     harmony: null,
     arrangements: [
       {
-        complexity: "simple",
-        tracks: 20
+        complexity: "simple"
       }
     ]
   },
   {
-    id: 130,
+    id: 129,
     title: "Seisyun Complex",
     artist: "",
     language: "JP",
     harmony: null,
     arrangements: [
       {
-        complexity: "simple",
-        tracks: 2
+        complexity: "simple"
       }
     ]
   },
   {
-    id: 131,
+    id: 130,
     title: "September-san",
     artist: "RADWIMPS",
     language: "JP",
@@ -1671,20 +1619,19 @@ window.SONGS = [
     ]
   },
   {
-    id: 132,
+    id: 131,
     title: "Serenade (ver. Erutan)",
     artist: "",
     language: "JP",
     harmony: null,
     arrangements: [
       {
-        complexity: "simple",
-        tracks: 6
+        complexity: "simple"
       }
     ]
   },
   {
-    id: 133,
+    id: 132,
     title: "Shoujo Rei",
     artist: "mikitoP",
     language: "JP",
@@ -1701,34 +1648,31 @@ window.SONGS = [
     ]
   },
   {
-    id: 134,
+    id: 133,
     title: "Shuuchaku",
     artist: "",
     language: "JP",
     harmony: null,
     arrangements: [
       {
-        complexity: "simple",
-        tracks: 8,
-        client: "key"
+        complexity: "simple"
       }
     ]
   },
   {
-    id: 135,
+    id: 134,
     title: "Sirens",
     artist: "",
     language: "JP",
     harmony: null,
     arrangements: [
       {
-        complexity: "simple",
-        tracks: 4
+        complexity: "simple"
       }
     ]
   },
   {
-    id: 136,
+    id: 135,
     title: "Snow Halation",
     artist: "µ's",
     language: "JP",
@@ -1736,26 +1680,24 @@ window.SONGS = [
     arrangements: [
       {
         complexity: "simple",
-        tracks: 6,
         client: "Sei",
         yt: "lVKLyEcq1DI"
       }
     ]
   },
   {
-    id: 137,
+    id: 136,
     title: "Snowman",
     artist: "Sia",
     language: "EN",
     harmony: {
       complexity: "semi-complex",
-      tracks: 7,
-      audio: "audio/snowman.mp3"
+      tracks: 7
     },
     arrangements: []
   },
   {
-    id: 138,
+    id: 137,
     title: "Soda Pop",
     artist: "Saja Boys / KPop Demon Hunters",
     language: ["KR", "EN"],
@@ -1767,20 +1709,19 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 139,
+    id: 138,
     title: "Somewhere Only We Know",
     artist: "",
     language: "JP",
     harmony: null,
     arrangements: [
       {
-        complexity: "simple",
-        tracks: 4
+        complexity: "simple"
       }
     ]
   },
   {
-    id: 140,
+    id: 139,
     title: "Sour Taste",
     artist: "Ironmouse",
     language: ["EN", "JP"],
@@ -1790,89 +1731,81 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 141,
+    id: 140,
     title: "Special Spell",
     artist: "",
     language: "JP",
     harmony: null,
     arrangements: [
       {
-        complexity: "simple",
-        tracks: 7
+        complexity: "simple"
+      }
+    ]
+  },
+  {
+    id: 141,
+    title: "Spring and Flowers",
+    artist: "",
+    language: "EN",
+    harmony: {
+      complexity: "simple"
+    },
+    arrangements: [
+      {
+        complexity: "complex"
       }
     ]
   },
   {
     id: 142,
-    title: "Spring and Flowers",
+    title: "summertime",
     artist: "",
-    language: "EN",
-    harmony: {
-      complexity: "simple",
-      tracks: 6,
-      audio: "audio/spring-and-flowers.mp3"
-    },
+    language: "JP",
+    harmony: null,
     arrangements: [
       {
-        complexity: "complex",
-        tracks: 26,
-        audio: "audio/spring-and-flowers-1.mp3"
+        complexity: "simple"
       }
     ]
   },
   {
     id: 143,
-    title: "summertime",
-    artist: "",
-    language: "JP",
-    harmony: {
-      complexity: "simple",
-      tracks: 7,
-      audio: "audio/summertime.mp3"
-    },
-    arrangements: []
-  },
-  {
-    id: 144,
     title: "Sweetest Scarlet (Piano ver.)",
     artist: "",
     language: "JP",
     harmony: null,
     arrangements: [
       {
-        complexity: "simple",
-        tracks: 13
+        complexity: "simple"
       }
     ]
   },
   {
-    id: 145,
+    id: 144,
     title: "Symphony",
     artist: "Luce Twinkle Wink",
     language: "JP",
     harmony: null,
     arrangements: [
       {
-        complexity: "simple",
-        tracks: 2
+        complexity: "simple"
       }
     ]
   },
   {
-    id: 146,
+    id: 145,
     title: "Tell Me Tell Me",
     artist: "PiKi",
     language: "JP",
     harmony: null,
     arrangements: [
       {
-        complexity: "simple",
-        tracks: 5
+        complexity: "simple"
       }
     ]
   },
   {
-    id: 147,
+    id: 146,
     title: "Tenbyou no Uta",
     artist: "",
     language: "JP",
@@ -1884,7 +1817,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 148,
+    id: 147,
     title: "The Cruel Angel's Thesis",
     artist: "Yoko Takahashi",
     language: "JP",
@@ -1895,7 +1828,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 149,
+    id: 148,
     title: "The Fate Of Ophelia",
     artist: "Taylor Swift",
     language: "EN",
@@ -1907,7 +1840,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 150,
+    id: 149,
     title: "The Road Not Taken",
     artist: "",
     language: "JP",
@@ -1920,19 +1853,20 @@ window.SONGS = [
     ]
   },
   {
-    id: 151,
+    id: 150,
     title: "Time Of Our Life",
-    artist: "DAY6",
+    artist: "",
     language: "JP",
-    harmony: {
-      complexity: "simple",
-      tracks: 7,
-      audio: "audio/time-of-our-life.mp3"
-    },
-    arrangements: []
+    harmony: null,
+    arrangements: [
+      {
+        complexity: "simple",
+        tracks: 7
+      }
+    ]
   },
   {
-    id: 152,
+    id: 151,
     title: "Tipsy",
     artist: "Wanuka",
     language: "JP",
@@ -1943,7 +1877,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 153,
+    id: 152,
     title: "Ulterior Motives (1985 AOP Mix)",
     artist: "Who's Who",
     language: "JP",
@@ -1956,7 +1890,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 154,
+    id: 153,
     title: "Unbound",
     artist: "Hoshi-O's",
     language: "EN",
@@ -1970,7 +1904,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 155,
+    id: 154,
     title: "Underground",
     artist: "F5ve",
     language: "JP",
@@ -1983,7 +1917,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 156,
+    id: 155,
     title: "unlasting",
     artist: "",
     language: "JP",
@@ -1995,7 +1929,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 157,
+    id: 156,
     title: "V",
     artist: "HIMEHINA",
     language: "EN",
@@ -2006,7 +1940,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 158,
+    id: 157,
     title: "Venus Flytrap",
     artist: "",
     language: "JP",
@@ -2019,7 +1953,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 159,
+    id: 158,
     title: "VILLAIN",
     artist: "",
     language: "JP",
@@ -2032,19 +1966,20 @@ window.SONGS = [
     ]
   },
   {
-    id: 160,
+    id: 159,
     title: "Wasureji no Kotonoha",
     artist: "",
     language: "JP",
-    harmony: {
-      complexity: "simple",
-      tracks: 8,
-      audio: "audio/wasureji-no-kotonoha.mp3"
-    },
-    arrangements: []
+    harmony: null,
+    arrangements: [
+      {
+        complexity: "simple",
+        tracks: 8
+      }
+    ]
   },
   {
-    id: 161,
+    id: 160,
     title: "Watashi wa Ame",
     artist: "",
     language: "JP",
@@ -2060,7 +1995,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 162,
+    id: 161,
     title: "Watson",
     artist: "Cyberpunk Edgerunners 2",
     language: "EN",
@@ -2071,7 +2006,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 163,
+    id: 162,
     title: "Wedding High Five",
     artist: "",
     language: "JP",
@@ -2084,7 +2019,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 164,
+    id: 163,
     title: "What Is This Feeling",
     artist: "Wicked",
     language: "EN",
@@ -2097,7 +2032,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 165,
+    id: 164,
     title: "White Night",
     artist: "HOYO-MiX",
     language: "JP",
@@ -2110,7 +2045,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 166,
+    id: 165,
     title: "White Wishes",
     artist: "9nine",
     language: "JP",
@@ -2124,7 +2059,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 167,
+    id: 166,
     title: "Wildflower",
     artist: "Billie Eilish",
     language: "EN",
@@ -2137,7 +2072,7 @@ window.SONGS = [
     arrangements: []
   },
   {
-    id: 168,
+    id: 167,
     title: "World Is Mine (ver. CPK)",
     artist: "",
     language: "JP",
@@ -2150,7 +2085,7 @@ window.SONGS = [
     ]
   },
   {
-    id: 169,
+    id: 168,
     title: "Worlders",
     artist: "Jin / Project SEKAI",
     language: "EN",
@@ -2167,15 +2102,13 @@ window.SONGS = [
     ]
   },
   {
-    id: 170,
+    id: 169,
     title: "Your Gaze, Crepuscular",
     artist: "Tatsuya Kitani",
     language: "JP",
     harmony: {
       complexity: "simple",
-      tracks: 1,
-      yt: "zDlKMMVzZyA",
-      audio: "audio/your-gaze-crepuscular.mp3"
+      yt: "zDlKMMVzZyA"
     },
     arrangements: []
   }
@@ -2183,7 +2116,7 @@ window.SONGS = [
 
 /* arrangement shop — from the "shop" tab; sold rows are left out */
 window.SHOP = [
-    { title: "Shoujo Rei", artist: "mikitoP", songId: 133, complexity: "semi-complex", tracks: 8, price: "$40", was: "$90" },
+    { title: "Shoujo Rei", artist: "mikitoP", songId: 132, complexity: "semi-complex", tracks: 8, price: "$40", was: "$90" },
     { title: "KUCHISAKE", artist: "Utsu-P", complexity: "simple", tracks: 5, price: "$40", was: "$80" }
 ];
 
